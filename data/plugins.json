@@ -1,218 +1,5 @@
 [
   {
-    "id": "calc",
-    "name": "calc",
-    "description": "算数/单位换算类的小计算",
-    "category": "工具",
-    "tools": [
-      {
-        "name": "qq_calc",
-        "description": "算一个算式（群里问“这几样加起来多少钱/打八折多少”时用）。只支持数字与 + - * / % ( ) ^。"
-      }
-    ],
-    "source": null,
-    "origin": "local",
-    "installed": false,
-    "enabled": false
-  },
-  {
-    "id": "dice",
-    "name": "dice",
-    "description": "掷骰子、随机数与多选一",
-    "category": "娱乐",
-    "tools": [
-      {
-        "name": "qq_dice",
-        "description": "掷骰子（群里有人喊“骰子/比大小/roll 一个”时用）。默认 1 个 6 面骰子。"
-      },
-      {
-        "name": "qq_choose",
-        "description": "从几个选项里随机挑一个（“吃什么/去哪个”这类纠结时用）。至少给 2 个选项。"
-      }
-    ],
-    "source": null,
-    "origin": "local",
-    "installed": false,
-    "enabled": false
-  },
-  {
-    "id": "fortune",
-    "name": "fortune",
-    "description": "今日运势（娱乐向）",
-    "category": "娱乐",
-    "tools": [
-      {
-        "name": "qq_fortune",
-        "description": "看今天的运势（娱乐，别当真）。有人问“我今天运势/运气怎么样”时用。"
-      }
-    ],
-    "source": null,
-    "origin": "local",
-    "installed": false,
-    "enabled": false
-  },
-  {
-    "id": "group_admin",
-    "name": "group_admin",
-    "description": "群管理动作：禁言、解禁、踢人、撤回消息、改群名片/头衔、全体禁言、设管理员",
-    "category": "群管理",
-    "tools": [
-      {
-        "name": "qq_group_ban",
-        "description": "禁言某人（分钟，0=解禁）"
-      },
-      {
-        "name": "qq_group_kick",
-        "description": "踢人（危险，需 confirm=true）"
-      },
-      {
-        "name": "qq_group_recall",
-        "description": "撤回一条消息（需要 message_id）"
-      },
-      {
-        "name": "qq_group_card",
-        "description": "改群名片（空字符串=清除）"
-      },
-      {
-        "name": "qq_group_title",
-        "description": "给群友设专属头衔（空=清除）"
-      },
-      {
-        "name": "qq_group_whole_ban",
-        "description": "全体禁言开/关（需 confirm=true）"
-      },
-      {
-        "name": "qq_group_set_admin",
-        "description": "设/撤管理员（需 confirm=true）"
-      },
-      {
-        "name": "qq_group_notice",
-        "description": "发群公告"
-      }
-    ],
-    "source": {
-      "label": "AstrBot: astrbot_plugin_essentials",
-      "url": "https://github.com/CPJiNan/astrbot_plugin_essentials"
-    },
-    "origin": "catalog",
-    "installed": false,
-    "enabled": false
-  },
-  {
-    "id": "group_info",
-    "name": "group_info",
-    "description": "看群资料、成员列表（谁在、谁是管理），也能看某个人的群资料",
-    "category": "群管理",
-    "tools": [
-      {
-        "name": "qq_group_info",
-        "description": "本群资料（人数上限、群主等）"
-      },
-      {
-        "name": "qq_group_members",
-        "description": "成员列表（默认前 20 个，可给 limit）"
-      },
-      {
-        "name": "qq_group_member",
-        "description": "看某个人的群资料"
-      }
-    ],
-    "source": {
-      "label": "AstrBot: astrbot_plugin_group_welcome",
-      "url": "https://github.com/lingyun14beta/astrbot_plugin_group_welcome"
-    },
-    "origin": "catalog",
-    "installed": false,
-    "enabled": false
-  },
-  {
-    "id": "qzone",
-    "name": "qzone",
-    "description": "QQ 空间动态：发一条说说、删掉自己的说说、看看自己和好友的动态",
-    "category": "群互动",
-    "tools": [
-      {
-        "name": "qq_qzone_post",
-        "description": "发一条 QQ 空间说说（默认公开；可设好友可见/私密）"
-      },
-      {
-        "name": "qq_qzone_list",
-        "description": "看我自己最近发的说说"
-      },
-      {
-        "name": "qq_qzone_feeds",
-        "description": "看好朋友们最近的空间动态"
-      },
-      {
-        "name": "qq_qzone_delete",
-        "description": "删掉我发过的一条说说（需要 tid）"
-      }
-    ],
-    "source": {
-      "label": "SnowLuma builtin",
-      "url": "https://github.com/SnowLuma"
-    },
-    "origin": "catalog",
-    "installed": false,
-    "enabled": false
-  },
-  {
-    "id": "remind",
-    "name": "remind",
-    "description": "定时提醒",
-    "category": "工具",
-    "tools": [
-      {
-        "name": "qq_remind",
-        "description": "给当前会话设一个定时提醒，到点我会主动发一条消息。适合“20 分钟后提醒我喝水”这类。"
-      },
-      {
-        "name": "qq_remind_list",
-        "description": "看看当前会话还挂着哪些提醒。"
-      }
-    ],
-    "source": null,
-    "origin": "local",
-    "installed": false,
-    "enabled": false
-  },
-  {
-    "id": "signin",
-    "name": "signin",
-    "description": "群签到：每天签一次攒积分、连续签到天数、积分排行榜",
-    "category": "群互动",
-    "tools": [
-      {
-        "name": "qq_signin",
-        "description": "帮群友签到（同一个人一天只能签一次，连续签到加分更多）"
-      },
-      {
-        "name": "qq_signin_rank",
-        "description": "看群里的签到积分排行榜"
-      }
-    ],
-    "source": null,
-    "origin": "catalog",
-    "installed": false,
-    "enabled": false
-  },
-  {
-    "id": "weather",
-    "name": "weather",
-    "description": "查天气",
-    "category": "工具",
-    "tools": [
-      {
-        "name": "qq_weather",
-        "description": "查某地天气（当前实况 + 今天）。群里有人问“明天冷不冷/要不要带伞”时用。"
-      }
-    ],
-    "source": null,
-    "origin": "local",
-    "installed": false,
-    "enabled": false
-  },
-  {
     "id": "abbr",
     "name": "abbr",
     "description": "缩写查询：yyds、xswl 这种拼音缩写是什么意思",
@@ -362,6 +149,22 @@
     "enabled": false
   },
   {
+    "id": "calc",
+    "name": "calc",
+    "description": "算数/单位换算类的小计算",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_calc",
+        "description": "算一个算式（群里问“这几样加起来多少钱/打八折多少”时用）。只支持数字与 + - * / % ( ) ^。"
+      }
+    ],
+    "source": null,
+    "origin": "local",
+    "installed": false,
+    "enabled": false
+  },
+  {
     "id": "clock",
     "name": "clock",
     "description": "报时：现在几点、今天还剩多少、本周还剩多少",
@@ -419,6 +222,26 @@
     "enabled": false
   },
   {
+    "id": "dice",
+    "name": "dice",
+    "description": "掷骰子、随机数与多选一",
+    "category": "娱乐",
+    "tools": [
+      {
+        "name": "qq_dice",
+        "description": "掷骰子（群里有人喊“骰子/比大小/roll 一个”时用）。默认 1 个 6 面骰子。"
+      },
+      {
+        "name": "qq_choose",
+        "description": "从几个选项里随机挑一个（“吃什么/去哪个”这类纠结时用）。至少给 2 个选项。"
+      }
+    ],
+    "source": null,
+    "origin": "local",
+    "installed": false,
+    "enabled": false
+  },
+  {
     "id": "draw",
     "name": "draw",
     "description": "抽签：上上签到大凶，一句解释，图个乐",
@@ -457,6 +280,22 @@
     "enabled": false
   },
   {
+    "id": "fortune",
+    "name": "fortune",
+    "description": "今日运势（娱乐向）",
+    "category": "娱乐",
+    "tools": [
+      {
+        "name": "qq_fortune",
+        "description": "看今天的运势（娱乐，别当真）。有人问“我今天运势/运气怎么样”时用。"
+      }
+    ],
+    "source": null,
+    "origin": "local",
+    "installed": false,
+    "enabled": false
+  },
+  {
     "id": "gacha",
     "name": "gacha",
     "description": "抽卡：随机抽一张群友卡，带稀有度（SSR / SR / R / N）",
@@ -470,6 +309,80 @@
     "source": {
       "label": "Yunzai: miao-plugin 抽卡",
       "url": "https://github.com/yoimiya-kokomi/miao-plugin"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "group_admin",
+    "name": "group_admin",
+    "description": "群管理动作：禁言、解禁、踢人、撤回消息、改群名片/头衔、全体禁言、设管理员",
+    "category": "群管理",
+    "tools": [
+      {
+        "name": "qq_group_ban",
+        "description": "禁言某人（分钟，0=解禁）"
+      },
+      {
+        "name": "qq_group_kick",
+        "description": "踢人（危险，需 confirm=true）"
+      },
+      {
+        "name": "qq_group_recall",
+        "description": "撤回一条消息（需要 message_id）"
+      },
+      {
+        "name": "qq_group_card",
+        "description": "改群名片（空字符串=清除）"
+      },
+      {
+        "name": "qq_group_title",
+        "description": "给群友设专属头衔（空=清除）"
+      },
+      {
+        "name": "qq_group_whole_ban",
+        "description": "全体禁言开/关（需 confirm=true）"
+      },
+      {
+        "name": "qq_group_set_admin",
+        "description": "设/撤管理员（需 confirm=true）"
+      },
+      {
+        "name": "qq_group_notice",
+        "description": "发群公告"
+      }
+    ],
+    "source": {
+      "label": "AstrBot: astrbot_plugin_essentials",
+      "url": "https://github.com/CPJiNan/astrbot_plugin_essentials"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "group_info",
+    "name": "group_info",
+    "description": "看群资料、成员列表（谁在、谁是管理），也能看某个人的群资料",
+    "category": "群管理",
+    "tools": [
+      {
+        "name": "qq_group_info",
+        "description": "本群资料（人数上限、群主等）"
+      },
+      {
+        "name": "qq_group_members",
+        "description": "成员列表（默认前 20 个，可给 limit）"
+      },
+      {
+        "name": "qq_group_member",
+        "description": "看某个人的群资料"
+      }
+    ],
+    "source": {
+      "label": "AstrBot: astrbot_plugin_group_welcome",
+      "url": "https://github.com/lingyun14beta/astrbot_plugin_group_welcome"
     },
     "origin": "catalog",
     "installed": false,
@@ -535,6 +448,25 @@
     "source": {
       "label": "NoneBot: ayaka_games",
       "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "imagine",
+    "name": "imagine",
+    "description": "AI 画画：说一句描述就生成图片并直接发到群里",
+    "category": "娱乐",
+    "tools": [
+      {
+        "name": "qq_imagine",
+        "description": "按文字描述生成一张图片并发到 QQ"
+      }
+    ],
+    "source": {
+      "label": "Pollinations 免费文生图 / ap-plugin",
+      "url": "https://github.com/pollinations/pollinations"
     },
     "origin": "catalog",
     "installed": false,
@@ -648,6 +580,37 @@
     "enabled": false
   },
   {
+    "id": "memory",
+    "name": "memory",
+    "description": "长期记忆：记住关于某人的事、群里的约定，能按关键词回忆，并维护熟悉度/好感度",
+    "category": "群互动",
+    "tools": [
+      {
+        "name": "qq_memory_save",
+        "description": "记住一条长期事实（喜好、生日、约定、群规）"
+      },
+      {
+        "name": "qq_memory_recall",
+        "description": "按关键词回忆，或返回最近记住的内容"
+      },
+      {
+        "name": "qq_memory_card",
+        "description": "看某人的印象卡：熟悉度、好感度、记了多少条"
+      },
+      {
+        "name": "qq_memory_forget",
+        "description": "忘掉某条或清空某个人的记忆"
+      }
+    ],
+    "source": {
+      "label": "AstrBot 社区: 记忆类插件（memory_beyond / iris_memory / mnemosyne）",
+      "url": "https://github.com/lxfight/astrbot_plugin_mnemosyne"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
     "id": "morse",
     "name": "morse",
     "description": "摩斯电码：文字与 ·— 互转",
@@ -747,6 +710,57 @@
     "enabled": false
   },
   {
+    "id": "qzone",
+    "name": "qzone",
+    "description": "QQ 空间动态：发一条说说、删掉自己的说说、看看自己和好友的动态",
+    "category": "群互动",
+    "tools": [
+      {
+        "name": "qq_qzone_post",
+        "description": "发一条 QQ 空间说说（默认公开；可设好友可见/私密）"
+      },
+      {
+        "name": "qq_qzone_list",
+        "description": "看我自己最近发的说说"
+      },
+      {
+        "name": "qq_qzone_feeds",
+        "description": "看好朋友们最近的空间动态"
+      },
+      {
+        "name": "qq_qzone_delete",
+        "description": "删掉我发过的一条说说（需要 tid）"
+      }
+    ],
+    "source": {
+      "label": "SnowLuma builtin",
+      "url": "https://github.com/SnowLuma"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "remind",
+    "name": "remind",
+    "description": "定时提醒",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_remind",
+        "description": "给当前会话设一个定时提醒，到点我会主动发一条消息。适合“20 分钟后提醒我喝水”这类。"
+      },
+      {
+        "name": "qq_remind_list",
+        "description": "看看当前会话还挂着哪些提醒。"
+      }
+    ],
+    "source": null,
+    "origin": "local",
+    "installed": false,
+    "enabled": false
+  },
+  {
     "id": "riddle",
     "name": "riddle",
     "description": "脑筋急转弯：它出题，你来猜，答错可以看答案",
@@ -799,6 +813,26 @@
       "label": "NoneBot: nonebot_plugin_CyberSensoji",
       "url": "https://github.com/nonebot/nonebot2"
     },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "signin",
+    "name": "signin",
+    "description": "群签到：每天签一次攒积分、连续签到天数、积分排行榜",
+    "category": "群互动",
+    "tools": [
+      {
+        "name": "qq_signin",
+        "description": "帮群友签到（同一个人一天只能签一次，连续签到加分更多）"
+      },
+      {
+        "name": "qq_signin_rank",
+        "description": "看群里的签到积分排行榜"
+      }
+    ],
+    "source": null,
     "origin": "catalog",
     "installed": false,
     "enabled": false
@@ -857,6 +891,41 @@
       "url": "https://github.com/nonebot/nonebot2"
     },
     "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "voice",
+    "name": "voice",
+    "description": "语音合成：把一段文字变成语音消息发到 QQ（OpenAI 兼容 TTS 接口）",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_tts",
+        "description": "把文字合成为语音并发到 QQ"
+      }
+    ],
+    "source": {
+      "label": "qq-bridge PR#74 Edge TTS / edge-tts",
+      "url": "https://github.com/rany2/edge-tts"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "weather",
+    "name": "weather",
+    "description": "查天气",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_weather",
+        "description": "查某地天气（当前实况 + 今天）。群里有人问“明天冷不冷/要不要带伞”时用。"
+      }
+    ],
+    "source": null,
+    "origin": "local",
     "installed": false,
     "enabled": false
   },

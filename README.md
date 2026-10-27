@@ -5,7 +5,7 @@
 按抖音上很火的那套教程把 DeepSeek 接进 QQ 之后，你会发现一个问题——
 **机器人很聪明，但它只会说话。** 你让它"禁言这个人十分钟"，它只能回你一句解释。
 
-这个市场就是它的工具箱：**43 个插件 / 69 项能力**，网页上点一下安装，
+这个市场就是它的工具箱：**46 个插件 / 75 项能力**，网页上点一下安装，
 就变成 AI 能自己调用的工具（`mcp__qqhub__*`）。从此群里的天气、签到、记账、
 成语接龙、禁言踢人，它都能真的替你做。
 
@@ -22,8 +22,8 @@ QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
 
 [![Node](https://img.shields.io/badge/node-%E2%89%A518-blue)](https://nodejs.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
-[![Plugins](https://img.shields.io/badge/插件-43%20个%20%2F%2069%20工具-orange)](#插件一览)
-[![Verified](https://img.shields.io/badge/实测-54%20项通过%20%2F%200%20失败-brightgreen)](#插件来源与实测)
+[![Plugins](https://img.shields.io/badge/插件-46%20个%20%2F%2075%20工具-orange)](#插件一览)
+[![Verified](https://img.shields.io/badge/实测-59%20项通过%20%2F%200%20失败-brightgreen)](#插件来源与实测)
 
 ---
 
@@ -122,13 +122,13 @@ node scripts/doctor.mjs
 
 | 分类 | 数量 | 插件 |
 | --- | --- | --- |
-| 工具 | 20 | calc 计算 · weather 天气 · translate 翻译 · exchange 汇率 · unit 单位换算 · baseconv 进制 · morse 摩斯电码 · passgen 密码 · abbr 缩写解释 · remind 定时提醒(主动消息) · memo 群备忘 · ledger 群记账 · birthday 生日倒计时 · clock 报时 · jukebox 点歌链接 · pomodoro 番茄钟(主动消息) · coin 抛硬币 · color 颜色卡 · bilihot B站热门 · bingimg 必应每日图 |
-| 娱乐 | 13 | fortune 今日运势 · dice 骰子/多选一 · draw 抽签 · sensoji 赛博浅草寺 · tarot 塔罗 · zodiac 星座 · meihua 梅花易数 · hitokoto 一言 · joke 冷笑话 · quote 毒鸡汤 · riddle 脑筋急转弯 · poem 古诗 · gacha 抽群友卡 |
+| 工具 | 21 | calc 计算 · weather 天气 · translate 翻译 · exchange 汇率 · unit 单位换算 · baseconv 进制 · morse 摩斯电码 · passgen 密码 · abbr 缩写解释 · remind 定时提醒(主动消息) · memo 群备忘 · ledger 群记账 · birthday 生日倒计时 · clock 报时 · jukebox 点歌链接 · pomodoro 番茄钟(主动消息) · coin 抛硬币 · color 颜色卡 · bilihot B站热门 · bingimg 必应每日图 · **voice 语音合成(TTS)** |
+| 娱乐 | 14 | fortune 今日运势 · dice 骰子/多选一 · draw 抽签 · sensoji 赛博浅草寺 · tarot 塔罗 · zodiac 星座 · meihua 梅花易数 · hitokoto 一言 · joke 冷笑话 · quote 毒鸡汤 · riddle 脑筋急转弯 · poem 古诗 · gacha 抽群友卡 · **imagine AI 画画** |
 | 小游戏 | 6 | blackjack 21点 · guess 猜数字 · bombgame 数字炸弹 · idiom 成语接龙 · wordle 猜单词 · roulette 轮盘点名 |
 | 群管理 | 2 | group_admin 禁言/踢人/撤回/名片/头衔/公告 · group_info 群资料/成员列表 |
-| 群互动 | 2 | signin 群签到积分榜 · qzone QQ空间说说 |
+| 群互动 | 3 | signin 群签到积分榜 · qzone QQ空间说说 · **memory 长期记忆/好感度** |
 
-合计 **43 个插件 / 69 个工具**。分类与数量由 `data/plugins.json` 统一驱动，市场页面按此分组筛选。
+合计 **46 个插件 / 75 个工具**。分类与数量由 `data/plugins.json` 统一驱动，市场页面按此分组筛选。
 
 ## 插件来源与实测
 
@@ -138,14 +138,14 @@ node scripts/doctor.mjs
 
 | 内容 | 真实来源 |
 | --- | --- |
-| 43 个插件的**名称、功能描述、工具名、参数说明** | 抓取自公开的 QQ 插件市场站点的插件目录数据 |
+| 46 个插件的**名称、功能描述、工具名、参数说明** | 抓取自公开的 QQ 插件市场站点的插件目录数据 |
 | 每张卡片上的「源自 xxx」 | 该插件的上游出处（AstrBot / NoneBot / Koishi / Yunzai 社区的同名插件），附仓库链接 |
 | **每个插件的可执行代码** | 本项目重新实现。原站的插件依赖它自己的加载器，公开数据里不含实现代码；这里全部改写为**零依赖的 MCP 工具**，跑在 Node 上 |
 
 所以准确的说法是：**目录来自网络社区，实现由本项目重写**——不是"把网上的插件原样搬过来"。
 好处是全部零依赖、直接能跑、不受上游框架版本影响；代价是行为细节以本项目实现为准。
 
-### 实测：69 个工具全部跑过一遍
+### 实测：75 个工具全部跑过一遍
 
 ```bash
 node scripts/verify-plugins.mjs          # 跑全部插件
@@ -156,8 +156,9 @@ node scripts/verify-plugins.mjs --json   # 输出机器可读结果
 
 | 结果 | 数量 | 含义 |
 | --- | --- | --- |
-| ✅ 实测通过 | **54** | 真实调用并正常返回（含天气、汇率、B站、翻译等联网插件，拿的是真实数据） |
+| ✅ 实测通过 | **59** | 真实调用并正常返回（含天气、汇率、B站、翻译等联网插件，拿的是真实数据） |
 | 🔌 需 QQ 在线 | 15 | group_admin(8) + group_info(3) + qzone(4)，本机没开 SnowLuma 所以发不出去，属于环境问题 |
+| 🔑 需配置 | 1 | voice 语音合成：没填 TTS 接口的 Key，填上即可用 |
 | ❌ 失败 | **0** | — |
 
 脚本会自动把存储重定向到临时目录，不会污染你的真实数据；你可以随时自己跑一遍复核。
@@ -258,6 +259,56 @@ QQ-Plugin-Hub/
 
 群里会同步插件更新、收集新插件需求。想加插件但不会写的话，把"想要什么功能"发群里就行；
 自己写好了想合并进主仓库，也欢迎直接提 PR。
+
+## 记忆 / 语音 / 画画（三个进阶能力）
+
+这三个是后来加的，正好补上「机器人像个活人」的部分。
+
+### memory —— 长期记忆
+
+机器人能记住关于每个人的事，并在被问到时想起来。
+
+| 工具 | 作用 |
+| --- | --- |
+| `qq_memory_save` | 记一条长期事实（喜好、生日、约定、群规） |
+| `qq_memory_recall` | 按关键词回忆，比如"你还记得我不吃辣吗" |
+| `qq_memory_card` | 看某人的印象卡：熟悉度、好感度、记了几条 |
+| `qq_memory_forget` | 忘掉某条，或清空某个人的档案 |
+
+不依赖向量库和 Embedding 模型——用「中文二字切片 + 时间半衰期衰减」做检索，纯 JSON 存在本机
+`data/store/memory/`，装好就能用。数据不上传任何地方，可随时清空。
+
+> 对标 AstrBot 社区的记忆插件（[memory_beyond](https://github.com/AlanBacker/astrbot_plugin_memory_beyond)、
+> [iris_memory](https://github.com/leafliber/astrbot_plugin_iris_memory)、
+> [mnemosyne](https://github.com/lxfight/astrbot_plugin_mnemosyne)），实现是本项目重写的零依赖版。
+
+### voice —— 语音合成（TTS）
+
+`qq_tts` 把文字合成语音，直接作为语音消息发到群里。走 OpenAI 兼容的 `/audio/speech`，所以这些都能接：
+
+| 服务 | baseUrl | model | 说明 |
+| --- | --- | --- | --- |
+| 硅基流动 | `https://api.siliconflow.cn/v1` | `FunAudioLLM/CosyVoice2-0.5B` | 有免费额度，中文效果好 |
+| OpenAI | `https://api.openai.com/v1` | `tts-1` | 音色用 alloy / nova / shimmer |
+| 自建 GPT-SoVITS / CosyVoice | 你的地址 | 你的模型 | 只要暴露兼容接口即可 |
+
+装好后在卡片点「⚙ 配置」填接口地址、Key、模型、音色。没填 Key 时工具会明确提示，不会静默失败。
+
+> QQ 语音对编码有要求（silk/amr）。多数 OneBot 实现会自动把 mp3 转码；若协议端报错，去协议端开启语音转码。
+> 参考 qq-bridge 的 [Edge TTS 语音回复 PR #74](https://github.com/Derpyu520/qq-bridge/pull/74) 与 [edge-tts](https://github.com/rany2/edge-tts)。
+
+### imagine —— AI 画画
+
+`qq_imagine` 说一句描述就出图并直接发到群里。两种后端，配置里切换：
+
+| 后端 | 是否需要 Key | 说明 |
+| --- | --- | --- |
+| `pollinations`（默认） | 不需要 | 免费，约 1 秒出图，官方按 IP 限流（插件已做缓存 + 三次退避重试） |
+| `openai` | 需要 | OpenAI 兼容的 `/images/generations`，可接硅基流动 Kolors、DALL·E、自建 SD 兼容层 |
+
+> 免费后端限流比较严格，连续狂发会被 402。插件对同一句描述做了 10 分钟缓存，
+> 真被限流时会告诉群友"稍等十几秒再要"，而不是报错刷屏。
+> 参考 [Pollinations](https://github.com/pollinations/pollinations) 与 Yunzai 的 [ap-plugin](https://github.com/yhArcadia/ap-plugin)。
 
 ## 版权与第三方说明（不侵权）
 

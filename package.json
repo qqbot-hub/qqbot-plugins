@@ -1,7 +1,7 @@
 {
   "name": "qq-plugin-hub",
-  "version": "1.1.0",
-  "description": "AI QQ 机器人插件市场：43 个插件一键装进 SnowLuma + qq-bridge + DSH（DeepSeek）链路，作为 MCP 工具供 AI 调用",
+  "version": "1.2.0",
+  "description": "AI QQ 机器人插件市场：46 个插件 / 75 个工具，一键装进 SnowLuma + qq-bridge + DSH（大肥鱼），作为 MCP 工具供 AI 调用（含记忆 / 语音 / AI 画画）",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
@@ -20,7 +20,11 @@
     "plugin-market",
     "chatbot",
     "snowluma",
-    "qq-bridge"
+    "qq-bridge",
+    "tts",
+    "memory",
+    "image-generation",
+    "ai-draw"
   ],
   "license": "MIT",
   "engines": {

@@ -97,16 +97,26 @@ const SAMPLES = {
   qq_qzone_list: {},
   qq_qzone_feeds: {},
   qq_qzone_delete: { tid: 'test' },
+
+  qq_memory_save: { text: '小美不吃香菜', group_id: G, user_id: U },
+  qq_memory_recall: { query: '香菜', group_id: G },
+  qq_memory_card: { subject_id: U },
+  qq_memory_forget: { subject_id: U, index: 1 },
+  qq_tts: { text: '你好呀，这是一条测试语音', group_id: G },
+  qq_imagine: { prompt: '赛博朋克风格的小猫，霓虹灯', group_id: G },
 };
 
 /* 需要 QQ 在线的工具：报这些错算环境问题 */
 const BOT_ERRORS = /fetch failed|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|socket hang up|当前 OneBot 实现/i;
 /* 依赖公网的工具：超时/连不上算网络问题 */
-const NET_ERRORS = /连不上|超时|timeout|ENOTFOUND|EAI_AGAIN|fetch failed/i;
+const NET_ERRORS = /连不上|超时|timeout|ENOTFOUND|EAI_AGAIN|fetch failed|繁忙|限流|暂时不可用/i;
+/* 没填 Key/地址：属于配置问题 */
+const CFG_ERRORS = /还没配置|需要 API Key|接口地址|API Key/i;
 
 function classify(err) {
   const msg = String((err && err.message) || err || '');
   if (BOT_ERRORS.test(msg)) return 'bot';
+  if (CFG_ERRORS.test(msg)) return 'cfg';
   if (NET_ERRORS.test(msg)) return 'net';
   return 'fail';
 }
@@ -142,6 +152,10 @@ async function main() {
         const out = await t.run(JSON.parse(JSON.stringify(args)), ctx(meta.id));
         const text = String(out == null ? '' : out);
         if (!text.trim()) { rows.push({ plugin: meta.id, tool: t.name, status: 'fail', msg: '返回空内容' }); continue; }
+        /* 插件自己提示「还没配置」：算配置问题，不算失败 */
+        if (/还没配置|需要 API Key|去「⚙ 配置」/.test(text)) { rows.push({ plugin: meta.id, tool: t.name, status: 'cfg', msg: text.replace(/s+/g, ' ').slice(0, 80) }); continue; }
+        /* 返回了内容但明确是「服务限流/没画出来」：算外部服务问题 */
+        if (/没画出来|繁忙|限流|暂时不可用/.test(text)) { rows.push({ plugin: meta.id, tool: t.name, status: 'net', msg: text.replace(/s+/g, ' ').slice(0, 80) }); continue; }
         rows.push({ plugin: meta.id, tool: t.name, status: 'pass', ms: Date.now() - started, sample: text.replace(/\s+/g, ' ').slice(0, 70) });
       } catch (e) {
         const kind = classify(e);
@@ -155,6 +169,7 @@ async function main() {
   const pass = rows.filter((r) => r.status === 'pass');
   const bot = rows.filter((r) => r.status === 'bot');
   const net = rows.filter((r) => r.status === 'net');
+  const cfgRows = rows.filter((r) => r.status === 'cfg');
   const fail = rows.filter((r) => r.status === 'fail');
 
   if (JSON_OUT) {
@@ -163,6 +178,7 @@ async function main() {
       pass: pass.length,
       needBot: bot.length,
       needNet: net.length,
+      needCfg: cfgRows.length,
       fail: fail.length,
       plugins: catalog.length,
       rows,
@@ -170,7 +186,7 @@ async function main() {
     process.exit(fail.length ? 1 : 0);
   }
 
-  const icon = { pass: '✅', bot: '🔌', net: '🌐', fail: '❌' };
+  const icon = { pass: '✅', bot: '🔌', net: '🌐', cfg: '🔑', fail: '❌' };
   for (const r of rows) {
     const tag = icon[r.status] || '?';
     const detail = r.sample || r.msg || '';
@@ -179,7 +195,7 @@ async function main() {
   console.log('');
   console.log('──────────────────────────────────────────');
   console.log(`插件 ${catalog.length} 个 · 工具 ${rows.length} 个`);
-  console.log(`✅ 实测通过 ${pass.length}   🔌 需 QQ 在线 ${bot.length}   🌐 需公网 ${net.length}   ❌ 失败 ${fail.length}`);
+  console.log(`✅ 实测通过 ${pass.length}   🔌 需 QQ 在线 ${bot.length}   🔑 需配置 ${cfgRows.length}   🌐 需公网 ${net.length}   ❌ 失败 ${fail.length}`);
   if (fail.length) {
     console.log('\n失败明细：');
     for (const r of fail) console.log(`  ${r.plugin}/${r.tool}: ${r.msg}`);
