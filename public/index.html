@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QQ-Plugin-Hub · AI QQ 机器人插件市场</title>
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --panel2: #1c2330; --line: #2a3344;
+    --text: #e6edf3; --dim: #8b98a9; --acc: #4f8cff; --ok: #3fb950; --warn: #d29922; --bad: #f85149;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.6 "Segoe UI", "Microsoft YaHei", sans-serif; }
+  a { color: var(--acc); text-decoration: none; }
+  header { display: flex; align-items: center; gap: 14px; padding: 14px 22px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: rgba(13,17,23,.92); backdrop-filter: blur(6px); z-index: 5; }
+  .logo { font-size: 18px; font-weight: 700; letter-spacing: .5px; }
+  .logo b { color: var(--acc); }
+  .pills { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+  .pill { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); font-size: 12px; color: var(--dim); }
+  .pill.ok { color: var(--ok); border-color: rgba(63,185,80,.4); }
+  .pill.bad { color: var(--bad); border-color: rgba(248,81,73,.4); }
+  main { max-width: 1080px; margin: 0 auto; padding: 20px 22px 60px; }
+  .hero { padding: 18px 0 6px; }
+  .hero h1 { margin: 0 0 6px; font-size: 22px; }
+  .hero p { margin: 0; color: var(--dim); }
+  .toolbar { display: flex; gap: 10px; margin: 18px 0 8px; flex-wrap: wrap; align-items: center; }
+  input[type=search], input[type=text] { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; font: inherit; outline: none; }
+  input[type=search] { flex: 1; min-width: 220px; }
+  input:focus { border-color: var(--acc); }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .chip { cursor: pointer; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--dim); font-size: 13px; user-select: none; }
+  .chip.on { color: #fff; background: var(--acc); border-color: var(--acc); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; transition: border-color .15s; }
+  .card:hover { border-color: #3b4a63; }
+  .card .top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .card h3 { margin: 0; font-size: 15px; white-space: nowrap; }
+  .tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; background: var(--panel2); color: var(--acc); border: 1px solid var(--line); white-space: nowrap; flex: 0 0 auto; }
+  .tag.src { color: var(--dim); max-width: 168px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: middle; }
+  .tag.src { color: var(--dim); }
+  .card .desc { color: var(--dim); font-size: 13px; min-height: 38px; }
+  .card .tools { font-size: 12px; color: var(--dim); display: flex; flex-wrap: wrap; gap: 6px; }
+  .card .tools code { background: var(--panel2); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; font-size: 11px; }
+  .card .btns { display: flex; gap: 8px; margin-top: auto; }
+  button { cursor: pointer; font: inherit; border-radius: 8px; border: 1px solid var(--line); background: var(--panel2); color: var(--text); padding: 6px 14px; }
+  button:hover { border-color: var(--acc); }
+  button.pri { background: var(--acc); border-color: var(--acc); color: #fff; }
+  button.ghost { background: transparent; color: var(--dim); }
+  .state-on { color: var(--ok); font-size: 12px; align-self: center; margin-left: auto; white-space: nowrap; flex: 0 0 auto; }
+  .state-off { color: var(--dim); font-size: 12px; align-self: center; margin-left: auto; white-space: nowrap; flex: 0 0 auto; }
+  section.bridge { margin-top: 34px; background: linear-gradient(180deg, rgba(79,140,255,.08), transparent), var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; }
+  section.bridge h2 { margin: 0 0 8px; font-size: 17px; }
+  section.bridge ol { margin: 8px 0; padding-left: 22px; color: var(--dim); }
+  section.bridge li { margin: 5px 0; }
+  section.bridge code { background: var(--panel2); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; font-size: 12px; }
+  .regrow { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 18px; max-width: 80vw; box-shadow: 0 8px 30px rgba(0,0,0,.5); display: none; }
+  .toast.err { border-color: var(--bad); }
+  .empty { text-align: center; color: var(--dim); padding: 40px 0; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🐟 <b>QQ-Plugin-Hub</b></div>
+  <div class="pills" id="pills"></div>
+</header>
+<main>
+  <div class="hero">
+    <h1>AI QQ 机器人插件市场</h1>
+    <p>一键给「SnowLuma + qq-bridge + DSH（DeepSeek Harness）」链路上的 AI 机器人装上 43 个插件、69 个能力。装完即变成 AI 可调用的 MCP 工具。</p>
+  </div>
+  <div class="toolbar">
+    <input type="search" id="q" placeholder="搜索插件 / 工具名 / 功能描述，如 签到、天气、禁言…">
+    <button class="ghost" onclick="load()">刷新</button>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="grid" id="grid"></div>
+
+  <section class="bridge">
+    <h2>🔌 搭桥：接入 DSH（DeepSeek Harness）</h2>
+    <ol>
+      <li>确认 <code>SnowLuma</code>（3000/3001）和 <code>qq-bridge</code> 已按教程跑通，DSH 本地地址可访问（默认 <code>http://127.0.0.1:3080</code>）。</li>
+      <li>点下面按钮，把 QQ-Plugin-Hub 作为 MCP 服务器写进 <code>~/.dsh/profiles/&lt;profile&gt;/cordis.patch.yml</code>（与 qq-bridge 官方挂 <code>mcp__snowluma__</code> 同一机制，互不影响）。</li>
+      <li><b>完整退出并重启 DSH</b>（preset 和 MCP 只在启动时加载）。</li>
+      <li>在 DSH 里搜 <code>mcp__qqhub__</code> 能看到工具，即搭桥成功。机器人从此可在 QQ 里直接调用本市场已安装的插件。</li>
+    </ol>
+    <div class="regrow">
+      <input type="text" id="profile" placeholder="DSH profile 名（打开 ~/.dsh/profiles/ 看子目录名，本机通常是 desktop）" style="flex:1;min-width:260px">
+      <button class="pri" onclick="registerDsh()">一键接入 DSH</button>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+let PLUGINS = [], CAT = '全部';
+const $ = (s) => document.querySelector(s);
+
+function toast(msg, err) {
+  const t = $('#toast');
+  t.textContent = msg; t.className = 'toast' + (err ? ' err' : ''); t.style.display = 'block';
+  clearTimeout(t._h); t._h = setTimeout(() => { t.style.display = 'none'; }, 3200);
+}
+
+async function loadHealth() {
+  const pills = $('#pills');
+  try {
+    const r = await (await fetch('/api/health')).json();
+    pills.innerHTML =
+      pill(r.dsh, 'DSH 3080') + pill(r.snowluma, 'SnowLuma') + pill(r.bridge, 'qq-bridge 3100') +
+      `<span class="pill ok">已装 ${r.installed} · 工具 ${r.tools}</span>`;
+  } catch { pills.innerHTML = '<span class="pill bad">市场服务异常</span>'; }
+}
+function pill(ok, label) { return `<span class="pill ${ok ? 'ok' : 'bad'}">${label} ${ok ? '✓' : '✗'}</span>`; }
+
+async function load() {
+  loadHealth();
+  const r = await (await fetch('/api/list')).json();
+  PLUGINS = r.plugins || [];
+  const cats = ['全部', ...new Set(PLUGINS.map((p) => p.category))];
+  $('#chips').innerHTML = cats.map((c) => `<span class="chip ${c === CAT ? 'on' : ''}" data-c="${c}">${c}</span>`).join('');
+  render();
+}
+
+function render() {
+  const q = $('#q').value.trim().toLowerCase();
+  const list = PLUGINS.filter((p) => (CAT === '全部' || p.category === CAT) &&
+    (!q || p.name.includes(q) || p.description.toLowerCase().includes(q) || (p.tools || []).some((t) => t.name.toLowerCase().includes(q))));
+  $('#grid').innerHTML = list.length ? list.map(card).join('') : '<div class="empty">没有匹配的插件</div>';
+}
+
+function card(p) {
+  const src = p.source && p.source.label ? `<span class="tag src" title="${p.source.url || ''}">源自 ${p.source.label}</span>` : '';
+  const tools = (p.tools || []).map((t) => `<code title="${t.description}">${t.name}</code>`).join('');
+  const st = p.installed ? (p.enabled ? '<span class="state-on">运行中</span>' : '<span class="state-off">已停用</span>') : '';
+  const btns = p.installed
+    ? `<button onclick="op('toggle','${p.id}',{enabled:${!p.enabled}})">${p.enabled ? '停用' : '启用'}</button><button class="ghost" onclick="op('uninstall','${p.id}')">卸载</button>`
+    : `<button class="pri" onclick="op('install','${p.id}')">安装</button>`;
+  return `<div class="card">
+    <div class="top"><h3>${p.name}</h3><span class="tag">${p.category}</span>${src}${st}</div>
+    <div class="desc">${p.description}</div>
+    <div class="tools">${tools}</div>
+    <div class="btns">${btns}</div>
+  </div>`;
+}
+
+async function op(action, id, extra) {
+  const r = await (await fetch('/api/op', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action, id }, extra)) })).json();
+  toast(r.ok ? (r.msg || '完成') : (r.error || '失败'), !r.ok);
+  load();
+}
+
+async function registerDsh() {
+  const profile = $('#profile').value.trim() || 'desktop';
+  toast('正在写入 cordis.patch.yml …');
+  const r = await (await fetch('/api/bridge/register-dsh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ profile }) })).json();
+  toast(r.ok ? `已写入 ${r.file}，现在去重启 DSH！` : ('注册失败：' + (r.error || r.output || '未知')), !r.ok);
+}
+
+$('#chips').addEventListener('click', (e) => { if (e.target.dataset.c) { CAT = e.target.dataset.c; load(); } });
+$('#q').addEventListener('input', render);
+load();
+</script>
+</body>
+</html>

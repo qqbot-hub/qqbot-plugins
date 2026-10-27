@@ -1,0 +1,15 @@
+{
+  "name": "qq-plugin-hub",
+  "version": "1.0.0",
+  "description": "AI QQ 机器人插件市场：43 个插件一键装进 SnowLuma + qq-bridge + DSH（DeepSeek）链路，作为 MCP 工具供 AI 调用",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "doctor": "node scripts/doctor.mjs",
+    "register-dsh": "node scripts/register-dsh.mjs"
+  },
+  "keywords": ["qq", "qqbot", "onebot", "deepseek", "mcp", "plugin-market", "chatbot", "snowluma", "qq-bridge"],
+  "license": "MIT",
+  "engines": { "node": ">=18" }
+}

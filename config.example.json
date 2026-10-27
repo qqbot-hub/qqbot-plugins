@@ -1,0 +1,18 @@
+{
+  "port": 3210,
+  "password": "",
+  "tunnelEnabled": false,
+  "tunnelAlive": false,
+  "tunnelUrl": "",
+  "snowluma": {
+    "httpUrl": "http://127.0.0.1:3000",
+    "accessToken": ""
+  },
+  "dsh": {
+    "baseUrl": "http://127.0.0.1:3080",
+    "profile": "desktop"
+  },
+  "bridge": {
+    "consoleUrl": "http://127.0.0.1:3100"
+  }
+}

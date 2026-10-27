@@ -1,0 +1,905 @@
+[
+  {
+    "id": "calc",
+    "name": "calc",
+    "description": "算数/单位换算类的小计算",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_calc",
+        "description": "算一个算式（群里问“这几样加起来多少钱/打八折多少”时用）。只支持数字与 + - * / % ( ) ^。"
+      }
+    ],
+    "source": null,
+    "origin": "local",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "dice",
+    "name": "dice",
+    "description": "掷骰子、随机数与多选一",
+    "category": "娱乐",
+    "tools": [
+      {
+        "name": "qq_dice",
+        "description": "掷骰子（群里有人喊“骰子/比大小/roll 一个”时用）。默认 1 个 6 面骰子。"
+      },
+      {
+        "name": "qq_choose",
+        "description": "从几个选项里随机挑一个（“吃什么/去哪个”这类纠结时用）。至少给 2 个选项。"
+      }
+    ],
+    "source": null,
+    "origin": "local",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "fortune",
+    "name": "fortune",
+    "description": "今日运势（娱乐向）",
+    "category": "娱乐",
+    "tools": [
+      {
+        "name": "qq_fortune",
+        "description": "看今天的运势（娱乐，别当真）。有人问“我今天运势/运气怎么样”时用。"
+      }
+    ],
+    "source": null,
+    "origin": "local",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "group_admin",
+    "name": "group_admin",
+    "description": "群管理动作：禁言、解禁、踢人、撤回消息、改群名片/头衔、全体禁言、设管理员",
+    "category": "群管理",
+    "tools": [
+      {
+        "name": "qq_group_ban",
+        "description": "禁言某人（分钟，0=解禁）"
+      },
+      {
+        "name": "qq_group_kick",
+        "description": "踢人（危险，需 confirm=true）"
+      },
+      {
+        "name": "qq_group_recall",
+        "description": "撤回一条消息（需要 message_id）"
+      },
+      {
+        "name": "qq_group_card",
+        "description": "改群名片（空字符串=清除）"
+      },
+      {
+        "name": "qq_group_title",
+        "description": "给群友设专属头衔（空=清除）"
+      },
+      {
+        "name": "qq_group_whole_ban",
+        "description": "全体禁言开/关（需 confirm=true）"
+      },
+      {
+        "name": "qq_group_set_admin",
+        "description": "设/撤管理员（需 confirm=true）"
+      },
+      {
+        "name": "qq_group_notice",
+        "description": "发群公告"
+      }
+    ],
+    "source": {
+      "label": "AstrBot: astrbot_plugin_essentials",
+      "url": "https://github.com/CPJiNan/astrbot_plugin_essentials"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "group_info",
+    "name": "group_info",
+    "description": "看群资料、成员列表（谁在、谁是管理），也能看某个人的群资料",
+    "category": "群管理",
+    "tools": [
+      {
+        "name": "qq_group_info",
+        "description": "本群资料（人数上限、群主等）"
+      },
+      {
+        "name": "qq_group_members",
+        "description": "成员列表（默认前 20 个，可给 limit）"
+      },
+      {
+        "name": "qq_group_member",
+        "description": "看某个人的群资料"
+      }
+    ],
+    "source": {
+      "label": "AstrBot: astrbot_plugin_group_welcome",
+      "url": "https://github.com/lingyun14beta/astrbot_plugin_group_welcome"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "qzone",
+    "name": "qzone",
+    "description": "QQ 空间动态：发一条说说、删掉自己的说说、看看自己和好友的动态",
+    "category": "群互动",
+    "tools": [
+      {
+        "name": "qq_qzone_post",
+        "description": "发一条 QQ 空间说说（默认公开；可设好友可见/私密）"
+      },
+      {
+        "name": "qq_qzone_list",
+        "description": "看我自己最近发的说说"
+      },
+      {
+        "name": "qq_qzone_feeds",
+        "description": "看好朋友们最近的空间动态"
+      },
+      {
+        "name": "qq_qzone_delete",
+        "description": "删掉我发过的一条说说（需要 tid）"
+      }
+    ],
+    "source": {
+      "label": "SnowLuma builtin",
+      "url": "https://github.com/SnowLuma"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "remind",
+    "name": "remind",
+    "description": "定时提醒",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_remind",
+        "description": "给当前会话设一个定时提醒，到点我会主动发一条消息。适合“20 分钟后提醒我喝水”这类。"
+      },
+      {
+        "name": "qq_remind_list",
+        "description": "看看当前会话还挂着哪些提醒。"
+      }
+    ],
+    "source": null,
+    "origin": "local",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "signin",
+    "name": "signin",
+    "description": "群签到：每天签一次攒积分、连续签到天数、积分排行榜",
+    "category": "群互动",
+    "tools": [
+      {
+        "name": "qq_signin",
+        "description": "帮群友签到（同一个人一天只能签一次，连续签到加分更多）"
+      },
+      {
+        "name": "qq_signin_rank",
+        "description": "看群里的签到积分排行榜"
+      }
+    ],
+    "source": null,
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "weather",
+    "name": "weather",
+    "description": "查天气",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_weather",
+        "description": "查某地天气（当前实况 + 今天）。群里有人问“明天冷不冷/要不要带伞”时用。"
+      }
+    ],
+    "source": null,
+    "origin": "local",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "abbr",
+    "name": "abbr",
+    "description": "缩写查询：yyds、xswl 这种拼音缩写是什么意思",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_abbr",
+        "description": "查一个拼音缩写"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: nonebot_plugin_hammer_nbnhhsh",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "baseconv",
+    "name": "baseconv",
+    "description": "进制转换：2/8/10/16 进制互转",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_base",
+        "description": "把数字在进制之间转换"
+      }
+    ],
+    "source": {
+      "label": "Koishi: koishi-plugin-base64/base",
+      "url": "https://github.com/koishijs/koishi"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "bilihot",
+    "name": "bilihot",
+    "description": "B站热搜/热门排行，看看今天大家在刷什么",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_bilihot",
+        "description": "看 B 站热门前几名"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: nonebot_plugin_b23",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "bingimg",
+    "name": "bingimg",
+    "description": "Bing 每日一图：给你当天的壁纸直链",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_bingimg",
+        "description": "拿今天的 Bing 每日一图"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: nonebot_plugin_BingImage",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "birthday",
+    "name": "birthday",
+    "description": "生日/纪念日倒计时：记下来，随时问还有几天",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_birthday_add",
+        "description": "记一个生日或纪念日（月-日）"
+      },
+      {
+        "name": "qq_birthday_list",
+        "description": "看还有几天"
+      }
+    ],
+    "source": {
+      "label": "AstrBot: astrbot_plugin_birthday",
+      "url": "https://github.com/AstrBotDevs/AstrBot_Plugins_Collection"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "blackjack",
+    "name": "blackjack",
+    "description": "21 点：要牌或停牌，跟庄家比大小",
+    "category": "小游戏",
+    "tools": [
+      {
+        "name": "qq_bj_start",
+        "description": "开一局 21 点"
+      },
+      {
+        "name": "qq_bj_hit",
+        "description": "再要一张牌"
+      },
+      {
+        "name": "qq_bj_stand",
+        "description": "停牌，让庄家抽完比大小"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: nonebot_plugin_blackjack",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "bombgame",
+    "name": "bombgame",
+    "description": "数字炸弹：1-100 暗藏一个炸弹，猜中就炸，越猜范围越小",
+    "category": "小游戏",
+    "tools": [
+      {
+        "name": "qq_bomb_start",
+        "description": "埋一颗炸弹（1-100）"
+      },
+      {
+        "name": "qq_bomb_try",
+        "description": "猜一个数字"
+      }
+    ],
+    "source": {
+      "label": "AstrBot: astrbot_plugin_BombGame",
+      "url": "https://github.com/haoyuedashi/astrbot_plugin_BombGame"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "clock",
+    "name": "clock",
+    "description": "报时：现在几点、今天还剩多少、本周还剩多少",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_clock",
+        "description": "看看现在几点、离下班还有多久"
+      }
+    ],
+    "source": {
+      "label": "Koishi: koishi-plugin-time",
+      "url": "https://github.com/koishijs/koishi"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "coin",
+    "name": "coin",
+    "description": "抛硬币：正反面，也可以抛多枚统计",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_coin",
+        "description": "抛硬币决定一件事"
+      }
+    ],
+    "source": {
+      "label": "Koishi: koishi-plugin-coin",
+      "url": "https://github.com/koishijs/koishi"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "color",
+    "name": "color",
+    "description": "随机颜色卡：给一个颜色和 hex/RGB 值",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_color",
+        "description": "随机生成一个颜色"
+      }
+    ],
+    "source": {
+      "label": "Koishi: koishi-plugin-color",
+      "url": "https://github.com/koishijs/koishi"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "draw",
+    "name": "draw",
+    "description": "抽签：上上签到大凶，一句解释，图个乐",
+    "category": "娱乐",
+    "tools": [
+      {
+        "name": "qq_draw",
+        "description": "抽一支签"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: nonebot_plugin_draw",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "exchange",
+    "name": "exchange",
+    "description": "汇率换算：CNY/USD/EUR/JPY/GBP/HKD 等十余种货币",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_rate",
+        "description": "换算货币"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: nonebot_plugin_exchangerate",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "gacha",
+    "name": "gacha",
+    "description": "抽卡：随机抽一张群友卡，带稀有度（SSR / SR / R / N）",
+    "category": "娱乐",
+    "tools": [
+      {
+        "name": "qq_gacha",
+        "description": "抽一张卡（纯娱乐，稀有度越高越好）"
+      }
+    ],
+    "source": {
+      "label": "Yunzai: miao-plugin 抽卡",
+      "url": "https://github.com/yoimiya-kokomi/miao-plugin"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "guess",
+    "name": "guess",
+    "description": "猜数字小游戏：出题后群友猜 1-100，会提示大了小了",
+    "category": "小游戏",
+    "tools": [
+      {
+        "name": "qq_guess_start",
+        "description": "开一局猜数字（1-100）"
+      },
+      {
+        "name": "qq_guess_try",
+        "description": "猜一个数字，返回大了/小了/猜对了"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: nonebot_plugin_guess",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "hitokoto",
+    "name": "hitokoto",
+    "description": "一言：随机一句语录，动漫/文学/网络都有",
+    "category": "娱乐",
+    "tools": [
+      {
+        "name": "qq_hitokoto",
+        "description": "来一句一言"
+      }
+    ],
+    "source": {
+      "label": "Koishi: koishi-plugin-hitokoto",
+      "url": "https://github.com/koishijs/koishi"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "idiom",
+    "name": "idiom",
+    "description": "成语接龙小游戏：开一局，群友按尾字接成语",
+    "category": "小游戏",
+    "tools": [
+      {
+        "name": "qq_idiom_start",
+        "description": "开一局成语接龙，返回起始成语"
+      },
+      {
+        "name": "qq_idiom_next",
+        "description": "接一个成语，检查首字是否等于上一个成语的尾字"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: ayaka_games",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "joke",
+    "name": "joke",
+    "description": "冷笑话：一句一个，别指望多好笑",
+    "category": "娱乐",
+    "tools": [
+      {
+        "name": "qq_joke",
+        "description": "来一个冷笑话"
+      }
+    ],
+    "source": {
+      "label": "AstrBot: astrbot_plugin_joke",
+      "url": "https://github.com/AstrBotDevs/AstrBot_Plugins_Collection"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "jukebox",
+    "name": "jukebox",
+    "description": "点歌：把歌名变成网易云 / QQ音乐 / 酷狗的搜索链接",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_jukebox",
+        "description": "点歌，返回可以直接点开的搜索链接（不抓音频版权内容）"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: nonebot_plugin_zyk_music",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "ledger",
+    "name": "ledger",
+    "description": "群记账：记一笔花销或收入，随时看这个月花了多少",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_ledger_add",
+        "description": "记一笔账"
+      },
+      {
+        "name": "qq_ledger_list",
+        "description": "看这个月的账"
+      }
+    ],
+    "source": {
+      "label": "AstrBot: astrbot_plugin_life_assistant",
+      "url": "https://github.com/1fan-Song/astrbot_plugin_life_assistant"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "meihua",
+    "name": "meihua",
+    "description": "梅花易数：按当下时间起卦，给个卦象和一句断语",
+    "category": "娱乐",
+    "tools": [
+      {
+        "name": "qq_meihua",
+        "description": "起一卦（可带想问的事）"
+      }
+    ],
+    "source": {
+      "label": "AstrBot: astrbot_plugin_meihua",
+      "url": "https://github.com/985892345/astrbot_plugin_meihua"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "memo",
+    "name": "memo",
+    "description": "群备忘：记待办、看列表、标记完成（按会话分开存）",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_memo_add",
+        "description": "记一条备忘/待办到当前会话"
+      },
+      {
+        "name": "qq_memo_list",
+        "description": "看当前会话的备忘清单"
+      },
+      {
+        "name": "qq_memo_done",
+        "description": "把第 N 条备忘标记为完成"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: nonebot_plugin_note",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "morse",
+    "name": "morse",
+    "description": "摩斯电码：文字与 ·— 互转",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_morse",
+        "description": "把文字转成摩斯电码（或反过来）"
+      }
+    ],
+    "source": {
+      "label": "Koishi: koishi-plugin-morse",
+      "url": "https://github.com/koishijs/koishi"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "passgen",
+    "name": "passgen",
+    "description": "随机密码生成：长度可调，避开容易看混的字符",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_passgen",
+        "description": "生成一个随机密码"
+      }
+    ],
+    "source": {
+      "label": "Koishi: koishi-plugin-password",
+      "url": "https://github.com/koishijs/koishi"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "poem",
+    "name": "poem",
+    "description": "古诗：随机来一首，也可按关键词找",
+    "category": "娱乐",
+    "tools": [
+      {
+        "name": "qq_poem",
+        "description": "来一首古诗"
+      }
+    ],
+    "source": {
+      "label": "AstrBot: astrbot_plugin_ancient_poem",
+      "url": "https://github.com/juangchuank-ops/astrbot_plugin_ancient_poem"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "pomodoro",
+    "name": "pomodoro",
+    "description": "番茄钟：定一个专注时间，问它还剩多久（到点会告诉你）",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_pomodoro_start",
+        "description": "开始一个番茄钟"
+      },
+      {
+        "name": "qq_pomodoro_check",
+        "description": "看番茄钟还剩多久"
+      }
+    ],
+    "source": {
+      "label": "AstrBot: astrbot_plugin_pomodoro",
+      "url": "https://github.com/AstrBotDevs/AstrBot_Plugins_Collection"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "quote",
+    "name": "quote",
+    "description": "一句话：毒鸡汤 / 冷笑话 / 随机语录，全部本地词库不联网",
+    "category": "娱乐",
+    "tools": [
+      {
+        "name": "qq_quote",
+        "description": "来一句毒鸡汤或者语录"
+      }
+    ],
+    "source": {
+      "label": "Koishi: koishi-plugin-quote",
+      "url": "https://github.com/koishijs/koishi"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "riddle",
+    "name": "riddle",
+    "description": "脑筋急转弯：它出题，你来猜，答错可以看答案",
+    "category": "娱乐",
+    "tools": [
+      {
+        "name": "qq_riddle",
+        "description": "出一个脑筋急转弯"
+      }
+    ],
+    "source": {
+      "label": "Koishi: koishi-plugin-riddle",
+      "url": "https://github.com/koishijs/koishi"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "roulette",
+    "name": "roulette",
+    "description": "轮盘禁言（纯娱乐）：随机点一个人，看谁运气差",
+    "category": "小游戏",
+    "tools": [
+      {
+        "name": "qq_roulette",
+        "description": "转一次轮盘，点名一个倒霉蛋"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: nonebot_plugin_russian_ban",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "sensoji",
+    "name": "sensoji",
+    "description": "赛博浅草寺：摇一支签，带一点日式仪式感",
+    "category": "娱乐",
+    "tools": [
+      {
+        "name": "qq_sensoji",
+        "description": "在赛博浅草寺抽签"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: nonebot_plugin_CyberSensoji",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "tarot",
+    "name": "tarot",
+    "description": "抽一张塔罗牌（大阿卡纳，含正逆位与一句话解读）",
+    "category": "娱乐",
+    "tools": [
+      {
+        "name": "qq_tarot",
+        "description": "抽一张塔罗牌，回答“今天/这件事怎么样”这类问题"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: nonebot_plugin_tarot",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "translate",
+    "name": "translate",
+    "description": "翻译：中英互译（免费接口，长句可能不准）",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_translate",
+        "description": "翻译一段话"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: nonebot_plugin_easy_translate",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "unit",
+    "name": "unit",
+    "description": "单位换算：长度/重量/体积/温度，比如 5 尺是多少米",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_unit",
+        "description": "换算一个单位"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: nonebot_plugin_unitconvert",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "wordle",
+    "name": "wordle",
+    "description": "猜单词：5 个字母，六次机会，绿=位置对、黄=字母对",
+    "category": "小游戏",
+    "tools": [
+      {
+        "name": "qq_wordle_start",
+        "description": "开一局猜单词"
+      },
+      {
+        "name": "qq_wordle_try",
+        "description": "猜一个 5 字母单词"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: nonebot_plugin_wordle",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "zodiac",
+    "name": "zodiac",
+    "description": "星座运势：按日期生成，同一天同星座结果固定",
+    "category": "娱乐",
+    "tools": [
+      {
+        "name": "qq_zodiac",
+        "description": "看某个星座今天怎么样"
+      }
+    ],
+    "source": {
+      "label": "NoneBot: nonebot_plugin_xingzuo",
+      "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  }
+]

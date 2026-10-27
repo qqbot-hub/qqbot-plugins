@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>登录 · QQ-Plugin-Hub</title>
+<style>
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0d1117; color: #e6edf3; font: 14px/1.6 "Segoe UI", "Microsoft YaHei", sans-serif; }
+  form { background: #161b22; border: 1px solid #2a3344; border-radius: 14px; padding: 34px 30px; width: 320px; text-align: center; }
+  h1 { font-size: 18px; margin: 0 0 4px; } h1 b { color: #4f8cff; }
+  p.hint { color: #8b98a9; font-size: 12px; margin: 0 0 18px; }
+  input { width: 100%; box-sizing: border-box; background: #0d1117; color: inherit; border: 1px solid #2a3344; border-radius: 8px; padding: 9px 12px; font: inherit; outline: none; margin-bottom: 12px; }
+  input:focus { border-color: #4f8cff; }
+  button { width: 100%; background: #4f8cff; color: #fff; border: none; border-radius: 8px; padding: 9px; font: inherit; cursor: pointer; }
+  .err { color: #f85149; font-size: 13px; margin: 8px 0 0; }
+</style>
+</head>
+<body>
+<form method="post" action="/login">
+  <h1>🐟 <b>QQ-Plugin-Hub</b></h1>
+  <p class="hint">AI QQ 机器人插件市场 · 请输入访问口令</p>
+  <input type="password" name="password" placeholder="访问口令" autofocus>
+  <button>进入市场</button>
+</form>
+</body>
+</html>

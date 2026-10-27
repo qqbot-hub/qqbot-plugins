@@ -1,0 +1,262 @@
+#!/usr/bin/env node
+/* ============================================================
+ * QQ-Plugin-Hub —— AI QQ 机器人插件市场 · 服务端
+ *
+ * 零第三方依赖（Node 18+，用到全局 fetch）。
+ *   node server.js  →  http://127.0.0.1:3210
+ *
+ * 能力：
+ *   · 插件市场（浏览 / 搜索 / 安装 / 卸载 / 启停）
+ *   · 运行体检 /api/doctor：探测 DSH(3080) / SnowLuma(3000,3001) / qq-bridge(3100)
+ *   · 一键搭桥  /api/bridge/register-dsh：把 Hub 注册进 DSH 的 cordis.patch.yml
+ *   · 兼容老市场 API：/api/list /api/health /api/tunnel /api/op
+ *
+ * 鉴权：访问口令登录，种 HttpOnly Cookie（30 天）
+ * ============================================================ */
+'use strict';
+
+const http = require('node:http');
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const net = require('node:net');
+const { spawn } = require('node:child_process');
+const { pathToFileURL } = require('node:url');
+
+const ROOT = __dirname;
+const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
+const readBin = (f) => fs.readFileSync(path.join(ROOT, f));
+
+/* ---------- 配置 ---------- */
+let cfg = { password: '', port: 3210, snowluma: {}, bridge: {} };
+try { cfg = Object.assign(cfg, JSON.parse(read('config.json'))); } catch (e) { /* 首次运行用默认值 */ }
+const PORT = Number(cfg.port || 3210);
+const PASSWORD = String(cfg.password || '');
+const STATE_FILE = path.join(ROOT, 'data', 'state.json');
+
+/* ---------- 状态 ---------- */
+let STATE = {};
+try { STATE = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8')); } catch (e) { STATE = {}; }
+const saveState = () => { try { fs.mkdirSync(path.dirname(STATE_FILE), { recursive: true }); } catch {} fs.writeFileSync(STATE_FILE, JSON.stringify(STATE, null, 2)); };
+
+let UPTIME_START = Date.now();
+const uptime = () => Math.floor((Date.now() - UPTIME_START) / 1000);
+
+/* ---------- 鉴权 ---------- */
+/* 有口令：口令令牌鉴权；无口令：开放访问（本机自用场景）。 */
+const QM_TOKEN = PASSWORD ? crypto.createHash('sha256').update('qm:' + PASSWORD).digest('hex').slice(0, 48) : '';
+function authed(req) {
+  if (!PASSWORD) return true;
+  const m = /(?:^|;\s*)qm=([^;]+)/.exec(req.headers.cookie || '');
+  return !!(m && m[1] === QM_TOKEN);
+}
+
+/* ---------- 插件数据 ---------- */
+function catalog() {
+  try { return JSON.parse(read(path.join('data', 'plugins.json'))); } catch { return []; }
+}
+function currentPlugins() {
+  return catalog().map((p) => {
+    const s = STATE[p.id];
+    const out = Object.assign({}, p, s ? { installed: !!s.installed, enabled: !!s.enabled } : {});
+    out.toolCount = (p.tools || []).length;
+    return out;
+  });
+}
+
+/* ---------- 工具清单（真实能力来自 plugins/*.mjs） ---------- */
+async function installedTools() {
+  const tools = [];
+  for (const p of currentPlugins()) {
+    if (!p.installed) continue;
+    const file = path.join(ROOT, 'plugins', p.id + '.mjs');
+    if (!fs.existsSync(file)) continue;
+    try {
+      const mod = await import(pathToFileURL(file).href);
+      for (const t of (mod.default && mod.default.tools) || []) {
+        tools.push({ name: t.name, description: `[${p.name}] ${t.description}`, plugin: p.id });
+      }
+    } catch (e) { /* 忽略单个插件的加载错误 */ }
+  }
+  return tools;
+}
+
+/* ---------- 体检：TCP/HTTP 探测 ---------- */
+function tcpProbe(host, port, timeoutMs = 1500) {
+  return new Promise((resolve) => {
+    const s = net.connect({ host, port });
+    const done = (ok) => { try { s.destroy(); } catch {} resolve(ok); };
+    s.setTimeout(timeoutMs);
+    s.on('connect', () => done(true));
+    s.on('timeout', () => done(false));
+    s.on('error', () => done(false));
+  });
+}
+async function httpProbe(url, timeoutMs = 2000) {
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), timeoutMs);
+  try {
+    const r = await fetch(url, { signal: ac.signal });
+    return r.ok || (r.status >= 300 && r.status < 400);
+  } catch { return false; } finally { clearTimeout(t); }
+}
+async function doctor() {
+  const sl = Object.assign({ httpUrl: 'http://127.0.0.1:3000', wsPort: 3001 }, cfg.snowluma);
+  const dsh = Object.assign({ baseUrl: 'http://127.0.0.1:3080' }, cfg.dsh);
+  const bg = Object.assign({ consoleUrl: 'http://127.0.0.1:3100' }, cfg.bridge);
+  const httpHost = new URL(sl.httpUrl);
+  const [snowlumaHttp, snowlumaWs, dshOk, bridgeOk] = await Promise.all([
+    tcpProbe(httpHost.hostname, Number(httpHost.port) || 80),
+    tcpProbe('127.0.0.1', Number(sl.wsPort) || 3001),
+    httpProbe(dsh.baseUrl.replace(/\/$/, '') + '/'),
+    tcpProbe('127.0.0.1', Number(new URL(bg.consoleUrl).port) || 3100),
+  ]);
+  const tools = await installedTools();
+  return {
+    dsh: { ok: dshOk, url: dsh.baseUrl },
+    snowluma: { ok: snowlumaHttp && snowlumaWs, http: snowlumaHttp, ws: snowlumaWs, httpUrl: sl.httpUrl },
+    bridge: { ok: bridgeOk, url: bg.consoleUrl },
+    mcp: { tools: tools.length },
+    installed: currentPlugins().filter((p) => p.installed).length,
+    uptime: uptime(),
+    node: process.version,
+    port: PORT,
+  };
+}
+
+/* ---------- 搭桥：注册进 DSH ---------- */
+function registerDsh(profile) {
+  const home = process.env.USERPROFILE || process.env.HOME || '';
+  if (!home) return { ok: false, error: '拿不到用户目录' };
+  const name = String(profile || cfg.dsh?.profile || 'desktop');
+  const yml = path.join(home, '.dsh', 'profiles', name, 'cordis.patch.yml');
+  return new Promise((resolve) => {
+    const child = spawn(process.execPath, [path.join(ROOT, 'scripts', 'register-dsh.mjs'), name], { stdio: ['ignore', 'pipe', 'pipe'] });
+    let out = '', err = '';
+    child.stdout.on('data', (c) => { out += c; });
+    child.stderr.on('data', (c) => { err += c; });
+    child.on('close', (code) => resolve({ ok: code === 0, profile: name, file: yml, output: (out + err).trim() }));
+    child.on('error', (e) => resolve({ ok: false, error: e.message }));
+  });
+}
+
+/* ---------- HTTP 基础 ---------- */
+function sendJson(res, status, obj, extraHeaders) {
+  res.writeHead(status, Object.assign({
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store',
+  }, extraHeaders || {}));
+  res.end(JSON.stringify(obj));
+}
+function sendHtml(res, status, html) {
+  res.writeHead(status, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+  res.end(html);
+}
+function sendRedirect(res, to, extra) { res.writeHead(302, Object.assign({ Location: to, 'Cache-Control': 'no-store' }, extra || {})); res.end(); }
+function readBody(req) {
+  return new Promise((resolve) => {
+    let data = '';
+    req.on('data', (c) => { data += c; if (data.length > 1e6) req.destroy(); });
+    req.on('end', () => resolve(data));
+  });
+}
+
+/* ---------- 操作 ---------- */
+function performOp(action, id, extra) {
+  const exists = !!id && catalog().some((p) => p.id === id);
+  if (!exists) return { ok: false, error: '插件不存在' };
+  if (action === 'install') {
+    STATE[id] = Object.assign({}, STATE[id], { installed: true, enabled: true });
+    saveState();
+    return { ok: true, msg: '已安装。重启 DSH 后（或跑 scripts/register-dsh.mjs 后重启 DSH）工具生效。' };
+  }
+  if (action === 'uninstall') {
+    STATE[id] = Object.assign({}, STATE[id], { installed: false, enabled: false });
+    saveState();
+    return { ok: true, msg: '已卸载。重启 DSH 后工具从 AI 的工具列表消失。' };
+  }
+  if (action === 'toggle') {
+    const cur = currentPlugins().filter((p) => p.id === id)[0] || {};
+    const want = extra && extra.enabled != null ? !!extra.enabled : !cur.enabled;
+    STATE[id] = Object.assign({}, STATE[id], { enabled: want, installed: want || (STATE[id] || {}).installed });
+    saveState();
+    return { ok: true, msg: want ? '已启用' : '已停用' };
+  }
+  if (action === 'restart') {
+    UPTIME_START = Date.now();
+    return { ok: true, msg: '市场服务运行时间已重置（如需重启 qq-bridge 请双击其 restart.bat）' };
+  }
+  return { ok: false, error: '未知操作' };
+}
+
+/* ---------- 静态文件 ---------- */
+const STATIC = { '/': 'public/index.html', '/login': 'public/login.html' };
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml', '.ico': 'image/x-icon' };
+
+/* ---------- 服务器 ---------- */
+const server = http.createServer(async (req, res) => {
+  let p;
+  try { p = new URL(req.url, 'http://x').pathname; } catch { p = '/'; }
+  const method = req.method;
+
+  /* 登录 */
+  if (p === '/login' && method === 'POST') {
+    const params = new URLSearchParams(await readBody(req));
+    if (!PASSWORD || params.get('password') === PASSWORD) {
+      const cookie = PASSWORD
+        ? 'qm=' + QM_TOKEN + '; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000'
+        : 'qm=1; Path=/; Max-Age=600';
+      return sendRedirect(res, '/', { 'Set-Cookie': cookie });
+    }
+    const html = read('public/login.html').replace('</form>', '<p class="err">口令不对</p></form>');
+    return sendHtml(res, 401, html);
+  }
+
+  /* API */
+  if (p.startsWith('/api/')) {
+    if (!authed(req)) return sendJson(res, 401, { ok: false, error: '未登录' });
+    if (method === 'GET' && p === '/api/list') return sendJson(res, 200, { ok: true, plugins: currentPlugins() });
+    if (method === 'GET' && p === '/api/health') {
+      const d = await doctor();
+      return sendJson(res, 200, { ok: true, bridge: d.bridge.ok, snowluma: d.snowluma.ok, dsh: d.dsh.ok, installed: d.installed, tools: d.mcp.tools, uptime: d.uptime, node: d.node, port: d.port });
+    }
+    if (method === 'GET' && p === '/api/doctor') return sendJson(res, 200, { ok: true, ...(await doctor()) });
+    if (method === 'GET' && p === '/api/tools') return sendJson(res, 200, { ok: true, tools: await installedTools() });
+    if (method === 'GET' && p === '/api/tunnel') {
+      return sendJson(res, 200, { ok: true, enabled: !!cfg.tunnelEnabled, alive: !!cfg.tunnelAlive, url: cfg.tunnelUrl || '' });
+    }
+    if (method === 'POST' && p === '/api/op') {
+      const raw = await readBody(req);
+      const obj = (() => { try { return JSON.parse(raw || '{}'); } catch { return {}; } })();
+      return sendJson(res, 200, performOp(obj.action, obj.id, obj));
+    }
+    if (method === 'POST' && p === '/api/bridge/register-dsh') {
+      const raw = await readBody(req);
+      const obj = (() => { try { return JSON.parse(raw || '{}'); } catch { return {}; } })();
+      return sendJson(res, 200, await registerDsh(obj.profile));
+    }
+    return sendJson(res, 404, { ok: false, error: 'not found' });
+  }
+
+  /* 静态页 */
+  const file = STATIC[p];
+  if (file) {
+    if (!authed(req)) {
+      if (p === '/login') return sendHtml(res, 200, read(file));
+      return sendRedirect(res, '/login');
+    }
+    return sendHtml(res, 200, read(file));
+  }
+  const ext = path.extname(p);
+  if (ext && MIME[ext] && fs.existsSync(path.join(ROOT, p))) {
+    res.writeHead(200, { 'Content-Type': MIME[ext] });
+    return res.end(readBin(p));
+  }
+  if (!authed(req)) return sendRedirect(res, '/login');
+  return sendHtml(res, 404, '<!doctype html><meta charset="utf-8"><h1>404</h1>');
+});
+
+server.listen(PORT, '127.0.0.1', () => {
+  console.log('QQ-Plugin-Hub 插件市场已启动');
+  console.log('地址: http://127.0.0.1:' + PORT + (PASSWORD ? '' : '（未设口令，本机开放访问）'));
+});
