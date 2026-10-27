@@ -12,7 +12,7 @@
  *
  * 说明：所有依赖 OneBot 的工具都通过 HTTP 调 SnowLuma(3000)，
  *      本机没跑 SnowLuma 时统一显示「需在线」，不会被误判为坏插件。
- * 数据隔离：通过 QQHUB_STORE 指向临时目录，不会写入你的真实数据。
+ * 数据隔离：通过 QQBOT_STORE 指向临时目录，不会写入你的真实数据。
  * ============================================================ */
 'use strict';
 
@@ -123,8 +123,8 @@ function classify(err) {
 
 async function main() {
   /* 数据隔离：临时目录，跑完删掉 */
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'qqhub-verify-'));
-  process.env.QQHUB_STORE = tmp;
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'qqbot-verify-'));
+  process.env.QQBOT_STORE = tmp;
 
   const catalog = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'plugins.json'), 'utf8'));
   let config = {};

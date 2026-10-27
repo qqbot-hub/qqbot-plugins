@@ -47,7 +47,7 @@ const row = (ok, label, detail, fix) => {
   if (!ok && fix) console.log(`   └─ ${fix}`);
 };
 
-console.log('── QQ-Plugin-Hub 链路体检 ──');
+console.log('── qqbot-plugins 链路体检 ──');
 row(dsh, '① DSH 本体', dshUrl, '先打开 DSH 发一句话有回复，再谈搭桥');
 row(http3000, '② SnowLuma OneBot HTTP', slHttp, '去 SnowLuma WebUI 打开 HTTP API（端口 3000）');
 row(ws3001, '② SnowLuma WebSocket', '端口 ' + slWs, '去 SnowLuma WebUI 打开 WebSocket 服务端（端口 3001）');

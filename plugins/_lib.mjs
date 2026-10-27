@@ -1,5 +1,5 @@
 /* ============================================================
- * QQ-Plugin-Hub 插件共享库（供各插件 import，本身不是插件）
+ * qqbot-plugins 插件共享库（供各插件 import，本身不是插件）
  * 零第三方依赖。所有插件通过 ctx 获得运行时能力：
  *   ctx.onebot(action, params)  调 SnowLuma 的 OneBot HTTP API
  *   ctx.httpJson(url, opts)     带超时的 GET/POST JSON
@@ -13,9 +13,9 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 export const HUB_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-/* 允许用 QQHUB_STORE 重定向数据目录（自动化测试用临时目录，不污染真实数据） */
-export const STORE_DIR = process.env.QQHUB_STORE
-  ? path.resolve(process.env.QQHUB_STORE)
+/* 允许用 QQBOT_STORE 重定向数据目录（自动化测试用临时目录，不污染真实数据） */
+export const STORE_DIR = process.env.QQBOT_STORE
+  ? path.resolve(process.env.QQBOT_STORE)
   : path.join(HUB_ROOT, 'data', 'store');
 
 /* ---------- 存储 ---------- */
@@ -48,7 +48,7 @@ export async function httpJson(url, opts = {}, timeoutMs = 12000) {
   try {
     const res = await fetch(url, {
       signal: ac.signal,
-      headers: Object.assign({ 'User-Agent': 'QQ-Plugin-Hub/1.0' }, opts.headers || {}),
+      headers: Object.assign({ 'User-Agent': 'qqbot-plugins/1.0' }, opts.headers || {}),
       method: opts.method || 'GET',
       body: opts.body != null ? (typeof opts.body === 'string' ? opts.body : JSON.stringify(opts.body)) : undefined,
     });

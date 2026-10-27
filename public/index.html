@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
-<title>QQ-Plugin-Hub · AI QQ 机器人插件市场</title>
+<title>qqbot-plugins · AI QQ 机器人插件市场</title>
 <style>
   /* ============ 设计令牌 ============ */
   :root {
@@ -113,8 +113,9 @@
     content: ""; position: absolute; inset: 0; border-radius: inherit;
     background: linear-gradient(150deg, rgba(255,255,255,.24), transparent 55%);
   }
-  .brand-txt b { display: block; font-size: 14.5px; letter-spacing: .1px; }
-  .brand-txt span { display: block; font-size: 10.5px; color: var(--dim-2); letter-spacing: .6px; margin-top: 1px; }
+  .brand-txt b { display: block; font-size: 14.5px; letter-spacing: .1px; white-space: nowrap; }
+  .brand-txt .brand-acc { display: inline; color: var(--accent-2); }
+  .brand-txt > span { display: block; font-size: 10.5px; color: var(--dim-2); letter-spacing: .6px; margin-top: 1px; }
 
   .side-label {
     font-size: 10px; letter-spacing: 1.5px; color: var(--dim-2);
@@ -598,7 +599,7 @@
     <div class="brand">
       <div class="brand-mark">🐟</div>
       <div class="brand-txt">
-        <b>QQ-Plugin-Hub</b>
+        <b>qqbot<span class="brand-acc">-plugins</span></b>
         <span>AI 机器人插件市场</span>
       </div>
     </div>
@@ -685,7 +686,7 @@
           <div class="arw">→</div>
           <div class="node"><i>🐟</i><b>DSH</b><span>DeepSeek Harness<br>大肥鱼 3080</span></div>
           <div class="arw">→</div>
-          <div class="node hot"><i>🧰</i><b>本市场</b><span>MCP 插件层<br>mcp__qqhub__*</span></div>
+          <div class="node hot"><i>🧰</i><b>本市场</b><span>MCP 插件层<br>mcp__qqbot__*</span></div>
         </div>
         <p class="pipe-note">
           插件跑在本市场的进程里，不需要往 qq-bridge 目录塞任何文件；
@@ -725,7 +726,7 @@
           <div class="prov ok">
             <div class="prov-tag">实测</div>
             <b>59 项当场跑通，0 项报错</b>
-            <p>仓库自带 <code>node scripts/verify-plugins.mjs</code>，用真实参数把 75 个工具全跑一遍：59 项直接通过；15 项因为本机没开 QQ 显示「需在线」、1 项因为没填语音 Key 显示「需配置」——都是环境问题，不是插件坏了。你可以自己跑一遍复核。</p>
+            <p>仓库自带 <code>node scripts/verify-plugins.mjs</code>，用真实参数把 75 个工具全跑一遍：59 项直接通过；15 项因为本机没开 QQ 显示「需在线」、1 项因为没填语音 Key 显示「需配置」——都是环境问题，不是插件坏了。免费画图接口偶尔限流，脚本会单独标成「需公网」而不是算失败。你可以自己跑一遍复核。</p>
           </div>
           <div class="prov">
             <div class="prov-tag">边界</div>
@@ -743,7 +744,7 @@
             <div class="step"><div class="no">1</div><b>确认链路通</b>SnowLuma（3000/3001）与 qq-bridge 已按教程跑通，DSH 里发一句话有回复。</div>
             <div class="step"><div class="no">2</div><b>一键写入</b>点右侧按钮，把本市场写进 <code>cordis.patch.yml</code>（自动备份、可重复执行）。</div>
             <div class="step"><div class="no">3</div><b>完整重启 DSH</b>preset 与 MCP 只在启动时加载，务必完整退出再打开。</div>
-            <div class="step"><div class="no">4</div><b>验证生效</b>在 DSH 里搜 <code>mcp__qqhub__</code>，能看到工具即搭桥成功。</div>
+            <div class="step"><div class="no">4</div><b>验证生效</b>在 DSH 里搜 <code>mcp__qqbot__</code>，能看到工具即搭桥成功。</div>
           </div>
           <div class="regrow">
             <div class="search">

@@ -1,6 +1,6 @@
 # 插件开发规范（PLUGIN_SPEC）
 
-一个 QQ-Plugin-Hub 插件 = `plugins/` 下的一个自包含 `.mjs` 文件。零依赖、ESM、直接用 Node 内置模块。
+一个 qqbot-plugins 插件 = `plugins/` 下的一个自包含 `.mjs` 文件。零依赖、ESM、直接用 Node 内置模块。
 
 ## 最小示例
 
@@ -14,7 +14,7 @@ export default {
     category: '娱乐',       // 工具 / 群管理 / 群互动 / 娱乐 / 小游戏
   },
   tools: [{
-    name: 'qq_hello',      // 工具名（DSH 里显示为 mcp__qqhub__qq_hello）
+    name: 'qq_hello',      // 工具名（DSH 里显示为 mcp__qqbot__qq_hello）
     description: '跟某人说你好。有人喊"打个招呼"时用。',
     inputSchema: {         // JSON Schema，AI 靠它填参数
       type: 'object',

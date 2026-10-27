@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ============================================================
- * QQ-Plugin-Hub —— AI QQ 机器人插件市场 · 服务端
+ * qqbot-plugins —— AI QQ 机器人插件市场 · 服务端
  *
  * 零第三方依赖（Node 18+，用到全局 fetch）。
  *   node server.js  →  http://127.0.0.1:3210
@@ -401,6 +401,6 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, '127.0.0.1', () => {
-  console.log('QQ-Plugin-Hub 插件市场已启动');
+  console.log('qqbot-plugins 插件市场已启动');
   console.log('地址: http://127.0.0.1:' + PORT + (PASSWORD ? '' : '（未设口令，本机开放访问）'));
 });

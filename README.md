@@ -1,4 +1,4 @@
-# 🐟 QQ-Plugin-Hub — AI QQ 机器人插件市场
+# 🐟 qqbot-plugins — AI QQ 机器人插件市场
 
 > **给你的大肥鱼一个完整的人生。**
 > 给「SnowLuma + qq-bridge + DSH（大肥鱼）」这条链路补上记忆、声音、画笔，和一双能干活的手。
@@ -8,20 +8,20 @@
 你跟它聊三天，它转头就忘了你是谁。
 
 这个市场就是它的人生补丁：**46 个插件 / 75 项能力**，网页上点一下安装，
-就变成 AI 能自己调用的工具（`mcp__qqhub__*`）。从此它**记得住你**（长期记忆）、
+就变成 AI 能自己调用的工具（`mcp__qqbot__*`）。从此它**记得住你**（长期记忆）、
 **开得了口**（语音合成）、**画得了画**（文生图）、**管得了群**（禁言/踢人/公告），
 还会查天气、记账、发提醒、陪人玩成语接龙。
 
 ```
 QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
                                         │
-                                        └── ⇄  QQ-Plugin-Hub（MCP 插件层）
+                                        └── ⇄  qqbot-plugins（MCP 插件层）
                                                 46 个插件 / 75 个工具
 ```
 
 零第三方依赖 · 一个命令启动 · 网页里配置 · MIT 开源
 
-![QQ-Plugin-Hub 插件市场界面](docs/screenshot.png)
+![qqbot-plugins 插件市场界面](docs/screenshot.png)
 
 [![Node](https://img.shields.io/badge/node-%E2%89%A518-blue)](https://nodejs.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
@@ -80,7 +80,7 @@ copy config.example.json config.json
 node scripts/register-dsh.mjs desktop
 
 # 4. 【关键】完整退出并重启 DSH（MCP 只在启动时加载）
-#    然后在 DSH 里搜 mcp__qqhub__ —— 能搜到即搭桥成功 ✅
+#    然后在 DSH 里搜 mcp__qqbot__ —— 能搜到即搭桥成功 ✅
 
 # 5. 链路体检（随时可跑）
 node scripts/doctor.mjs
@@ -201,8 +201,8 @@ DSH 会同时加载人格和这些工具——它既能用大肥鱼的口吻说�
 详见 [docs/BRIDGE.md](docs/BRIDGE.md)。一句话版本：
 
 1. qq-bridge 官方通过 `~/.dsh/profiles/<profile>/cordis.patch.yml` 给 DSH 挂 MCP 服务器（`snowluma`、`web-search-safe` 等）；
-2. 本项目用**同一配置文件、同一格式**追加一个自己的条目 `mcp-qqhub`（serverName `qqhub`），指向本仓库的 `mcp-server.mjs`（stdio JSON-RPC）；
-3. DSH 启动时加载它，全部已安装插件的工具以 `mcp__qqhub__<tool>` 出现；
+2. 本项目用**同一配置文件、同一格式**追加一个自己的条目 `mcp-qqbot`（serverName `qqbot`），指向本仓库的 `mcp-server.mjs`（stdio JSON-RPC）；
+3. DSH 启动时加载它，全部已安装插件的工具以 `mcp__qqbot__<tool>` 出现；
 4. 插件内部需要操作 QQ 时，走 SnowLuma 的 OneBot HTTP API（端口 3000）——和 qq-bridge 用的是同一条通道。
 
 所以：**不 fork qq-bridge、不改它任何文件、不和它的 MCP 冲突**，教程链路原样保留，只做加法。
@@ -228,7 +228,7 @@ export default {
 ## 目录结构
 
 ```
-QQ-Plugin-Hub/
+qqbot-plugins/
 ├─ server.js            市场服务端（登录/API/体检/搭桥，零依赖）
 ├─ mcp-server.mjs       MCP stdio 服务器（暴露插件工具给 DSH）
 ├─ plugins/             43 个插件（每个 .mjs 自包含）
@@ -244,7 +244,7 @@ QQ-Plugin-Hub/
 
 | 现象 | 处理 |
 | --- | --- |
-| DSH 里搜不到 `mcp__qqhub__` | 没重启 DSH。完整退出桌面程序再打开（关浏览器标签不算） |
+| DSH 里搜不到 `mcp__qqbot__` | 没重启 DSH。完整退出桌面程序再打开（关浏览器标签不算） |
 | 装了插件但 AI 说没有这个工具 | 装/卸/启停后都要重启 DSH 才刷新工具列表 |
 | `register-dsh` 报 profile 目录不存在 | 打开 `~\.dsh\profiles\` 看子目录名，用真实名字 |
 | 禁言/踢人失败 | 机器人需要群管理员权限；SnowLuma 的 HTTP API(3000) 必须开启 |

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /* ============================================================
- * QQ-Plugin-Hub MCP 服务器（stdio）
+ * qqbot-plugins MCP 服务器（stdio）
  *
  * 这是与 DSH（DeepSeek Harness）搭桥的核心：
  * scripts/register-dsh.mjs 会把本进程注册进 cordis.patch.yml，
- * DSH 启动后所有已安装插件的工具都会以 mcp__qqhub__<tool> 出现，
+ * DSH 启动后所有已安装插件的工具都会以 mcp__qqbot__<tool> 出现，
  * AI 就能在 QQ 里直接调用。
  *
  * 协议：JSON-RPC 2.0 over stdio（MCP 2024-11-05 基本子集）
@@ -24,7 +24,7 @@ const HUB_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)));
 const DATA_DIR = path.join(HUB_ROOT, 'data');
 const CONFIG_FILE = path.join(HUB_ROOT, 'config.json');
 
-function logErr(...a) { process.stderr.write('[qqhub] ' + a.join(' ') + '\n'); }
+function logErr(...a) { process.stderr.write('[qqbot] ' + a.join(' ') + '\n'); }
 
 /* ---------- 配置（带 mtime 缓存，改文件即刻生效） ---------- */
 let cfgCache = { mtime: 0, data: null };
@@ -129,7 +129,7 @@ function write(msg) { process.stdout.write(JSON.stringify(msg) + '\n'); }
 async function main() {
   const hub = await loadPlugins();
   const fireTick = startFireDue(hub.fireDues);
-  logErr(`QQ-Plugin-Hub MCP 已启动：${hub.tools.length} 个工具可用`);
+  logErr(`qqbot-plugins MCP 已启动：${hub.tools.length} 个工具可用`);
 
   let buf = '';
   process.stdin.setEncoding('utf8');
@@ -157,7 +157,7 @@ async function main() {
         return reply({
           protocolVersion: '2024-11-05',
           capabilities: { tools: {} },
-          serverInfo: { name: 'qq-plugin-hub', version: '1.1.0' },
+          serverInfo: { name: 'qqbot-plugins', version: '1.1.0' },
         });
       case 'notifications/initialized':
       case 'notifications/cancelled':

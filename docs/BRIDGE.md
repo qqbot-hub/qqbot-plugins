@@ -1,4 +1,4 @@
-# 搭桥原理：QQ-Plugin-Hub ⇄ DSH / qq-bridge / SnowLuma
+# 搭桥原理：qqbot-plugins ⇄ DSH / qq-bridge / SnowLuma
 
 本文解释市场是怎么和《DeepSeek 接入 QQ》教程的链路"连起来"的。
 
@@ -31,23 +31,23 @@ QQ ⇄ SnowLuma ⇄ qq-bridge ⇄ DSH ⇄ DeepSeek 模型
 `scripts/register-dsh.mjs` 用注释块在同一文件里追加一个**独立托管**的条目：
 
 ```yaml
-# === QQ-Plugin-Hub MCP BEGIN ===
+# === qqbot-plugins MCP BEGIN ===
 - insert:
-    - id: mcp-qqhub
+    - id: mcp-qqbot
       name: '@deepseek-ai/dsh-mcp-client'
       config:
-        serverName: qqhub
+        serverName: qqbot
         transport: stdio
         command: '<node>'
-        args: ['<QQ-Plugin-Hub>/mcp-server.mjs']
+        args: ['<qqbot-plugins>/mcp-server.mjs']
         toolCallTimeoutMs: 725000
-# === QQ-Plugin-Hub MCP END ===
+# === qqbot-plugins MCP END ===
 ```
 
 要点：
 
 1. **同一个配置文件、同一种格式**——这是"搭桥"能成立的原因：DSH 只认这份清单。
-2. **id / serverName 不同（`qqhub`）**，与官方条目互不覆盖；重复跑注册脚本是幂等的（先删旧块再写新块）。
+2. **id / serverName 不同（`qqbot`）**，与官方条目互不覆盖；重复跑注册脚本是幂等的（先删旧块再写新块）。
 3. 脚本**只动 BEGIN/END 之间的行**，并先做时间戳备份，官方条目和其他内容原样保留。
 4. MCP 只在 DSH 启动时加载——**注册后必须完整退出并重启 DSH**。
 
@@ -57,7 +57,7 @@ QQ ⇄ SnowLuma ⇄ qq-bridge ⇄ DSH ⇄ DeepSeek 模型
 AI（DSH 会话里）
  │ tools/list, tools/call（stdio JSON-RPC）
  ▼
-QQ-Plugin-Hub/mcp-server.mjs
+qqbot-plugins/mcp-server.mjs
  │ 读取 data/state.json 确定装了哪些插件 → 聚合各插件 tools
  ├─ 纯本地逻辑（计算/游戏/词库…）直接执行
  ├─ 联网数据（天气/汇率/B站…）走免费公开接口
@@ -66,7 +66,7 @@ QQ-Plugin-Hub/mcp-server.mjs
     SnowLuma ⇄ QQ 客户端
 ```
 
-- 工具名：`mcp__qqhub__<name>`，如 `mcp__qqhub__qq_weather`。
+- 工具名：`mcp__qqbot__<name>`，如 `mcp__qqbot__qq_weather`。
 - 定时类插件（remind / pomodoro）导出 `fireDue(ctx)`，MCP 进程每 15 秒兜底触发一次，到点直接经 OneBot 主动发消息。
 - 危险操作（踢人、全体禁言、设管理员）在工具 schema 里要求 `confirm: true`，AI 不传就不执行。
 
@@ -88,4 +88,4 @@ QQ-Plugin-Hub/mcp-server.mjs
 1. DSH 里发一句话有回复（本体可用）；
 2. SnowLuma WebUI 显示 QQ 已登录、3000/3001 开启；
 3. `node scripts/doctor.mjs` 全绿；
-4. 重启 DSH 后新建会话，搜 `mcp__qqhub__` 能看到已装插件的工具。
+4. 重启 DSH 后新建会话，搜 `mcp__qqbot__` 能看到已装插件的工具。
