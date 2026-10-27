@@ -6,159 +6,552 @@
 <title>QQ-Plugin-Hub · AI QQ 机器人插件市场</title>
 <style>
   :root {
-    --bg: #0d1117; --panel: #161b22; --panel2: #1c2330; --line: #2a3344;
-    --text: #e6edf3; --dim: #8b98a9; --acc: #4f8cff; --ok: #3fb950; --warn: #d29922; --bad: #f85149;
+    --bg: #0b0f18;
+    --bg2: #0e1420;
+    --panel: #141b29;
+    --panel-2: #18202f;
+    --line: #24304a;
+    --line-soft: #1c2639;
+    --text: #e8eef8;
+    --dim: #8b9ab3;
+    --dim2: #66748c;
+    --acc: #4f8cff;
+    --acc-2: #7aa8ff;
+    --ok: #34d399;
+    --bad: #fb7185;
+    --heart: #ff5d8f;
+    --c-tool: #4f8cff;
+    --c-fun: #b06bff;
+    --c-game: #ff9f43;
+    --c-admin: #fb7185;
+    --c-social: #2ee6a8;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.6 "Segoe UI", "Microsoft YaHei", sans-serif; }
-  a { color: var(--acc); text-decoration: none; }
-  header { display: flex; align-items: center; gap: 14px; padding: 14px 22px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: rgba(13,17,23,.92); backdrop-filter: blur(6px); z-index: 5; }
-  .logo { font-size: 18px; font-weight: 700; letter-spacing: .5px; }
-  .logo b { color: var(--acc); }
-  .pills { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
-  .pill { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); font-size: 12px; color: var(--dim); }
-  .pill.ok { color: var(--ok); border-color: rgba(63,185,80,.4); }
-  .pill.bad { color: var(--bad); border-color: rgba(248,81,73,.4); }
-  main { max-width: 1080px; margin: 0 auto; padding: 20px 22px 60px; }
-  .hero { padding: 18px 0 6px; }
-  .hero h1 { margin: 0 0 6px; font-size: 22px; }
-  .hero p { margin: 0; color: var(--dim); }
-  .toolbar { display: flex; gap: 10px; margin: 18px 0 8px; flex-wrap: wrap; align-items: center; }
-  input[type=search], input[type=text] { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; font: inherit; outline: none; }
-  input[type=search] { flex: 1; min-width: 220px; }
-  input:focus { border-color: var(--acc); }
-  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-  .chip { cursor: pointer; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--dim); font-size: 13px; user-select: none; }
-  .chip.on { color: #fff; background: var(--acc); border-color: var(--acc); }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; transition: border-color .15s; }
-  .card:hover { border-color: #3b4a63; }
-  .card .top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .card h3 { margin: 0; font-size: 15px; white-space: nowrap; }
-  .tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; background: var(--panel2); color: var(--acc); border: 1px solid var(--line); white-space: nowrap; flex: 0 0 auto; }
-  .tag.src { color: var(--dim); max-width: 168px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: middle; }
-  .tag.src { color: var(--dim); }
-  .card .desc { color: var(--dim); font-size: 13px; min-height: 38px; }
-  .card .tools { font-size: 12px; color: var(--dim); display: flex; flex-wrap: wrap; gap: 6px; }
-  .card .tools code { background: var(--panel2); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; font-size: 11px; }
-  .card .btns { display: flex; gap: 8px; margin-top: auto; }
-  button { cursor: pointer; font: inherit; border-radius: 8px; border: 1px solid var(--line); background: var(--panel2); color: var(--text); padding: 6px 14px; }
-  button:hover { border-color: var(--acc); }
-  button.pri { background: var(--acc); border-color: var(--acc); color: #fff; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(900px 500px at 82% -8%, rgba(79,140,255,.16), transparent 60%),
+      radial-gradient(700px 420px at 8% 4%, rgba(176,107,255,.12), transparent 62%),
+      radial-gradient(800px 600px at 50% 110%, rgba(46,230,168,.07), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font: 14px/1.65 "Segoe UI Variable", "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--acc-2); text-decoration: none; }
+  a:hover { color: #a9c6ff; }
+
+  .shell { display: flex; align-items: flex-start; min-height: 100vh; }
+
+  /* ============ 侧栏 ============ */
+  .side {
+    width: 268px; flex: 0 0 268px; position: sticky; top: 0; height: 100vh;
+    display: flex; flex-direction: column; gap: 18px;
+    padding: 22px 18px; overflow-y: auto;
+    border-right: 1px solid var(--line-soft);
+    background: linear-gradient(180deg, rgba(20,27,41,.82), rgba(11,15,24,.62));
+    backdrop-filter: blur(10px);
+  }
+  .brand { display: flex; align-items: center; gap: 11px; padding: 2px 4px 2px; }
+  .brand-mark {
+    width: 40px; height: 40px; flex: 0 0 40px; border-radius: 12px;
+    display: grid; place-items: center; font-size: 20px;
+    background: linear-gradient(145deg, #2a5fd6, #1b3a86);
+    box-shadow: 0 6px 18px rgba(42,95,214,.36), inset 0 1px 0 rgba(255,255,255,.16);
+  }
+  .brand-txt b { display: block; font-size: 15px; letter-spacing: .2px; }
+  .brand-txt span { display: block; font-size: 11.5px; color: var(--dim2); letter-spacing: .4px; }
+
+  .side-title {
+    font-size: 11px; letter-spacing: 1.4px; color: var(--dim2);
+    text-transform: uppercase; padding: 0 6px; margin-bottom: -8px;
+  }
+  .nav { display: flex; flex-direction: column; gap: 3px; }
+  .nav a {
+    display: flex; align-items: center; gap: 9px; padding: 8px 11px;
+    border-radius: 9px; color: var(--dim); font-size: 13.5px;
+    border: 1px solid transparent; transition: .16s;
+  }
+  .nav a:hover { color: var(--text); background: rgba(255,255,255,.045); border-color: var(--line-soft); }
+  .nav a .ic { width: 16px; text-align: center; opacity: .85; }
+
+  .status-card {
+    background: linear-gradient(180deg, rgba(24,32,47,.9), rgba(20,27,41,.7));
+    border: 1px solid var(--line-soft); border-radius: 13px; padding: 12px 13px;
+    display: flex; flex-direction: column; gap: 9px;
+  }
+  .stat { display: flex; align-items: center; gap: 9px; font-size: 12.5px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 7px; background: var(--dim2); }
+  .dot.ok { background: var(--ok); box-shadow: 0 0 0 3px rgba(52,211,153,.14); }
+  .dot.bad { background: var(--bad); box-shadow: 0 0 0 3px rgba(251,113,133,.12); }
+  .stat .nm { color: var(--dim); }
+  .stat .vl { margin-left: auto; font-size: 11.5px; color: var(--dim2); font-variant-numeric: tabular-nums; }
+  .stat .vl.ok { color: var(--ok); }
+  .stat .vl.bad { color: var(--bad); }
+  .stat-sep { height: 1px; background: var(--line-soft); margin: 1px 0; }
+  .stat.big { font-size: 12.5px; }
+  .stat.big b { color: var(--text); font-weight: 600; }
+
+  /* 小贴士卡 */
+  .tip-card {
+    border: 1px dashed var(--line); border-radius: 12px; padding: 11px 13px;
+    background: rgba(79,140,255,.045); font-size: 11.5px; line-height: 1.65; color: var(--dim2);
+  }
+  .tip-card b { display: block; color: var(--dim); font-size: 12px; margin-bottom: 4px; font-weight: 600; }
+  .tip-card em { color: var(--acc-2); font-style: normal; }
+
+  /* 求星卡片 */
+  .star-card {
+    margin-top: auto; position: relative; border-radius: 15px; padding: 1px;
+    background: linear-gradient(145deg, rgba(255,93,143,.55), rgba(79,140,255,.5) 55%, rgba(176,107,255,.5));
+    box-shadow: 0 10px 30px -14px rgba(255,93,143,.5);
+  }
+  .star-inner {
+    border-radius: 14px; padding: 15px 15px 14px; text-align: center;
+    background: linear-gradient(180deg, #171f2f, #121927);
+  }
+  .heart-wrap { display: grid; place-items: center; height: 44px; }
+  .heart { width: 30px; height: 30px; color: var(--heart); animation: beat 1.8s ease-in-out infinite; }
+  @keyframes beat {
+    0%, 100% { transform: scale(1); }
+    12% { transform: scale(1.18); }
+    24% { transform: scale(1.02); }
+    36% { transform: scale(1.12); }
+    52% { transform: scale(1); }
+  }
+  .star-card b { display: block; font-size: 13.5px; margin-bottom: 3px; }
+  .star-card p { margin: 0 0 11px; font-size: 11.5px; line-height: 1.55; color: var(--dim); }
+  .star-btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    width: 100%; padding: 8px 10px; border-radius: 9px; font-size: 12.5px; font-weight: 600;
+    color: #fff; background: linear-gradient(145deg, #ff6b98, #e94f7f);
+    box-shadow: 0 6px 16px -6px rgba(255,93,143,.75); transition: .16s;
+  }
+  .star-btn:hover { transform: translateY(-1px); filter: brightness(1.06); color: #fff; }
+  .star-meta { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 9px; font-size: 11px; color: var(--dim2); }
+  .star-meta b { display: inline; font-size: 11.5px; color: var(--dim); margin: 0; }
+
+  /* ============ 主区 ============ */
+  main { flex: 1 1 auto; min-width: 0; padding: 34px 40px 70px; }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+
+  .hero { margin-bottom: 24px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 11.5px; letter-spacing: .5px;
+    color: var(--acc-2); background: rgba(79,140,255,.1); border: 1px solid rgba(79,140,255,.28);
+    padding: 4px 11px; border-radius: 999px; margin-bottom: 13px;
+  }
+  .eyebrow .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--acc); box-shadow: 0 0 0 0 rgba(79,140,255,.6); animation: pulse 2.2s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(79,140,255,.55); } 70% { box-shadow: 0 0 0 7px rgba(79,140,255,0); } 100% { box-shadow: 0 0 0 0 rgba(79,140,255,0); } }
+  h1 {
+    margin: 0 0 9px; font-size: 30px; line-height: 1.25; letter-spacing: -.4px; font-weight: 700;
+    background: linear-gradient(100deg, #ffffff 12%, #a9c6ff 52%, #c9a8ff 88%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .lede { margin: 0; color: var(--dim); font-size: 13.5px; max-width: 720px; }
+  .lede code { background: var(--panel-2); border: 1px solid var(--line-soft); border-radius: 5px; padding: 1px 6px; font-size: 12px; color: var(--acc-2); }
+
+  .toolbar { display: flex; gap: 10px; margin: 20px 0 14px; flex-wrap: wrap; align-items: center; }
+  .search-box { position: relative; flex: 1 1 320px; }
+  .search-box .ic {
+    position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+    color: var(--dim2); pointer-events: none; display: grid; place-items: center;
+  }
+  input[type=search], input[type=text] {
+    width: 100%; background: rgba(20,27,41,.85); color: var(--text);
+    border: 1px solid var(--line); border-radius: 11px; padding: 10px 14px 10px 38px;
+    font: inherit; font-size: 13.5px; outline: none; transition: .16s;
+  }
+  input[type=text] { padding-left: 14px; }
+  input[type=search]::placeholder { color: var(--dim2); }
+  input[type=search]:focus, input[type=text]:focus {
+    border-color: rgba(79,140,255,.7); background: rgba(24,32,47,.95);
+    box-shadow: 0 0 0 3px rgba(79,140,255,.13);
+  }
+
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .chip {
+    cursor: pointer; padding: 5px 14px; border-radius: 999px; font-size: 12.5px;
+    border: 1px solid var(--line); color: var(--dim); background: rgba(20,27,41,.6);
+    user-select: none; transition: .16s; display: flex; align-items: center; gap: 6px;
+  }
+  .chip:hover { color: var(--text); border-color: #33415f; }
+  .chip.on { color: #fff; background: linear-gradient(145deg, #3f7bf0, #2f63cf); border-color: transparent; box-shadow: 0 5px 14px -6px rgba(79,140,255,.8); }
+  .chip .n { font-size: 10.5px; opacity: .62; font-variant-numeric: tabular-nums; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(288px, 1fr)); gap: 14px; }
+  .card {
+    position: relative; display: flex; flex-direction: column; gap: 9px;
+    background: linear-gradient(180deg, #151d2c, #111826);
+    border: 1px solid var(--line-soft); border-radius: 14px; padding: 15px 16px 14px;
+    transition: transform .18s ease, border-color .18s, box-shadow .18s;
+    animation: rise .4s cubic-bezier(.2,.7,.3,1) both;
+    overflow: hidden;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
+  .card::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 2px;
+    background: var(--cat, var(--acc)); opacity: .65;
+  }
+  .card:hover {
+    transform: translateY(-2px); border-color: #33415f;
+    box-shadow: 0 14px 30px -18px rgba(0,0,0,.9), 0 0 0 1px rgba(79,140,255,.1);
+  }
+  .card.on-row::before { opacity: 1; }
+  .top { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .top h3 { margin: 0; font-size: 14.5px; font-weight: 650; letter-spacing: .1px; white-space: nowrap; }
+  .tag {
+    font-size: 10.5px; padding: 1.5px 8px; border-radius: 6px; white-space: nowrap; flex: 0 0 auto;
+    color: var(--cat, var(--acc)); border: 1px solid color-mix(in srgb, var(--cat, var(--acc)) 34%, transparent);
+    background: color-mix(in srgb, var(--cat, var(--acc)) 12%, transparent);
+  }
+  .tag.src {
+    color: var(--dim2); border-color: var(--line); background: rgba(255,255,255,.03);
+    max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block;
+  }
+  .state {
+    margin-left: auto; font-size: 11px; white-space: nowrap; flex: 0 0 auto;
+    display: inline-flex; align-items: center; gap: 5px; color: var(--ok);
+  }
+  .state.off { color: var(--dim2); }
+  .state .dot { width: 6px; height: 6px; flex: 0 0 6px; }
+  .desc { color: var(--dim); font-size: 12.5px; line-height: 1.6; min-height: 40px; margin: 0; }
+  .tools { display: flex; flex-wrap: wrap; gap: 5px; }
+  .tools code {
+    background: rgba(255,255,255,.035); border: 1px solid var(--line-soft); border-radius: 5px;
+    padding: 1px 7px; font-size: 10.5px; color: #9db0cc; font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  .btns { display: flex; gap: 8px; margin-top: auto; padding-top: 3px; }
+  button {
+    cursor: pointer; font: inherit; font-size: 12.5px; border-radius: 8px;
+    border: 1px solid var(--line); background: rgba(255,255,255,.04); color: var(--text);
+    padding: 6px 15px; transition: .16s;
+  }
+  button:hover { border-color: #3d4c6b; background: rgba(255,255,255,.07); }
+  button.pri {
+    background: linear-gradient(145deg, #3f7bf0, #2c5fc9); border-color: transparent; color: #fff; font-weight: 600;
+    box-shadow: 0 6px 16px -8px rgba(79,140,255,.9);
+  }
+  button.pri:hover { filter: brightness(1.07); transform: translateY(-1px); }
   button.ghost { background: transparent; color: var(--dim); }
-  .state-on { color: var(--ok); font-size: 12px; align-self: center; margin-left: auto; white-space: nowrap; flex: 0 0 auto; }
-  .state-off { color: var(--dim); font-size: 12px; align-self: center; margin-left: auto; white-space: nowrap; flex: 0 0 auto; }
-  section.bridge { margin-top: 34px; background: linear-gradient(180deg, rgba(79,140,255,.08), transparent), var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; }
-  section.bridge h2 { margin: 0 0 8px; font-size: 17px; }
-  section.bridge ol { margin: 8px 0; padding-left: 22px; color: var(--dim); }
-  section.bridge li { margin: 5px 0; }
-  section.bridge code { background: var(--panel2); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; font-size: 12px; }
-  .regrow { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 18px; max-width: 80vw; box-shadow: 0 8px 30px rgba(0,0,0,.5); display: none; }
-  .toast.err { border-color: var(--bad); }
-  .empty { text-align: center; color: var(--dim); padding: 40px 0; }
+  button.ghost:hover { color: var(--bad); border-color: rgba(251,113,133,.45); }
+
+  .empty { grid-column: 1/-1; text-align: center; color: var(--dim2); padding: 54px 0; font-size: 13px; }
+
+  /* ============ 搭桥区 ============ */
+  .bridge {
+    margin-top: 38px; border-radius: 18px; padding: 1px; position: relative;
+    background: linear-gradient(150deg, rgba(79,140,255,.42), rgba(176,107,255,.3) 48%, rgba(46,230,168,.26));
+  }
+  .bridge-inner {
+    border-radius: 17px; padding: 24px 26px 22px;
+    background: radial-gradient(600px 260px at 100% 0%, rgba(79,140,255,.1), transparent 65%), #101725;
+  }
+  .bridge h2 { margin: 0 0 5px; font-size: 17px; display: flex; align-items: center; gap: 9px; }
+  .bridge .sub { margin: 0 0 18px; font-size: 12.5px; color: var(--dim2); }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(196px, 1fr)); gap: 11px; margin-bottom: 18px; }
+  .step {
+    background: rgba(20,27,41,.72); border: 1px solid var(--line-soft); border-radius: 12px; padding: 12px 13px;
+    font-size: 12.5px; color: var(--dim); line-height: 1.6;
+  }
+  .step .no {
+    width: 21px; height: 21px; border-radius: 7px; display: grid; place-items: center;
+    font-size: 11px; font-weight: 700; color: #fff; margin-bottom: 7px;
+    background: linear-gradient(145deg, #3f7bf0, #2c5fc9);
+  }
+  .step b { color: var(--text); font-weight: 600; }
+  .step code, .bridge code {
+    background: rgba(255,255,255,.05); border: 1px solid var(--line-soft); border-radius: 4px;
+    padding: 0 5px; font-size: 11px; color: var(--acc-2); font-family: ui-monospace, Consolas, monospace;
+  }
+  .regrow { display: flex; gap: 10px; flex-wrap: wrap; }
+  .regrow .search-box { flex: 1 1 300px; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(14px);
+    background: #1b2434; border: 1px solid var(--line); border-radius: 11px;
+    padding: 10px 20px; font-size: 13px; max-width: min(76vw, 620px);
+    box-shadow: 0 18px 44px -18px rgba(0,0,0,.95);
+    opacity: 0; pointer-events: none; transition: .22s; z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.err { border-color: rgba(251,113,133,.55); color: #ffd5dc; }
+  .toast.ok { border-color: rgba(52,211,153,.45); }
+
+  footer { margin-top: 34px; text-align: center; font-size: 11.5px; color: var(--dim2); }
+  footer a { color: var(--dim); }
+
+  @media (max-width: 980px) {
+    .shell { flex-direction: column; }
+    .side {
+      width: 100%; flex: none; height: auto; position: static;
+      flex-direction: row; flex-wrap: wrap; align-items: center; gap: 14px;
+      padding: 14px 18px; border-right: none; border-bottom: 1px solid var(--line-soft);
+    }
+    .side-title, .nav { display: none; }
+    .status-card { flex-direction: row; flex-wrap: wrap; gap: 12px; padding: 8px 12px; }
+    .stat-sep { display: none; }
+    .tag.src { display: none; }
+    .star-card { margin: 0 0 0 auto; min-width: 210px; }
+    .star-inner { padding: 10px 12px; display: flex; align-items: center; gap: 10px; text-align: left; }
+    .heart-wrap { height: auto; }
+    .star-card b { margin: 0; }
+    .star-card p { display: none; }
+    .star-btn { width: auto; padding: 6px 12px; margin-left: auto; }
+    .star-meta { display: none; }
+    main { padding: 24px 18px 60px; }
+    h1 { font-size: 24px; }
+  }
 </style>
 </head>
 <body>
-<header>
-  <div class="logo">🐟 <b>QQ-Plugin-Hub</b></div>
-  <div class="pills" id="pills"></div>
-</header>
-<main>
-  <div class="hero">
-    <h1>AI QQ 机器人插件市场</h1>
-    <p>一键给「SnowLuma + qq-bridge + DSH（DeepSeek Harness）」链路上的 AI 机器人装上 43 个插件、69 个能力。装完即变成 AI 可调用的 MCP 工具。</p>
-  </div>
-  <div class="toolbar">
-    <input type="search" id="q" placeholder="搜索插件 / 工具名 / 功能描述，如 签到、天气、禁言…">
-    <button class="ghost" onclick="load()">刷新</button>
-  </div>
-  <div class="chips" id="chips"></div>
-  <div class="grid" id="grid"></div>
-
-  <section class="bridge">
-    <h2>🔌 搭桥：接入 DSH（DeepSeek Harness）</h2>
-    <ol>
-      <li>确认 <code>SnowLuma</code>（3000/3001）和 <code>qq-bridge</code> 已按教程跑通，DSH 本地地址可访问（默认 <code>http://127.0.0.1:3080</code>）。</li>
-      <li>点下面按钮，把 QQ-Plugin-Hub 作为 MCP 服务器写进 <code>~/.dsh/profiles/&lt;profile&gt;/cordis.patch.yml</code>（与 qq-bridge 官方挂 <code>mcp__snowluma__</code> 同一机制，互不影响）。</li>
-      <li><b>完整退出并重启 DSH</b>（preset 和 MCP 只在启动时加载）。</li>
-      <li>在 DSH 里搜 <code>mcp__qqhub__</code> 能看到工具，即搭桥成功。机器人从此可在 QQ 里直接调用本市场已安装的插件。</li>
-    </ol>
-    <div class="regrow">
-      <input type="text" id="profile" placeholder="DSH profile 名（打开 ~/.dsh/profiles/ 看子目录名，本机通常是 desktop）" style="flex:1;min-width:260px">
-      <button class="pri" onclick="registerDsh()">一键接入 DSH</button>
+<div class="shell">
+  <!-- ============ 侧栏 ============ -->
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark">🐟</div>
+      <div class="brand-txt">
+        <b>QQ-Plugin-Hub</b>
+        <span>AI 机器人插件市场</span>
+      </div>
     </div>
-  </section>
-</main>
+
+    <div class="side-title">导航</div>
+    <nav class="nav">
+      <a href="#market"><span class="ic">▦</span>插件市场</a>
+      <a href="#bridge"><span class="ic">⇄</span>接入 DSH</a>
+      <a href="https://github.com/xiazhuo123456789/awesome-qqbot-plugins#readme" target="_blank" rel="noopener"><span class="ic">▤</span>使用文档</a>
+      <a href="https://github.com/xiazhuo123456789/awesome-qqbot-plugins/tree/main/docs/PLUGIN_SPEC.md" target="_blank" rel="noopener"><span class="ic">✦</span>开发自己的插件</a>
+    </nav>
+
+    <div class="side-title">运行状态</div>
+    <div class="status-card" id="statusCard">
+      <div class="stat"><span class="dot"></span><span class="nm">检测中…</span></div>
+    </div>
+
+    <!-- 小贴士 -->
+    <div class="tip-card">
+      <b>装完记得重启</b>
+      安装 / 卸载 / 启停插件后，需要<em>完整重启 DSH</em> 才会刷新 AI 的工具列表。
+    </div>
+
+    <!-- 求星卡片 -->
+    <div class="star-card">
+      <div class="star-inner">
+        <div class="heart-wrap">
+          <svg class="heart" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 21s-6.7-4.2-9.1-8.2C1.1 9.9 2.2 6.2 5.4 5.1c2-.7 4.1.1 5.3 1.7l1.3 1.7 1.3-1.7c1.2-1.6 3.3-2.4 5.3-1.7 3.2 1.1 4.3 4.8 2.5 7.7C18.7 16.8 12 21 12 21z"/>
+          </svg>
+        </div>
+        <b>请给我点一颗免费的心</b>
+        <p>这个项目完全开源免费。<br>一颗 Star 就是最好的鼓励，谢谢你 ❤</p>
+        <a class="star-btn" href="https://github.com/xiazhuo123456789/awesome-qqbot-plugins" target="_blank" rel="noopener">
+          <span>★</span> 去 GitHub 点 Star
+        </a>
+        <div class="star-meta"><span id="starCount">开源 · MIT</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ 主区 ============ -->
+  <main>
+    <div class="wrap" id="market">
+      <div class="hero">
+        <div class="eyebrow"><span class="pulse"></span>SnowLuma · qq-bridge · DSH · DeepSeek</div>
+        <h1>AI QQ 机器人插件市场</h1>
+        <p class="lede">
+          给「SnowLuma + qq-bridge + DSH（DeepSeek Harness）」链路上的 AI 机器人装上 43 个插件、69 个能力。
+          装完即变成 AI 可调用的 MCP 工具 <code>mcp__qqhub__*</code>，机器人在 QQ 群里就能查天气、管群、记账、开游戏。
+        </p>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <span class="ic">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/>
+            </svg>
+          </span>
+          <input type="search" id="q" placeholder="搜索插件 / 工具名 / 功能描述，如 签到、天气、禁言…">
+        </div>
+        <button onclick="load()">刷新</button>
+      </div>
+
+      <div class="chips" id="chips"></div>
+      <div class="grid" id="grid"></div>
+
+      <section class="bridge" id="bridge">
+        <div class="bridge-inner">
+          <h2>🔌 接入 DSH（DeepSeek Harness）</h2>
+          <p class="sub">与 qq-bridge 官方挂 <code>mcp__snowluma__</code> 使用同一份配置文件、同一格式，互不冲突；不改动 qq-bridge 任何文件。</p>
+          <div class="steps">
+            <div class="step">
+              <div class="no">1</div>
+              <b>确认链路通</b><br>SnowLuma（3000/3001）与 qq-bridge 已按教程跑通，DSH 里发一句话有回复。
+            </div>
+            <div class="step">
+              <div class="no">2</div>
+              <b>一键写入</b><br>点右侧按钮，把本市场写进 <code>cordis.patch.yml</code>（自动备份、可重复执行）。
+            </div>
+            <div class="step">
+              <div class="no">3</div>
+              <b>完整重启 DSH</b><br>preset 与 MCP 只在启动时加载，务必完整退出再打开。
+            </div>
+            <div class="step">
+              <div class="no">4</div>
+              <b>验证生效</b><br>在 DSH 里搜 <code>mcp__qqhub__</code>，能看到工具即搭桥成功。
+            </div>
+          </div>
+          <div class="regrow">
+            <div class="search-box">
+              <input type="text" id="profile" placeholder="DSH profile 名（打开 ~/.dsh/profiles/ 看子目录名，通常是 desktop）">
+            </div>
+            <button class="pri" onclick="registerDsh()">一键接入 DSH</button>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        开源项目 <a href="https://github.com/xiazhuo123456789/awesome-qqbot-plugins" target="_blank" rel="noopener">awesome-qqbot-plugins</a>
+        · MIT License · 本项目界面与图标均为原创实现，不含任何第三方素材
+      </footer>
+    </div>
+  </main>
+</div>
 <div class="toast" id="toast"></div>
+
 <script>
 let PLUGINS = [], CAT = '全部';
 const $ = (s) => document.querySelector(s);
+const REPO = 'https://github.com/xiazhuo123456789/awesome-qqbot-plugins';
 
-function toast(msg, err) {
+/* 分类 → 强调色（用于卡片顶边与分类标签） */
+const CAT_COLOR = {
+  '工具': 'var(--c-tool)',
+  '娱乐': 'var(--c-fun)',
+  '小游戏': 'var(--c-game)',
+  '群管理': 'var(--c-admin)',
+  '群互动': 'var(--c-social)',
+};
+const catColor = (c) => CAT_COLOR[c] || 'var(--acc)';
+
+function toast(msg, kind) {
   const t = $('#toast');
-  t.textContent = msg; t.className = 'toast' + (err ? ' err' : ''); t.style.display = 'block';
-  clearTimeout(t._h); t._h = setTimeout(() => { t.style.display = 'none'; }, 3200);
+  t.textContent = msg;
+  t.className = 'toast show' + (kind ? ' ' + kind : '');
+  clearTimeout(t._h);
+  t._h = setTimeout(() => { t.className = 'toast'; }, 3600);
 }
 
+/* 侧栏运行状态 */
 async function loadHealth() {
-  const pills = $('#pills');
+  const box = $('#statusCard');
   try {
     const r = await (await fetch('/api/health')).json();
-    pills.innerHTML =
-      pill(r.dsh, 'DSH 3080') + pill(r.snowluma, 'SnowLuma') + pill(r.bridge, 'qq-bridge 3100') +
-      `<span class="pill ok">已装 ${r.installed} · 工具 ${r.tools}</span>`;
-  } catch { pills.innerHTML = '<span class="pill bad">市场服务异常</span>'; }
+    const row = (ok, name) => `<div class="stat"><span class="dot ${ok ? 'ok' : 'bad'}"></span><span class="nm">${name}</span><span class="vl ${ok ? 'ok' : 'bad'}">${ok ? '在线' : '未连接'}</span></div>`;
+    box.innerHTML =
+      row(r.dsh, 'DSH 3080') +
+      row(r.snowluma, 'SnowLuma') +
+      row(r.bridge, 'qq-bridge 3100') +
+      '<div class="stat-sep"></div>' +
+      `<div class="stat big"><span class="dot ok"></span><span class="nm">已装 <b>${r.installed}</b> 个插件</span><span class="vl">${r.tools} 个工具</span></div>`;
+  } catch {
+    box.innerHTML = '<div class="stat"><span class="dot bad"></span><span class="nm">市场服务异常</span></div>';
+  }
 }
-function pill(ok, label) { return `<span class="pill ${ok ? 'ok' : 'bad'}">${label} ${ok ? '✓' : '✗'}</span>`; }
+
+/* 仓库 Star 数（失败就保持默认文案，不报错） */
+async function loadStars() {
+  try {
+    const r = await fetch('https://api.github.com/repos/xiazhuo123456789/awesome-qqbot-plugins');
+    const d = await r.json();
+    if (typeof d.stargazers_count === 'number') {
+      $('#starCount').textContent = d.stargazers_count > 0
+        ? `${d.stargazers_count} 颗心 · 谢谢 ❤`
+        : '开源 · MIT · 你是第 1 颗心吗';
+    }
+  } catch { /* 离线/受限时保持默认 */ }
+}
 
 async function load() {
   loadHealth();
   const r = await (await fetch('/api/list')).json();
   PLUGINS = r.plugins || [];
-  const cats = ['全部', ...new Set(PLUGINS.map((p) => p.category))];
-  $('#chips').innerHTML = cats.map((c) => `<span class="chip ${c === CAT ? 'on' : ''}" data-c="${c}">${c}</span>`).join('');
+  const counts = {};
+  PLUGINS.forEach((p) => { counts[p.category] = (counts[p.category] || 0) + 1; });
+  const cats = ['全部', ...Object.keys(counts)];
+  $('#chips').innerHTML = cats.map((c) => {
+    const n = c === '全部' ? PLUGINS.length : counts[c];
+    return `<span class="chip ${c === CAT ? 'on' : ''}" data-c="${c}">${c}<span class="n">${n}</span></span>`;
+  }).join('');
   render();
 }
 
 function render() {
   const q = $('#q').value.trim().toLowerCase();
   const list = PLUGINS.filter((p) => (CAT === '全部' || p.category === CAT) &&
-    (!q || p.name.includes(q) || p.description.toLowerCase().includes(q) || (p.tools || []).some((t) => t.name.toLowerCase().includes(q))));
-  $('#grid').innerHTML = list.length ? list.map(card).join('') : '<div class="empty">没有匹配的插件</div>';
+    (!q || p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) ||
+      (p.tools || []).some((t) => t.name.toLowerCase().includes(q) || (t.description || '').toLowerCase().includes(q))));
+  $('#grid').innerHTML = list.length
+    ? list.map((p, i) => card(p, i)).join('')
+    : '<div class="empty">没有匹配的插件，换个关键词试试</div>';
 }
 
-function card(p) {
-  const src = p.source && p.source.label ? `<span class="tag src" title="${p.source.url || ''}">源自 ${p.source.label}</span>` : '';
-  const tools = (p.tools || []).map((t) => `<code title="${t.description}">${t.name}</code>`).join('');
-  const st = p.installed ? (p.enabled ? '<span class="state-on">运行中</span>' : '<span class="state-off">已停用</span>') : '';
+function card(p, i) {
+  const color = catColor(p.category);
+  const src = p.source && p.source.label
+    ? `<span class="tag src" title="${p.source.label}${p.source.url ? ' · ' + p.source.url : ''}">源自 ${p.source.label}</span>`
+    : '';
+  const tools = (p.tools || []).map((t) => `<code title="${(t.description || '').replace(/"/g, '&quot;')}">${t.name}</code>`).join('');
+  const state = p.installed
+    ? `<span class="state ${p.enabled ? '' : 'off'}"><span class="dot ${p.enabled ? 'ok' : ''}"></span>${p.enabled ? '运行中' : '已停用'}</span>`
+    : '';
   const btns = p.installed
-    ? `<button onclick="op('toggle','${p.id}',{enabled:${!p.enabled}})">${p.enabled ? '停用' : '启用'}</button><button class="ghost" onclick="op('uninstall','${p.id}')">卸载</button>`
+    ? `<button onclick="op('toggle','${p.id}',{enabled:${!p.enabled}})">${p.enabled ? '停用' : '启用'}</button>
+       <button class="ghost" onclick="op('uninstall','${p.id}')">卸载</button>`
     : `<button class="pri" onclick="op('install','${p.id}')">安装</button>`;
-  return `<div class="card">
-    <div class="top"><h3>${p.name}</h3><span class="tag">${p.category}</span>${src}${st}</div>
-    <div class="desc">${p.description}</div>
+  return `<article class="card${p.installed ? ' on-row' : ''}" style="--cat:${color};animation-delay:${Math.min(i, 14) * 18}ms">
+    <div class="top">
+      <h3>${p.name}</h3>
+      <span class="tag">${p.category}</span>
+      ${src}
+      ${state}
+    </div>
+    <p class="desc">${p.description}</p>
     <div class="tools">${tools}</div>
     <div class="btns">${btns}</div>
-  </div>`;
+  </article>`;
 }
 
 async function op(action, id, extra) {
-  const r = await (await fetch('/api/op', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action, id }, extra)) })).json();
-  toast(r.ok ? (r.msg || '完成') : (r.error || '失败'), !r.ok);
+  const r = await (await fetch('/api/op', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(Object.assign({ action, id }, extra)),
+  })).json();
+  if (r.ok) toast(r.msg || '完成', 'ok');
+  else toast(r.error || '操作失败', 'err');
   load();
 }
 
 async function registerDsh() {
   const profile = $('#profile').value.trim() || 'desktop';
   toast('正在写入 cordis.patch.yml …');
-  const r = await (await fetch('/api/bridge/register-dsh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ profile }) })).json();
-  toast(r.ok ? `已写入 ${r.file}，现在去重启 DSH！` : ('注册失败：' + (r.error || r.output || '未知')), !r.ok);
+  const r = await (await fetch('/api/bridge/register-dsh', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ profile }),
+  })).json();
+  if (r.ok) toast('已写入 ' + r.file + '，现在去完整重启 DSH！', 'ok');
+  else toast('注册失败：' + (r.error || r.output || '未知原因'), 'err');
 }
 
-$('#chips').addEventListener('click', (e) => { if (e.target.dataset.c) { CAT = e.target.dataset.c; load(); } });
+$('#chips').addEventListener('click', (e) => {
+  const chip = e.target.closest('.chip');
+  if (chip) { CAT = chip.dataset.c; load(); }
+});
 $('#q').addEventListener('input', render);
 load();
+loadStars();
 </script>
 </body>
 </html>

@@ -5,22 +5,63 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>登录 · QQ-Plugin-Hub</title>
 <style>
-  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0d1117; color: #e6edf3; font: 14px/1.6 "Segoe UI", "Microsoft YaHei", sans-serif; }
-  form { background: #161b22; border: 1px solid #2a3344; border-radius: 14px; padding: 34px 30px; width: 320px; text-align: center; }
-  h1 { font-size: 18px; margin: 0 0 4px; } h1 b { color: #4f8cff; }
-  p.hint { color: #8b98a9; font-size: 12px; margin: 0 0 18px; }
-  input { width: 100%; box-sizing: border-box; background: #0d1117; color: inherit; border: 1px solid #2a3344; border-radius: 8px; padding: 9px 12px; font: inherit; outline: none; margin-bottom: 12px; }
-  input:focus { border-color: #4f8cff; }
-  button { width: 100%; background: #4f8cff; color: #fff; border: none; border-radius: 8px; padding: 9px; font: inherit; cursor: pointer; }
-  .err { color: #f85149; font-size: 13px; margin: 8px 0 0; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px;
+    background:
+      radial-gradient(760px 460px at 78% -10%, rgba(79,140,255,.18), transparent 62%),
+      radial-gradient(620px 400px at 10% 100%, rgba(176,107,255,.14), transparent 62%),
+      #0b0f18;
+    color: #e8eef8;
+    font: 14px/1.65 "Segoe UI Variable", "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  form {
+    width: 340px; padding: 1px; border-radius: 18px;
+    background: linear-gradient(150deg, rgba(79,140,255,.5), rgba(176,107,255,.35) 55%, rgba(46,230,168,.28));
+    box-shadow: 0 30px 70px -34px rgba(0,0,0,.95);
+  }
+  .inner {
+    border-radius: 17px; padding: 34px 30px 28px; text-align: center;
+    background: linear-gradient(180deg, #151d2c, #101725);
+  }
+  .mark {
+    width: 48px; height: 48px; margin: 0 auto 14px; border-radius: 14px;
+    display: grid; place-items: center; font-size: 24px;
+    background: linear-gradient(145deg, #2a5fd6, #1b3a86);
+    box-shadow: 0 8px 22px rgba(42,95,214,.4), inset 0 1px 0 rgba(255,255,255,.18);
+  }
+  h1 { font-size: 17px; margin: 0 0 5px; letter-spacing: .2px; }
+  .hint { color: #66748c; font-size: 12px; margin: 0 0 20px; }
+  input {
+    width: 100%; background: rgba(11,15,24,.85); color: inherit;
+    border: 1px solid #24304a; border-radius: 11px; padding: 10px 13px;
+    font: inherit; font-size: 13.5px; outline: none; margin-bottom: 11px; transition: .16s;
+  }
+  input::placeholder { color: #66748c; }
+  input:focus { border-color: rgba(79,140,255,.75); box-shadow: 0 0 0 3px rgba(79,140,255,.14); }
+  button {
+    width: 100%; border: none; border-radius: 10px; padding: 10px; font: inherit;
+    font-size: 13.5px; font-weight: 600; color: #fff; cursor: pointer;
+    background: linear-gradient(145deg, #3f7bf0, #2c5fc9);
+    box-shadow: 0 8px 20px -10px rgba(79,140,255,.95); transition: .16s;
+  }
+  button:hover { filter: brightness(1.07); transform: translateY(-1px); }
+  .err { color: #fb7185; font-size: 12.5px; margin: 11px 0 0; }
+  .foot { margin-top: 16px; font-size: 11px; color: #4d5a70; }
+  .foot a { color: #8b9ab3; text-decoration: none; }
 </style>
 </head>
 <body>
 <form method="post" action="/login">
-  <h1>🐟 <b>QQ-Plugin-Hub</b></h1>
-  <p class="hint">AI QQ 机器人插件市场 · 请输入访问口令</p>
-  <input type="password" name="password" placeholder="访问口令" autofocus>
-  <button>进入市场</button>
+  <div class="inner">
+    <div class="mark">🐟</div>
+    <h1>QQ-Plugin-Hub</h1>
+    <p class="hint">AI QQ 机器人插件市场 · 请输入访问口令</p>
+    <input type="password" name="password" placeholder="访问口令" autofocus autocomplete="current-password">
+    <button>进入市场</button>
+    <div class="foot">开源项目 · <a href="https://github.com/xiazhuo123456789/awesome-qqbot-plugins" target="_blank" rel="noopener">awesome-qqbot-plugins</a></div>
+  </div>
 </form>
 </body>
 </html>
