@@ -59,14 +59,15 @@ node scripts/doctor.mjs
 
 ## 插件一览（43 个）
 
-| 分类 | 插件 |
-| --- | --- |
-| 工具 (15) | calc 计算 · weather 天气(Open-Meteo) · translate 翻译 · exchange 汇率 · unit 单位换算 · baseconv 进制 · morse 摩斯电码 · passgen 密码 · abbr 缩写解释 · remind 定时提醒(主动消息) · memo 群备忘 · ledger 群记账 · birthday 倒计时 · clock 报时 · jukebox 点歌链接 |
-| 群管理 (2) | group_admin 禁言/踢人/撤回/名片/头衔/公告 · group_info 群资料/成员列表 |
-| 群互动 (4) | signin 签到积分榜 · qzone 空间说说 · gacha 抽群友卡 · roulette 轮盘点名 |
-| 娱乐 (12) | fortune 今日运势 · draw 抽签 · sensoji 赛博浅草寺 · tarot 塔罗 · zodiac 星座 · meihua 梅花易数 · hitokoto 一言 · joke 冷笑话 · quote 毒鸡汤 · riddle 脑筋急转弯 · poem 古诗 · color 颜色卡 |
-| 小游戏 (6) | blackjack 21点 · guess 猜数字 · bombgame 数字炸弹 · idiom 成语接龙 · wordle 猜单词 · dice 骰子 |
-| 随机/换算 (4) | coin 抛硬币 · bilihot B站热门 · bingimg 必应每日图 · hitokoto(联网) |
+| 分类 | 数量 | 插件 |
+| --- | --- | --- |
+| 工具 | 20 | calc 计算 · weather 天气 · translate 翻译 · exchange 汇率 · unit 单位换算 · baseconv 进制 · morse 摩斯电码 · passgen 密码 · abbr 缩写解释 · remind 定时提醒(主动消息) · memo 群备忘 · ledger 群记账 · birthday 生日倒计时 · clock 报时 · jukebox 点歌链接 · pomodoro 番茄钟(主动消息) · coin 抛硬币 · color 颜色卡 · bilihot B站热门 · bingimg 必应每日图 |
+| 娱乐 | 13 | fortune 今日运势 · dice 骰子/多选一 · draw 抽签 · sensoji 赛博浅草寺 · tarot 塔罗 · zodiac 星座 · meihua 梅花易数 · hitokoto 一言 · joke 冷笑话 · quote 毒鸡汤 · riddle 脑筋急转弯 · poem 古诗 · gacha 抽群友卡 |
+| 小游戏 | 6 | blackjack 21点 · guess 猜数字 · bombgame 数字炸弹 · idiom 成语接龙 · wordle 猜单词 · roulette 轮盘点名 |
+| 群管理 | 2 | group_admin 禁言/踢人/撤回/名片/头衔/公告 · group_info 群资料/成员列表 |
+| 群互动 | 2 | signin 群签到积分榜 · qzone QQ空间说说 |
+
+合计 **43 个插件 / 69 个工具**。分类与数量由 `data/plugins.json` 统一驱动，市场页面按此分组筛选。
 
 > 插件灵感与能力对标 AstrBot / NoneBot / Koishi / Yunzai 生态的同类插件（目录数据中保留了对应上游出处），但实现全部为本仓库原创、零依赖、面向 MCP 工具调用设计。部分联网插件使用免费公开接口（Open-Meteo / er-api / nbnhhsh / B站 / 必应），无需任何 API Key。
 
