@@ -28,11 +28,21 @@ const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const readBin = (f) => fs.readFileSync(path.join(ROOT, f));
 
 /* ---------- 配置 ---------- */
-let cfg = { password: '', port: 3210, snowluma: {}, bridge: {} };
+/* config.json 可写：市场页面里的「连接渠道设置」和「插件配置」都会存回这里 */
+const CFG_FILE = path.join(ROOT, 'config.json');
+let cfg = { password: '', port: 3210, snowluma: {}, dsh: {}, bridge: {}, plugins: {} };
 try { cfg = Object.assign(cfg, JSON.parse(read('config.json'))); } catch (e) { /* 首次运行用默认值 */ }
 const PORT = Number(cfg.port || 3210);
 const PASSWORD = String(cfg.password || '');
 const STATE_FILE = path.join(ROOT, 'data', 'state.json');
+
+function saveCfg() {
+  try {
+    const body = Object.assign({}, cfg, { templates: undefined });
+    delete body.templates;
+    fs.writeFileSync(CFG_FILE, JSON.stringify(body, null, 2) + '\n');
+  } catch (e) { /* 写入失败不致命，下次保存再试 */ }
+}
 
 /* ---------- 状态 ---------- */
 let STATE = {};
@@ -79,6 +89,105 @@ async function installedTools() {
     } catch (e) { /* 忽略单个插件的加载错误 */ }
   }
   return tools;
+}
+
+/* ---------- 插件配置（schema 由插件自己声明，市场自动生成表单） ---------- */
+const schemaCache = new Map();
+async function pluginSchema(id) {
+  if (schemaCache.has(id)) return schemaCache.get(id);
+  const file = path.join(ROOT, 'plugins', id + '.mjs');
+  let schema = null;
+  if (fs.existsSync(file)) {
+    try {
+      const mod = await import(pathToFileURL(file).href);
+      const s = mod.default && mod.default.settings;
+      if (s && Array.isArray(s.fields)) schema = s;
+    } catch (e) { /* 插件加载失败就没有配置项 */ }
+  }
+  schemaCache.set(id, schema);
+  return schema;
+}
+
+function pluginValues(id) {
+  const all = cfg.plugins || {};
+  const v = all[id];
+  return v && typeof v === 'object' ? v : {};
+}
+
+/* 按 schema 校验并清洗提交上来的值，避免脏数据写进配置文件 */
+function cleanValues(schema, input) {
+  const out = {};
+  const src = input && typeof input === 'object' ? input : {};
+  for (const f of schema.fields) {
+    const raw = src[f.key];
+    if (f.type === 'list') {
+      const arr = Array.isArray(raw) ? raw : String(raw == null ? '' : raw).split(/[\s,，;；]+/);
+      out[f.key] = arr.map((x) => String(x).trim()).filter(Boolean);
+    } else if (f.type === 'number') {
+      const n = Number(raw);
+      out[f.key] = Number.isFinite(n) ? n : (f.default != null ? f.default : 0);
+    } else if (f.type === 'boolean') {
+      out[f.key] = raw === true || raw === 'true' || raw === 1 || raw === '1';
+    } else if (f.type === 'select') {
+      const opts = (f.options || []).map((o) => (typeof o === 'string' ? o : o.value));
+      out[f.key] = opts.includes(raw) ? raw : (f.default || opts[0] || '');
+    } else {
+      out[f.key] = String(raw == null ? '' : raw).trim().slice(0, 500);
+    }
+  }
+  return out;
+}
+
+/* 连接渠道（全局）——只暴露可改的字段，口令类不回传明文 */
+function globalSettings() {
+  const sl = cfg.snowluma || {};
+  const dsh = cfg.dsh || {};
+  const bg = cfg.bridge || {};
+  return {
+    snowluma: {
+      httpUrl: sl.httpUrl || 'http://127.0.0.1:3000',
+      accessToken: '',                 // 不回传
+      hasToken: !!sl.accessToken,
+      wsPort: Number(sl.wsPort || 3001),
+    },
+    dsh: { baseUrl: dsh.baseUrl || 'http://127.0.0.1:3080', profile: dsh.profile || 'desktop' },
+    bridge: { consoleUrl: bg.consoleUrl || 'http://127.0.0.1:3100' },
+    port: PORT,
+    hasPassword: !!PASSWORD,
+  };
+}
+
+function saveGlobal(input) {
+  const src = input && typeof input === 'object' ? input : {};
+  cfg.snowluma = Object.assign({}, cfg.snowluma);
+  cfg.dsh = Object.assign({}, cfg.dsh);
+  cfg.bridge = Object.assign({}, cfg.bridge);
+  if (src.snowluma) {
+    const s = src.snowluma;
+    if (typeof s.httpUrl === 'string' && s.httpUrl.trim()) {
+      cfg.snowluma.httpUrl = s.httpUrl.trim().replace(/\/+$/, '');
+    }
+    /* 空字符串=保持原样；只有明确填了新值才覆盖 */
+    if (typeof s.accessToken === 'string' && s.accessToken.trim()) {
+      cfg.snowluma.accessToken = s.accessToken.trim();
+    }
+    if (s.clearToken === true) cfg.snowluma.accessToken = '';
+    const ws = Number(s.wsPort);
+    if (Number.isFinite(ws) && ws > 0 && ws < 65536) cfg.snowluma.wsPort = ws;
+  }
+  if (src.dsh) {
+    if (typeof src.dsh.baseUrl === 'string' && src.dsh.baseUrl.trim()) {
+      cfg.dsh.baseUrl = src.dsh.baseUrl.trim().replace(/\/+$/, '');
+    }
+    if (typeof src.dsh.profile === 'string' && src.dsh.profile.trim()) {
+      cfg.dsh.profile = src.dsh.profile.trim();
+    }
+  }
+  if (src.bridge && typeof src.bridge.consoleUrl === 'string' && src.bridge.consoleUrl.trim()) {
+    cfg.bridge.consoleUrl = src.bridge.consoleUrl.trim().replace(/\/+$/, '');
+  }
+  saveCfg();
+  return globalSettings();
 }
 
 /* ---------- 体检：TCP/HTTP 探测 ---------- */
@@ -215,7 +324,13 @@ const server = http.createServer(async (req, res) => {
   /* API */
   if (p.startsWith('/api/')) {
     if (!authed(req)) return sendJson(res, 401, { ok: false, error: '未登录' });
-    if (method === 'GET' && p === '/api/list') return sendJson(res, 200, { ok: true, plugins: currentPlugins() });
+    if (method === 'GET' && p === '/api/list') {
+      const plugins = currentPlugins();
+      /* 标出哪些插件有可配置项（schema 由插件自己声明），前端据此显示「配置」按钮 */
+      const flags = {};
+      await Promise.all(plugins.map(async (pl) => { flags[pl.id] = !!(await pluginSchema(pl.id)); }));
+      return sendJson(res, 200, { ok: true, plugins: plugins.map((pl) => Object.assign({}, pl, { hasSettings: !!flags[pl.id] })) });
+    }
     if (method === 'GET' && p === '/api/health') {
       const d = await doctor();
       return sendJson(res, 200, { ok: true, bridge: d.bridge.ok, snowluma: d.snowluma.ok, dsh: d.dsh.ok, installed: d.installed, tools: d.mcp.tools, uptime: d.uptime, node: d.node, port: d.port });
@@ -235,6 +350,35 @@ const server = http.createServer(async (req, res) => {
       const obj = (() => { try { return JSON.parse(raw || '{}'); } catch { return {}; } })();
       return sendJson(res, 200, await registerDsh(obj.profile));
     }
+
+    /* 设置：连接渠道（全局） */
+    if (method === 'GET' && p === '/api/settings') {
+      return sendJson(res, 200, { ok: true, global: globalSettings() });
+    }
+    if (method === 'POST' && p === '/api/settings') {
+      const raw = await readBody(req);
+      const obj = (() => { try { return JSON.parse(raw || '{}'); } catch { return {}; } })();
+      return sendJson(res, 200, { ok: true, global: saveGlobal(obj) });
+    }
+
+    /* 设置：插件配置 */
+    if (method === 'GET' && p === '/api/plugin-config') {
+      const id = new URL(req.url, 'http://x').searchParams.get('id') || '';
+      const schema = await pluginSchema(id);
+      if (!schema) return sendJson(res, 404, { ok: false, error: '这个插件没有可配置项' });
+      return sendJson(res, 200, { ok: true, id, schema, values: pluginValues(id) });
+    }
+    if (method === 'POST' && p === '/api/plugin-config') {
+      const raw = await readBody(req);
+      const obj = (() => { try { return JSON.parse(raw || '{}'); } catch { return {}; } })();
+      const schema = await pluginSchema(obj.id);
+      if (!schema) return sendJson(res, 404, { ok: false, error: '这个插件没有可配置项' });
+      cfg.plugins = Object.assign({}, cfg.plugins);
+      cfg.plugins[obj.id] = cleanValues(schema, obj.values);
+      saveCfg();
+      return sendJson(res, 200, { ok: true, id: obj.id, values: cfg.plugins[obj.id], msg: '配置已保存，立即生效' });
+    }
+
     return sendJson(res, 404, { ok: false, error: 'not found' });
   }
 

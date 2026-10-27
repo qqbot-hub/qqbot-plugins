@@ -32,12 +32,47 @@ export default {
 2. 在 `data/plugins.json` 追加一条（id/name/description/category/tools 同 `meta`）；
 3. 刷新市场页面 → 安装 → 重启 DSH。
 
+## 可配置项（可选）
+
+插件自己声明 `settings`，市场会自动在卡片上生成「⚙ 配置」按钮和表单，保存到 `config.json` 的 `plugins.<id>`，并在每次工具调用时通过 `ctx.cfg` 注入：
+
+```js
+export default {
+  meta: { ... },
+  settings: {
+    title: '群管理权限',
+    intro: '不填 = 不做限制。',
+    fields: [
+      { key: 'admins', label: '管理员 QQ 白名单', type: 'list', placeholder: '每行一个', help: '...' },
+      { key: 'defaultBanMinutes', label: '默认禁言分钟', type: 'number', default: 10 },
+      { key: 'requireConfirm', label: '危险操作需确认', type: 'boolean', default: true },
+      { key: 'mode', label: '模式', type: 'select', options: [{ value: 'a', label: 'A 模式' }] },
+      { key: 'city', label: '城市', type: 'text' },
+      { key: 'secret', label: '密钥', type: 'password' },
+    ],
+  },
+  tools: [{
+    name: 'qq_demo',
+    description: '示例',
+    inputSchema: { type: 'object', properties: {} },
+    run: async (args, ctx) => {
+      const c = ctx.cfg || {};          // 就是市场里填的那份配置
+      return '默认值：' + (c.defaultBanMinutes ?? 10);
+    },
+  }],
+};
+```
+
+字段类型：`text` / `number` / `boolean` / `list`（多行，按空白或逗号切分）/ `password` / `select`。
+`list` 会在保存时变成字符串数组，可直接 `Array.isArray` 使用。
+
 ## ctx 注入了什么
 
 | 成员 | 用途 |
 | --- | --- |
 | `ctx.onebot(action, params)` | 调 SnowLuma 的 OneBot v11 HTTP API。例：`await ctx.onebot('set_group_ban', { group_id, user_id, duration: 600 })`。失败会抛错（含 action 名）。 |
-| `ctx.config` | Hub 的 config.json 内容（snowluma.httpUrl 等） |
+| `ctx.cfg` | 本插件在市场里填的配置对象（`config.json` 的 `plugins.<id>`），没配就是 `{}` |
+| `ctx.config` | 整份 `config.json`（含 `snowluma.httpUrl` 等连接渠道） |
 
 ## 持久化（直接从共享库导入，不经过 ctx）
 

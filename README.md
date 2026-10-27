@@ -27,9 +27,18 @@ QQ ⇄ SnowLuma ⇄ qq-bridge ⇄ DSH ⇄ DeepSeek
                           43 个插件 ⇄ OneBot API ⇄ QQ
 ```
 
-- **市场侧**：登录 → 浏览/搜索 43 个插件 → 一键安装/卸载/启停，实时探测链路状态
+- **市场侧**：登录 → 浏览/搜索 43 个插件 → 一键安装/卸载/启停/配置，实时探测链路状态
 - **AI 侧**：`node scripts/register-dsh.mjs desktop` 把市场注册进 DSH（与官方 `mcp__snowluma__` 同一机制、同一配置文件，互不冲突）→ 重启 DSH → AI 工具列表里出现全部已装插件
-- **安全侧**：踢人/全体禁言等危险操作必须 `confirm=true` 才执行，AI 不会手滑
+- **配置侧**：连接渠道（OneBot 地址/Token）、群管理白名单、默认城市等，全部在网页里填，存成 `config.json`，改完立即生效
+- **安全侧**：踢人/全体禁言等危险操作必须 `confirm=true`；群管理还支持管理员 QQ 白名单与「只允许操作的群」双重护栏
+
+### 「装到 QQ 上」到底是什么意思
+
+不需要把插件文件复制进 qq-bridge 目录。插件由**市场自己的进程**（`mcp-server.mjs`）提供，DSH 通过 MCP 标准协议调用它，插件再通过 SnowLuma 的 OneBot API 操作 QQ。所以：
+
+- 装插件 = 在市场点「安装」（只改一个状态文件，不往别人的仓库里塞东西）
+- 生效 = 重启 DSH（AI 的工具列表在启动时加载）
+- 卸载 = 点「卸载」再重启，工具就从 AI 手里消失了
 
 ## 快速开始
 
@@ -37,13 +46,13 @@ QQ ⇄ SnowLuma ⇄ qq-bridge ⇄ DSH ⇄ DeepSeek
 # 0. 前置：已按教程跑通 SnowLuma + qq-bridge + DSH（DSH 里发一句话有回复）
 
 # 1. 拉取并启动市场
-git clone https://github.com/xiazhuo123456789/awesome-qqbot-plugins.git
-cd QQ-Plugin-Hub
+git clone https://github.com/xiazhuo123456789/qqbot-plugins.git
+cd qqbot-plugins
 node server.js
 # 浏览器打开 http://127.0.0.1:3210
 
-# 2. 配置（可选）
-copy config.example.json config.json   # 按需改端口 / 口令 / SnowLuma token
+# 2. 填连接渠道（推荐在网页里点「连接设置」；也可以复制配置文件手改）
+copy config.example.json config.json
 
 # 3. 搭桥：把市场注册进 DSH（profile 名看 ~/.dsh/profiles/ 下的子目录名）
 node scripts/register-dsh.mjs desktop
@@ -56,6 +65,39 @@ node scripts/doctor.mjs
 ```
 
 之后在 QQ 里对机器人说"帮我禁言他十分钟""查下北京天气""开一局成语接龙"，AI 就会自己调用对应插件。
+
+## 配置（都在网页里填）
+
+### 1）连接设置 —— 插件和 QQ 通信的渠道
+
+左侧导航点「连接设置」，或搭桥区点「连接设置」：
+
+| 字段 | 说明 |
+| --- | --- |
+| OneBot HTTP 地址 | SnowLuma 的 HTTP API，默认 `http://127.0.0.1:3000`。发消息、禁言、查群都走这里 |
+| AccessToken | SnowLuma 配了 token 才需要填；留空表示不修改已保存的值 |
+| WebSocket 端口 | 默认 3001，仅用于体检探测 |
+| DSH 地址 / profile 名 | 默认 `http://127.0.0.1:3080` 和 `desktop`，用于体检与一键搭桥 |
+
+改完**立即生效**——`mcp-server.mjs` 每次被 AI 调用时都会重新读这份配置，不用重启 DSH（只有增删插件才需要重启）。
+
+### 2）插件配置 —— 群管理等需要权限的插件
+
+有配置项的插件，卡片上会多一个「⚙ 配置」按钮。目前：
+
+**group_admin（群管理）**
+
+| 字段 | 作用 |
+| --- | --- |
+| 管理员 QQ 白名单 | 非空时，只有名单里的人发起，禁言/踢人/公告等才会执行；AI 必须如实传 `operator_id` |
+| 允许操作的群号 | 非空时，只对这些群生效，防止 AI 在别的群误操作 |
+| 默认禁言时长 | 群友没说"禁多久"时用这个分钟数 |
+| 危险操作需二次确认 | 保持开启时，踢人/全体禁言/设管理员必须带 `confirm=true` |
+
+**weather（天气）**：默认城市，群友只说"今天天气怎么样"也能直接查。
+
+> 白名单是"防误操作"的护栏，不是绝对安全边界——`operator_id` 由 AI 传入。真正兜底的是机器人自己的群权限（SnowLuma 侧）和只在可信群里使用。要加新的可配置插件，看 [docs/PLUGIN_SPEC.md](docs/PLUGIN_SPEC.md) 里的 `settings` 声明方式。
+
 
 ## 插件一览（43 个）
 

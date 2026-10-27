@@ -10,17 +10,26 @@ const CODES = {
 
 export default {
   meta: { id: 'weather', name: 'weather', description: '查天气', category: '工具' },
+
+  settings: {
+    title: '天气插件',
+    intro: '不填城市时，AI 会问群友；填了默认城市，群友只说「今天天气怎么样」也能直接查。',
+    fields: [
+      { key: 'defaultCity', label: '默认城市', type: 'text', placeholder: '北京', help: '群友没说地点时用这个城市' },
+    ],
+  },
+
   tools: [{
     name: 'qq_weather',
-    description: '查某地天气（当前实况 + 今天）。群里有人问"明天冷不冷/要不要带伞"时用。',
+    description: '查某地天气（当前实况 + 今天）。群里有人问"明天冷不冷/要不要带伞"时用。不说地点时用配置的默认城市。',
     inputSchema: {
       type: 'object',
-      properties: { location: { type: 'string', description: '城市名，中文或拼音，如 北京 / Shanghai' } },
-      required: ['location'],
+      properties: { location: { type: 'string', description: '城市名，中文或拼音，如 北京 / Shanghai；不填则用默认城市' } },
     },
-    run: async ({ location }) => {
-      const city = String(location || '').trim();
-      if (!city) return '告诉我地名呀，比如「北京」。';
+    run: async ({ location }, ctx) => {
+      const cfgCity = String((ctx && ctx.cfg && ctx.cfg.defaultCity) || '').trim();
+      const city = String(location || '').trim() || cfgCity;
+      if (!city) return '告诉我地名呀，比如「北京」。（也可以让管理员在市场「配置」里设一个默认城市）';
       let geo;
       try {
         geo = await httpJson('https://geocoding-api.open-meteo.com/v1/search?count=1&language=zh&name=' + encodeURIComponent(city));

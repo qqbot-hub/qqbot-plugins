@@ -6,7 +6,8 @@
   "tunnelUrl": "",
   "snowluma": {
     "httpUrl": "http://127.0.0.1:3000",
-    "accessToken": ""
+    "accessToken": "",
+    "wsPort": 3001
   },
   "dsh": {
     "baseUrl": "http://127.0.0.1:3080",
@@ -14,5 +15,6 @@
   },
   "bridge": {
     "consoleUrl": "http://127.0.0.1:3100"
-  }
+  },
+  "plugins": {}
 }

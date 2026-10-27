@@ -27,6 +27,10 @@
     --c-social: #2ee6a8;
   }
   * { box-sizing: border-box; }
+  *::-webkit-scrollbar { width: 9px; height: 9px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb { background: #28324a; border-radius: 6px; border: 2px solid transparent; background-clip: content-box; }
+  *::-webkit-scrollbar-thumb:hover { background: #3a4767; background-clip: content-box; }
   html, body { height: 100%; }
   body {
     margin: 0;
@@ -236,6 +240,61 @@
   button.pri:hover { filter: brightness(1.07); transform: translateY(-1px); }
   button.ghost { background: transparent; color: var(--dim); }
   button.ghost:hover { color: var(--bad); border-color: rgba(251,113,133,.45); }
+  button.gear { padding: 6px 11px; color: var(--dim); }
+  button.gear:hover { color: var(--acc-2); border-color: rgba(79,140,255,.5); }
+  button.gear.has { color: var(--acc-2); border-color: rgba(79,140,255,.4); background: rgba(79,140,255,.1); }
+
+  /* ============ 配置弹窗 ============ */
+  .modal { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 24px; }
+  .modal[hidden] { display: none; }
+  .modal-mask { position: absolute; inset: 0; background: rgba(5,8,14,.72); backdrop-filter: blur(3px); }
+  .modal-box {
+    position: relative; width: min(560px, 100%); max-height: 86vh; display: flex; flex-direction: column;
+    border-radius: 16px; padding: 1px;
+    background: linear-gradient(150deg, rgba(79,140,255,.5), rgba(176,107,255,.3) 60%, rgba(46,230,168,.24));
+    box-shadow: 0 34px 80px -30px rgba(0,0,0,.95);
+    animation: pop .22s cubic-bezier(.2,.8,.3,1) both;
+  }
+  @keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
+  .modal-inner { border-radius: 15px; background: #111927; display: flex; flex-direction: column; max-height: 86vh; overflow: hidden; }
+  .modal-head { display: flex; align-items: center; gap: 10px; padding: 16px 20px 12px; border-bottom: 1px solid var(--line-soft); }
+  .modal-head b { font-size: 15px; }
+  .modal-head .x {
+    margin-left: auto; width: 28px; height: 28px; padding: 0; border-radius: 8px;
+    display: grid; place-items: center; font-size: 15px; color: var(--dim); border-color: transparent; background: transparent;
+  }
+  .modal-head .x:hover { color: var(--text); background: rgba(255,255,255,.07); }
+  .modal-body { padding: 16px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+  .modal-intro { font-size: 12px; color: var(--dim2); line-height: 1.6; margin: -3px 0 1px; }
+  .field label { display: block; font-size: 12.5px; margin-bottom: 6px; color: var(--text); font-weight: 600; }
+  .field .help { font-size: 11.5px; color: var(--dim2); margin-top: 5px; line-height: 1.55; }
+  .field input[type=text], .field input[type=number], .field input[type=password], .field textarea, .field select {
+    width: 100%; background: rgba(11,15,24,.9); color: var(--text);
+    border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px;
+    font: inherit; font-size: 13px; outline: none; transition: .16s;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    border-color: rgba(79,140,255,.75); box-shadow: 0 0 0 3px rgba(79,140,255,.12);
+  }
+  .field textarea {
+    min-height: 92px; resize: vertical; line-height: 1.7;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 12.5px;
+  }
+  .field select { cursor: pointer; }
+  .field label.switch { display: flex; align-items: center; gap: 10px; margin-bottom: 0; font-weight: 400; cursor: pointer; }
+  .field label.switch .lbl { font-weight: 600; font-size: 12.5px; }
+  .switch { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+  .switch input { position: absolute; opacity: 0; pointer-events: none; }
+  .track { width: 40px; height: 22px; border-radius: 999px; background: #2a3550; position: relative; transition: .18s; flex: 0 0 40px; }
+  .track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #8899b5; transition: .18s; }
+  .switch input:checked + .track { background: rgba(52,211,153,.28); box-shadow: inset 0 0 0 1px rgba(52,211,153,.5); }
+  .switch input:checked + .track::after { left: 21px; background: var(--ok); }
+  .switch .lbl { font-size: 12.5px; }
+  .modal-foot {
+    display: flex; gap: 9px; justify-content: flex-end;
+    padding: 13px 20px 16px; border-top: 1px solid var(--line-soft); background: rgba(255,255,255,.014);
+  }
+  .modal-foot .hint { margin-right: auto; font-size: 11.5px; color: var(--dim2); align-self: center; }
 
   .empty { grid-column: 1/-1; text-align: center; color: var(--dim2); padding: 54px 0; font-size: 13px; }
 
@@ -321,8 +380,9 @@
     <nav class="nav">
       <a href="#market"><span class="ic">▦</span>插件市场</a>
       <a href="#bridge"><span class="ic">⇄</span>接入 DSH</a>
-      <a href="https://github.com/xiazhuo123456789/awesome-qqbot-plugins#readme" target="_blank" rel="noopener"><span class="ic">▤</span>使用文档</a>
-      <a href="https://github.com/xiazhuo123456789/awesome-qqbot-plugins/tree/main/docs/PLUGIN_SPEC.md" target="_blank" rel="noopener"><span class="ic">✦</span>开发自己的插件</a>
+      <a href="javascript:void 0" onclick="openGlobalCfg()"><span class="ic">⚙</span>连接设置</a>
+      <a href="https://github.com/xiazhuo123456789/qqbot-plugins#readme" target="_blank" rel="noopener"><span class="ic">▤</span>使用文档</a>
+      <a href="https://github.com/xiazhuo123456789/qqbot-plugins/tree/main/docs/PLUGIN_SPEC.md" target="_blank" rel="noopener"><span class="ic">✦</span>开发自己的插件</a>
     </nav>
 
     <div class="side-title">运行状态</div>
@@ -346,7 +406,7 @@
         </div>
         <b>请给我点一颗免费的心</b>
         <p>这个项目完全开源免费。<br>一颗 Star 就是最好的鼓励，谢谢你 ❤</p>
-        <a class="star-btn" href="https://github.com/xiazhuo123456789/awesome-qqbot-plugins" target="_blank" rel="noopener">
+        <a class="star-btn" href="https://github.com/xiazhuo123456789/qqbot-plugins" target="_blank" rel="noopener">
           <span>★</span> 去 GitHub 点 Star
         </a>
         <div class="star-meta"><span id="starCount">开源 · MIT</span></div>
@@ -408,23 +468,41 @@
               <input type="text" id="profile" placeholder="DSH profile 名（打开 ~/.dsh/profiles/ 看子目录名，通常是 desktop）">
             </div>
             <button class="pri" onclick="registerDsh()">一键接入 DSH</button>
+            <button onclick="openGlobalCfg()">连接设置</button>
           </div>
         </div>
       </section>
 
       <footer>
-        开源项目 <a href="https://github.com/xiazhuo123456789/awesome-qqbot-plugins" target="_blank" rel="noopener">awesome-qqbot-plugins</a>
+        开源项目 <a href="https://github.com/xiazhuo123456789/qqbot-plugins" target="_blank" rel="noopener">qqbot-plugins</a>
         · MIT License · 本项目界面与图标均为原创实现，不含任何第三方素材
       </footer>
     </div>
   </main>
+</div>
+<div class="modal" id="modal" hidden>
+  <div class="modal-mask" onclick="closeModal()"></div>
+  <div class="modal-box">
+    <div class="modal-inner">
+      <div class="modal-head">
+        <b id="mTitle">配置</b>
+        <button class="x" onclick="closeModal()" title="关闭">✕</button>
+      </div>
+      <div class="modal-body" id="mBody"></div>
+      <div class="modal-foot">
+        <span class="hint" id="mHint">保存后立即生效</span>
+        <button class="ghost" onclick="closeModal()">取消</button>
+        <button class="pri" onclick="saveModal()">保存</button>
+      </div>
+    </div>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 
 <script>
 let PLUGINS = [], CAT = '全部';
 const $ = (s) => document.querySelector(s);
-const REPO = 'https://github.com/xiazhuo123456789/awesome-qqbot-plugins';
+const REPO = 'https://github.com/xiazhuo123456789/qqbot-plugins';
 
 /* 分类 → 强调色（用于卡片顶边与分类标签） */
 const CAT_COLOR = {
@@ -464,7 +542,7 @@ async function loadHealth() {
 /* 仓库 Star 数（失败就保持默认文案，不报错） */
 async function loadStars() {
   try {
-    const r = await fetch('https://api.github.com/repos/xiazhuo123456789/awesome-qqbot-plugins');
+    const r = await fetch('https://api.github.com/repos/xiazhuo123456789/qqbot-plugins');
     const d = await r.json();
     if (typeof d.stargazers_count === 'number') {
       $('#starCount').textContent = d.stargazers_count > 0
@@ -511,6 +589,9 @@ function card(p, i) {
     ? `<button onclick="op('toggle','${p.id}',{enabled:${!p.enabled}})">${p.enabled ? '停用' : '启用'}</button>
        <button class="ghost" onclick="op('uninstall','${p.id}')">卸载</button>`
     : `<button class="pri" onclick="op('install','${p.id}')">安装</button>`;
+  const gear = p.hasSettings
+    ? `<button class="gear" onclick="openPluginCfg('${p.id}')" title="配置这个插件">⚙ 配置</button>`
+    : '';
   return `<article class="card${p.installed ? ' on-row' : ''}" style="--cat:${color};animation-delay:${Math.min(i, 14) * 18}ms">
     <div class="top">
       <h3>${p.name}</h3>
@@ -520,7 +601,7 @@ function card(p, i) {
     </div>
     <p class="desc">${p.description}</p>
     <div class="tools">${tools}</div>
-    <div class="btns">${btns}</div>
+    <div class="btns">${btns}${gear}</div>
   </article>`;
 }
 
@@ -545,11 +626,158 @@ async function registerDsh() {
   else toast('注册失败：' + (r.error || r.output || '未知原因'), 'err');
 }
 
+/* ==================== 配置弹窗 ==================== */
+let MODAL = null;   // { url, title, fields, values, save(values) }
+
+const esc = (s) => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;');
+
+function fieldHtml(f, v) {
+  const help = f.help ? `<div class="help">${esc(f.help)}</div>` : '';
+  if (f.type === 'boolean') {
+    return `<div class="field">
+      <label class="switch">
+        <input type="checkbox" data-k="${f.key}" data-t="boolean" ${v === true ? 'checked' : ''}>
+        <span class="track"></span><span class="lbl">${esc(f.label)}</span>
+      </label>${help}
+    </div>`;
+  }
+  if (f.type === 'list') {
+    const val = Array.isArray(v) ? v.join('\n') : (v == null ? '' : String(v));
+    return `<div class="field">
+      <label>${esc(f.label)}</label>
+      <textarea data-k="${f.key}" data-t="list" placeholder="${esc(f.placeholder || '')}">${esc(val)}</textarea>${help}
+    </div>`;
+  }
+  if (f.type === 'number') {
+    const val = v == null ? (f.default != null ? f.default : '') : v;
+    return `<div class="field">
+      <label>${esc(f.label)}</label>
+      <input type="number" data-k="${f.key}" data-t="number" value="${esc(val)}" placeholder="${esc(f.placeholder || '')}">${help}
+    </div>`;
+  }
+  if (f.type === 'select') {
+    const opts = (f.options || []).map((o) => (typeof o === 'string' ? { v: o, l: o } : o));
+    return `<div class="field">
+      <label>${esc(f.label)}</label>
+      <select data-k="${f.key}" data-t="text">${opts.map((o) => `<option value="${esc(o.v)}" ${String(v) === String(o.v) ? 'selected' : ''}>${esc(o.l)}</option>`).join('')}</select>${help}
+    </div>`;
+  }
+  const type = f.type === 'password' ? 'password' : 'text';
+  return `<div class="field">
+    <label>${esc(f.label)}</label>
+    <input type="${type}" data-k="${f.key}" data-t="text" value="${esc(v || '')}" placeholder="${esc(f.placeholder || '')}" autocomplete="off">${help}
+  </div>`;
+}
+
+function openModal(spec) {
+  MODAL = spec;
+  $('#mTitle').textContent = spec.title;
+  $('#mHint').textContent = spec.hint || '保存后立即生效';
+  const groups = [];
+  let cur = null;
+  for (const f of spec.fields) {
+    const g = f.group || '';
+    if (!cur || cur.name !== g) { cur = { name: g, fields: [] }; groups.push(cur); }
+    cur.fields.push(fieldHtml(f, spec.values[f.key]));
+  }
+  $('#mBody').innerHTML =
+    (spec.intro ? `<p class="modal-intro">${esc(spec.intro)}</p>` : '') +
+    groups.map((g) => (g.name ? `<div class="field-group-label" style="font-size:11px;letter-spacing:1.2px;color:var(--dim2);margin-top:2px">${esc(g.name)}</div>` : '') + g.fields.join('')).join('');
+  $('#modal').hidden = false;
+}
+
+function closeModal() { $('#modal').hidden = true; MODAL = null; }
+
+function collectValues() {
+  const out = {};
+  document.querySelectorAll('#mBody [data-k]').forEach((el) => {
+    const k = el.dataset.k, t = el.dataset.t;
+    if (t === 'boolean') out[k] = el.checked;
+    else if (t === 'number') out[k] = el.value === '' ? null : Number(el.value);
+    else if (t === 'list') out[k] = el.value.split(/[\s,，;；]+/).map((x) => x.trim()).filter(Boolean);
+    else out[k] = el.value;
+  });
+  return out;
+}
+
+async function saveModal() {
+  if (!MODAL) return;
+  const values = collectValues();
+  try {
+    const r = await (await fetch(MODAL.url, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(MODAL.save(values)),
+    })).json();
+    if (r.ok) { toast(MODAL.okMsg || '已保存', 'ok'); closeModal(); load(); }
+    else toast(r.error || '保存失败', 'err');
+  } catch { toast('保存失败：连不上市场服务', 'err'); }
+}
+
+/* 插件配置 */
+async function openPluginCfg(id) {
+  const r = await (await fetch('/api/plugin-config?id=' + encodeURIComponent(id))).json();
+  if (!r.ok) return toast(r.error || '取配置失败', 'err');
+  openModal({
+    title: '配置 · ' + id,
+    url: '/api/plugin-config',
+    intro: r.schema.intro || '',
+    hint: '保存后立即生效，无需重启',
+    fields: r.schema.fields,
+    values: r.values || {},
+    save: (values) => ({ id, values }),
+    okMsg: id + ' 的配置已保存',
+  });
+}
+
+/* 连接渠道设置 */
+const GLOBAL_FIELDS = [
+  { key: 'httpUrl', group: 'OneBot 连接渠道（SnowLuma）', label: 'OneBot HTTP 地址', type: 'text', placeholder: 'http://127.0.0.1:3000', help: '插件发消息、禁言等操作都走这个地址。SnowLuma 的 HTTP API 端口一般是 3000。' },
+  { key: 'accessToken', label: 'AccessToken（可选）', type: 'password', placeholder: '没设置就留空', help: '如果 SnowLuma 配了 access token，填在这里。留空表示保持已保存的值不变。' },
+  { key: 'clearToken', label: '清除已保存的 AccessToken', type: 'boolean', help: '勾选并保存即可清空。' },
+  { key: 'wsPort', label: 'WebSocket 端口', type: 'number', default: 3001, help: '仅用于体检探测（qq-bridge 连的是这个端口）。' },
+  { key: 'dshBase', group: 'DSH（DeepSeek Harness）', label: 'DSH 地址', type: 'text', placeholder: 'http://127.0.0.1:3080', help: '本地 DSH 的 Web API 地址，用于体检与搭桥。' },
+  { key: 'dshProfile', label: 'DSH profile 名', type: 'text', placeholder: 'desktop', help: '对应 ~/.dsh/profiles/ 下的子目录名。' },
+  { key: 'bridgeConsole', group: 'qq-bridge', label: 'qq-bridge 控制台地址', type: 'text', placeholder: 'http://127.0.0.1:3100' },
+];
+
+async function openGlobalCfg() {
+  const r = await (await fetch('/api/settings')).json();
+  if (!r.ok) return toast('取设置失败', 'err');
+  const g = r.global;
+  openModal({
+    title: '连接设置',
+    url: '/api/settings',
+    intro: '这些是插件与 QQ、DSH 通信的渠道参数。改完保存立即生效，AI 下一次调用就会用新地址。',
+    hint: '改完建议点「刷新」看状态是否变绿',
+    fields: GLOBAL_FIELDS,
+    values: {
+      httpUrl: g.snowluma.httpUrl,
+      accessToken: '',
+      clearToken: false,
+      wsPort: g.snowluma.wsPort,
+      dshBase: g.dsh.baseUrl,
+      dshProfile: g.dsh.profile,
+      bridgeConsole: g.bridge.consoleUrl,
+    },
+    save: (v) => ({
+      snowluma: { httpUrl: v.httpUrl, accessToken: v.accessToken, clearToken: v.clearToken, wsPort: v.wsPort },
+      dsh: { baseUrl: v.dshBase, profile: v.dshProfile },
+      bridge: { consoleUrl: v.bridgeConsole },
+    }),
+    okMsg: '连接设置已保存',
+  });
+}
+
 $('#chips').addEventListener('click', (e) => {
   const chip = e.target.closest('.chip');
   if (chip) { CAT = chip.dataset.c; load(); }
 });
 $('#q').addEventListener('input', render);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !$('#modal').hidden) closeModal();
+});
 load();
 loadStars();
 </script>
