@@ -1,0 +1,191 @@
+#!/usr/bin/env node
+/* ============================================================
+ * verify-plugins.mjs —— 把市场里每个插件的每个工具真跑一遍
+ *
+ *   node scripts/verify-plugins.mjs          跑全部插件
+ *   node scripts/verify-plugins.mjs --json   输出 JSON（给网页/CI 用）
+ *
+ * 判定：
+ *   ✅ 通过      工具正常返回了内容
+ *   🔌 需在线    依赖 QQ 在线（SnowLuma 没开就会这样），属于环境问题不是插件问题
+ *   ❌ 失败      插件自身报错
+ *
+ * 说明：所有依赖 OneBot 的工具都通过 HTTP 调 SnowLuma(3000)，
+ *      本机没跑 SnowLuma 时统一显示「需在线」，不会被误判为坏插件。
+ * 数据隔离：通过 QQHUB_STORE 指向临时目录，不会写入你的真实数据。
+ * ============================================================ */
+'use strict';
+
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const JSON_OUT = process.argv.includes('--json');
+
+/* 每个工具的示例参数（贴近真实群聊场景） */
+const G = 888;
+const U = 1001;
+const SAMPLES = {
+  qq_calc: { expression: '(3.5*8+12)*0.8' },
+  qq_dice: { count: 2, sides: 6 },
+  qq_choose: { options: ['吃火锅', '吃面', '点外卖'] },
+  qq_fortune: { user_id: U },
+  qq_weather: { location: '北京' },
+  qq_coin: { count: 3 },
+  qq_color: {},
+  qq_clock: {},
+  qq_morse: { text: 'SOS' },
+  qq_base: { value: 'ff', from: 16, to: 2 },
+  qq_passgen: { length: 12 },
+  qq_unit: { value: 5, from: '尺', to: 'm' },
+  qq_translate: { text: '你好世界' },
+  qq_abbr: { abbr: 'yyds' },
+  qq_hitokoto: {},
+  qq_bilihot: { count: 3 },
+  qq_bingimg: {},
+  qq_rate: { amount: 100, from: 'USD', to: 'CNY' },
+  qq_jukebox: { song: '晴天 周杰伦' },
+  qq_draw: {},
+  qq_sensoji: {},
+  qq_tarot: {},
+  qq_zodiac: { zodiac: '天蝎' },
+  qq_meihua: { question: '这周工作顺不顺' },
+  qq_joke: {},
+  qq_quote: {},
+  qq_riddle: {},
+  qq_poem: {},
+  qq_gacha: { group_id: G, user_id: U },
+  qq_roulette: { group_id: G, user_id: U },
+  qq_signin: { group_id: G, user_id: U },
+  qq_signin_rank: { group_id: G },
+  qq_memo_add: { text: '周五交周报', group_id: G, user_id: U },
+  qq_memo_list: { group_id: G },
+  qq_memo_done: { index: 1, group_id: G },
+  qq_ledger_add: { amount: 32.5, note: '午饭', group_id: G, user_id: U },
+  qq_ledger_list: { group_id: G },
+  qq_birthday_add: { name: '老王生日', date: '3-14', group_id: G },
+  qq_birthday_list: { group_id: G },
+  qq_remind: { minutes: 5, text: '喝水', group_id: G },
+  qq_remind_list: { group_id: G },
+  qq_pomodoro_start: { minutes: 25, group_id: G },
+  qq_pomodoro_check: { group_id: G },
+  qq_bj_start: { group_id: G },
+  qq_bj_hit: { group_id: G },
+  qq_bj_stand: { group_id: G },
+  qq_bomb_start: { group_id: G },
+  qq_bomb_try: { number: 50, group_id: G },
+  qq_guess_start: { group_id: G },
+  qq_guess_try: { number: 50, group_id: G },
+  qq_idiom_start: { group_id: G },
+  qq_idiom_next: { idiom: '马到成功', group_id: G },
+  qq_wordle_start: { group_id: G },
+  qq_wordle_try: { word: 'apple', group_id: G },
+  qq_group_ban: { group_id: G, user_id: U, operator_id: U, minutes: 10 },
+  qq_group_kick: { group_id: G, user_id: U, operator_id: U, confirm: true },
+  qq_group_recall: { message_id: 123456 },
+  qq_group_card: { group_id: G, user_id: U, card: '测试' },
+  qq_group_title: { group_id: G, user_id: U, title: '测试' },
+  qq_group_whole_ban: { group_id: G, enable: true, confirm: true, operator_id: U },
+  qq_group_set_admin: { group_id: G, user_id: U, enable: true, confirm: true, operator_id: U },
+  qq_group_notice: { group_id: G, content: '测试公告', operator_id: U },
+  qq_group_info: { group_id: G },
+  qq_group_members: { group_id: G, limit: 5 },
+  qq_group_member: { group_id: G, user_id: U },
+  qq_qzone_post: { content: '测试说说' },
+  qq_qzone_list: {},
+  qq_qzone_feeds: {},
+  qq_qzone_delete: { tid: 'test' },
+};
+
+/* 需要 QQ 在线的工具：报这些错算环境问题 */
+const BOT_ERRORS = /fetch failed|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|socket hang up|当前 OneBot 实现/i;
+/* 依赖公网的工具：超时/连不上算网络问题 */
+const NET_ERRORS = /连不上|超时|timeout|ENOTFOUND|EAI_AGAIN|fetch failed/i;
+
+function classify(err) {
+  const msg = String((err && err.message) || err || '');
+  if (BOT_ERRORS.test(msg)) return 'bot';
+  if (NET_ERRORS.test(msg)) return 'net';
+  return 'fail';
+}
+
+async function main() {
+  /* 数据隔离：临时目录，跑完删掉 */
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'qqhub-verify-'));
+  process.env.QQHUB_STORE = tmp;
+
+  const catalog = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'plugins.json'), 'utf8'));
+  let config = {};
+  try { config = JSON.parse(fs.readFileSync(path.join(ROOT, 'config.json'), 'utf8')); } catch {}
+
+  /* 用假 OneBot 连接地址，避免误打真实 QQ */
+  const onebot = async (action) => { throw new Error('fetch failed: 测试环境未启用 OneBot（' + action + '）'); };
+  const ctx = (pluginId) => ({ onebot, config, cfg: (config.plugins || {})[pluginId] || {} });
+
+  const rows = [];
+  for (const meta of catalog) {
+    const file = path.join(ROOT, 'plugins', meta.id + '.mjs');
+    if (!fs.existsSync(file)) { rows.push({ plugin: meta.id, tool: '-', status: 'fail', msg: '插件文件不存在' }); continue; }
+    let mod;
+    try { mod = await import(pathToFileURL(file).href); }
+    catch (e) { rows.push({ plugin: meta.id, tool: '-', status: 'fail', msg: '加载失败: ' + e.message }); continue; }
+    const def = mod.default || {};
+    if (!Array.isArray(def.tools)) { rows.push({ plugin: meta.id, tool: '-', status: 'fail', msg: '无 tools 数组' }); continue; }
+
+    for (const t of def.tools) {
+      const args = SAMPLES[t.name];
+      if (!args) { rows.push({ plugin: meta.id, tool: t.name, status: 'fail', msg: '缺少示例参数' }); continue; }
+      const started = Date.now();
+      try {
+        const out = await t.run(JSON.parse(JSON.stringify(args)), ctx(meta.id));
+        const text = String(out == null ? '' : out);
+        if (!text.trim()) { rows.push({ plugin: meta.id, tool: t.name, status: 'fail', msg: '返回空内容' }); continue; }
+        rows.push({ plugin: meta.id, tool: t.name, status: 'pass', ms: Date.now() - started, sample: text.replace(/\s+/g, ' ').slice(0, 70) });
+      } catch (e) {
+        const kind = classify(e);
+        rows.push({ plugin: meta.id, tool: t.name, status: kind, msg: String(e.message || e).slice(0, 90) });
+      }
+    }
+  }
+
+  try { fs.rmSync(tmp, { recursive: true, force: true }); } catch {}
+
+  const pass = rows.filter((r) => r.status === 'pass');
+  const bot = rows.filter((r) => r.status === 'bot');
+  const net = rows.filter((r) => r.status === 'net');
+  const fail = rows.filter((r) => r.status === 'fail');
+
+  if (JSON_OUT) {
+    console.log(JSON.stringify({
+      total: rows.length,
+      pass: pass.length,
+      needBot: bot.length,
+      needNet: net.length,
+      fail: fail.length,
+      plugins: catalog.length,
+      rows,
+    }, null, 2));
+    process.exit(fail.length ? 1 : 0);
+  }
+
+  const icon = { pass: '✅', bot: '🔌', net: '🌐', fail: '❌' };
+  for (const r of rows) {
+    const tag = icon[r.status] || '?';
+    const detail = r.sample || r.msg || '';
+    console.log(`${tag} ${(r.plugin + '/' + r.tool).padEnd(34)} ${detail}`);
+  }
+  console.log('');
+  console.log('──────────────────────────────────────────');
+  console.log(`插件 ${catalog.length} 个 · 工具 ${rows.length} 个`);
+  console.log(`✅ 实测通过 ${pass.length}   🔌 需 QQ 在线 ${bot.length}   🌐 需公网 ${net.length}   ❌ 失败 ${fail.length}`);
+  if (fail.length) {
+    console.log('\n失败明细：');
+    for (const r of fail) console.log(`  ${r.plugin}/${r.tool}: ${r.msg}`);
+  }
+  console.log('──────────────────────────────────────────');
+  process.exit(fail.length ? 1 : 0);
+}
+
+main().catch((e) => { console.error('测试脚本自身出错:', e); process.exit(1); });

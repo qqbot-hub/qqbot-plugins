@@ -13,7 +13,10 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 export const HUB_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-export const STORE_DIR = path.join(HUB_ROOT, 'data', 'store');
+/* 允许用 QQHUB_STORE 重定向数据目录（自动化测试用临时目录，不污染真实数据） */
+export const STORE_DIR = process.env.QQHUB_STORE
+  ? path.resolve(process.env.QQHUB_STORE)
+  : path.join(HUB_ROOT, 'data', 'store');
 
 /* ---------- 存储 ---------- */
 export function storage(pluginId) {
