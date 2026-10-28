@@ -161,10 +161,22 @@ export default {
         ctx.state.repo = repo;
         ctx.state.name = name;
         ctx.state.removing = String(ctx.params.action || '') === 'remove';
-        const exists = fs.existsSync(path.join(pluginDir(ctx), name));
+        ctx.state.updating = String(ctx.params.action || '') === 'update';
+        const dir = path.join(pluginDir(ctx), name);
+        const exists = fs.existsSync(dir);
+        /* 目录型插件没有注册表可查版本，所以「更新」只能等于「重新拉一次仓库」。
+         * 这点必须说清楚：不像 pip/npm 能先比版本号再决定要不要动。 */
+        let curVer = '';
+        if (exists) {
+          const md = readMetadata(dir);
+          curVer = md.meta && md.meta.version ? String(md.meta.version) : '';
+        }
         return {
           status: 'ok',
-          detail: `${repo} → data/plugins/${name}${exists ? '（这个目录已存在，安装时会先删掉重装）' : ''}`,
+          detail: `${repo} → data/plugins/${name}`
+            + (exists
+              ? `（目录已存在${curVer ? '，当前 v' + curVer.replace(/^v/i, '') : ''}；${ctx.state.updating ? '更新会删掉重拉，插件目录里的本地改动会丢' : '安装时会先删掉重装'}）`
+              : ''),
         };
       },
     },

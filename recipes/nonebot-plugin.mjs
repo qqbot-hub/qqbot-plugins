@@ -16,6 +16,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { readNonebotPlugins, upsertNonebotPlugins } from '../scripts/lib/toml-lite.mjs';
+import { isNewer } from '../scripts/lib/version.mjs';
 
 const RUNTIME_ID = 'nonebot';
 const PORTS = [8080, 20080];
@@ -203,6 +204,12 @@ export default {
         }
         const latest = info.version || '';
         ctx.state.version = latest;
+        /* 更新场景必须先知道「现在装的是哪个版本」，否则点一次更新就重装+重启一次机器人。
+         * pip show 读的是 venv 里的真实状态，不是我们记的账。 */
+        const curShow = await ctx.exec(pyExe(ctx), ['-m', 'pip', 'show', pkg], { timeoutMs: 30000, quiet: true });
+        const curM = /^Version:\s*(.+)$/m.exec(curShow.stdout || '');
+        ctx.state.installedVersion = curM ? curM[1].trim() : '';
+        ctx.state.upToDate = !!ctx.state.installedVersion && !isNewer(latest, ctx.state.installedVersion);
         const summary = String(info.summary || '').slice(0, 70);
         /* 是不是 NoneBot 插件：包名约定 + 摘要提及，两个判据里至少一个；
          * 都不满足就只提示不拦（有些插件命名不规范，硬拦会误杀） */
@@ -344,6 +351,14 @@ export default {
       title: '重启 NoneBot 并确认插件真的加载了',
       hint: '日志里要出现 Succeeded to load plugin 才算数；只看到端口起来不算',
       async run(ctx) {
+        /* 版本没变就别重启 —— 重启一次机器人意味着群里的对话全断一次，
+         * 点「更新」结果什么也没更新，用户没有理由承担这个代价 */
+        if (ctx.state.upToDate) {
+          return {
+            status: 'skip',
+            detail: `${ctx.state.pkg} 已是 v${ctx.state.installedVersion}（最新版），不重启 NoneBot`,
+          };
+        }
         /* 找现在 NoneBot 在哪个端口 */
         let port = 0;
         for (const p of PORTS) {

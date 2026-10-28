@@ -149,3 +149,83 @@ npm 装进 `runtimes/koishi`，然后往 `koishi.yml` 的 `plugins:` 段**只追
 1. **装完必须验证「真的被加载」**，不是「命令返回 0」
 2. **失败要在用户的配置里留干净状态**（撤清单、登记 broken），不留每次启动都报错的残骸
 3. **UI 上标清楚哪个是真的验证过**：`verified: false` 的方法不会写成「一键可用」
+
+---
+
+## 把生态插件摆进市场：目录从哪来
+
+「市场里能看到 AstrBot 插件」这件事，前提是**真的去抓了别人的商店**，不是拿几个名字编条目。
+
+`scripts/sync-ecosystem.mjs` → `data/sources/ecosystem.json`，三个源三种形状：
+
+| 源 | 地址 | 拿到什么 | 本机实测 |
+|---|---|---|---|
+| NoneBot | `registry.nonebot.dev/plugins.json` | 947 条，过滤 `valid:false` 后 **619** | ✅ 直接可用，字段最规整 |
+| AstrBot | GitHub `search/repositories?q=topic:astrbot-plugin` | **300** 条（按 star 排序，取前 3 页） | ✅ 需要放宽 TLS（见下） |
+| Koishi | `registry.npmmirror.com/-/v1/search?text=koishi-plugin` | **455** 条 | ✅ npm 官方搜索接口 |
+
+合计 **1368 条**，每条都归一化成同一个结构（`id / name / description / category / author /
+framework / version / homepage / install{target,params} / needsMethod`）。
+
+`install` 是**真参数**：点「安装」直接交给 `recipes/nonebot-plugin.mjs` 之类，不是假按钮。
+`needsMethod` 说明得先有哪个框架的运行时 —— 原生插件装不进别的地方，这一点在卡片上明写。
+
+### 两个抓取时踩到的真问题
+
+**1. GitHub API 在这台机器上 `fetch failed`**
+
+不是墙的问题：`git clone` 能过（之前用 `GIT_SSL_NO_VERIFY=1`），Node 的 fetch 直连报
+`fetch failed`。原因是本机 schannel 的证书吊销检查（OCSP/CRL）拿不到结果。
+
+处理方式**不是全局关校验**：`scripts/lib/ecosystem.mjs` 里先正常请求，**只在失败且错误像证书问题时**
+才设 `NODE_TLS_REJECT_UNAUTHORIZED=0` 重试一次，并打印一行提示。DNS 错、超时不走这条路
+（那些重试也没用，还会掩盖真问题）。
+
+**2. 关键词分类不能按前缀匹配**
+
+第一版用 `/^(...|chat|...)/` 匹配 tags，结果 Koishi 插件里泛滥的 `chatbot` 全被算成 AI ——
+**436 条误分类**。改成：关键词按 `-` `_` 空格拆成词，**逐词整词匹配**。
+`ai-chat` 拆出 `ai` 能命中，`chatbot` 拆完还是 `chatbot` 不命中。重新统计后 AI 类 179 条、
+「工具」还剩 6 条，符合直觉。
+
+分类统计不再靠猜，`node scripts/sync-ecosystem.mjs --status` 直接打印各框架条数。
+
+---
+
+## 已装插件的更新检查
+
+`GET /api/plugin/updates` → `scripts/lib/updates.mjs`
+
+| 生态 | 最新版从哪查 |
+|---|---|
+| NoneBot | PyPI JSON（清华镜像 → 阿里云 → 官方，三级回退） |
+| Koishi | `registry.npmmirror.com/<pkg>/latest` |
+| AstrBot | GitHub `releases/latest`，没有 release 就翻 `tags` |
+
+**三种状态必须分清**：`update` / `latest` / `unknown`（带原因）。
+查不到就是查不到，绝不写成「已是最新」—— 那是最容易骗过自己的一种假成功。
+
+本机实测（4 个已装插件）：
+
+```
+astrbot  helloworld                     1.3.0 → (查不到)  unknown  仓库没有 release 也没有版本 tag
+koishi   koishi-plugin-dataview         2.7.8 → 2.7.8     latest
+nonebot  nonebot-plugin-apscheduler     0.5.0 → 0.5.0     latest
+nonebot  nonebot-plugin-hammer-nbnhhsh  1.0.0 → 1.0.0     latest
+```
+
+### 更新为什么不能只是"重装一遍"
+
+`pip install` / `npm install` 本身幂等，问题在于**后面那步重启**：重启一次 NoneBot/Koishi，
+群里的对话会断一次。如果版本根本没变，让用户承担这个代价是没道理的。
+
+所以三个 recipe 都在 `check` 阶段算出 `upToDate`：
+
+- NoneBot：`pip show` 读 venv 里的真实版本（不是我们记的账）
+- Koishi：读 `node_modules/<pkg>/package.json`
+- 已是最新 → 装、启用、重启**全部 skip**，日志明确写「已是 v0.5.0（最新版），不重启 NoneBot」
+
+实测：对 `nonebot-plugin-apscheduler@0.5.0` 跑 `--action=update`，6 步里 3 步 skip，进程没被碰。
+
+AstrBot 是目录型插件，没有注册表版本可比，所以「更新」= 重新拉一次仓库；
+`check` 阶段会明确提示「插件目录里的本地改动会丢」，不藏这个代价。

@@ -279,6 +279,51 @@ node scripts/installer.mjs run koishi-plugin  --package=koishi-plugin-dataview
 
 三条路线的原理、踩过的坑、怎么验证见 [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md)。
 
+## 市场里的生态插件（1368 个真实条目）
+
+市场顶部有一条「来源」，可以在**本平台 47 个**和**三种生态的真实商店**之间切换：
+
+| 来源 | 数量 | 数据来自 | 安装方式 |
+|---|---|---|---|
+| NoneBot | 619 | `registry.nonebot.dev/plugins.json` | `pip install` 进 venv + 写 `pyproject.toml` |
+| AstrBot | 300 | GitHub `topic:astrbot-plugin`（按 star 排序） | `git clone` 进 `data/plugins/` |
+| Koishi | 455 | npm 搜索（npmmirror 镜像） | `npm install` 进 Koishi 的 `node_modules` |
+
+这些不是我们编的条目，是**真去三个商店抓回来的目录**（`data/sources/ecosystem.json`），
+每条都带可用的安装参数。卡片上会明确写「装进 NapCatQQ + NoneBot2」——因为它们是**原生插件**，
+必须先有那个框架的运行时，装不到别的地方去。
+
+目录会过期，点页面上的「同步」重新抓；也可以在命令行：
+
+```bash
+node scripts/sync-ecosystem.mjs            # 重新抓三个源（约 10 秒）
+node scripts/sync-ecosystem.mjs --status   # 只看缓存状态，不联网
+```
+
+## 已装插件的新版本检查
+
+生态插件不像本平台插件（代码就在本地），它们来自外部包管理器，所以会过期：
+
+- `GET /api/plugin/updates` 对比**已装版本**与**商店最新版**：NoneBot 查 PyPI、Koishi 查 npm、AstrBot 查 GitHub release/tag
+- 状态严格分三种：**有新版 / 已是最新 / 查不到**（附原因，比如「仓库没打 tag」）。查不到绝不写成"已是最新"
+- 点「更新」走的是**真的重装**（pip/npm/git），不是改个标记
+- 版本没变时**不重启框架** —— 重启一次机器人意味着群里对话全断一次，不该为一个空操作付这个代价
+
+## 插件上架（提交 / 审核 / 版本）
+
+想把自己的插件放进市场，走「插件上架」板块：
+
+1. **提交** —— 填清单 + 贴 `.mjs` 代码。提交时立刻跑 `node --check` 验语法，字段问题一次全列出来
+2. **审核** —— 通过 / 拒绝（拒绝必须写原因，会存给作者看）
+3. **通过 = 真落地** —— 代码写进 `plugins/<id>.mjs` → 登记进市场目录 → **重建权限表**
+   （不重建的话新插件没有权限标注，用户安装时看不到二次确认）
+4. **版本** —— 同一 id 换版本号再提交，形成版本历史；`live` 是最后一个通过审核的版本
+
+边界要说清楚：这是**单机登记流程**，没有多用户身份认证，审核拦的是明显不合格的提交，
+**不是防恶意投毒**。签名、沙箱、多租户都没有，别当成公共市场的基础设施。
+
+完整流程与已知不足见 [docs/REGISTRY.md](docs/REGISTRY.md)。自测：`node scripts/test-registry.mjs`（46 项）。
+
 ## 目录结构
 
 ```
@@ -288,18 +333,33 @@ qqbot-plugins/
 ├─ plugins/             47 个插件（每个 .mjs 自包含）+ _template/ 开发模板 + _router.mjs 消息路由
 ├─ recipes/             每个可安装对象一份安装脚本（协议端/桥/DSH/插件/三生态插件…）
 ├─ data/
-│  ├─ catalog/          清单：plugins（插件）/ companions（配套）/ components（链路组件）
-│  ├─ sources/          外部插件源定义
+│  ├─ catalog/          清单：plugins（插件）/ companions（配套）/ components（链路组件）/ methods（部署方法）/ permissions（权限）
+│  ├─ sources/          外部插件源定义 + ecosystem.json（三生态真实目录，1368 条）
 │  ├─ snapshots/        外部源抓取快照
-│  └─ state/            安装状态 + 安装任务记录
+│  └─ state/            安装状态 + 安装任务记录 + 三生态已装登记 + 上架审核记录（不入库）
 ├─ scripts/
 │  ├─ installer.mjs     一键安装引擎（分步执行 + SSE 实时日志）
 │  ├─ lib/paths.mjs     所有数据文件的唯一路径出口
+│  ├─ lib/ecosystem.mjs 三生态索引抓取与归一化
+│  ├─ lib/updates.mjs   已装插件的新版本检查（PyPI / npm / GitHub）
+│  ├─ lib/version.mjs   宽松版本解析与比较（pre-release、v 前缀、caret）
+│  ├─ lib/registry.mjs  上架提交 / 审核 / 落地 / 版本历史
+│  ├─ sync-ecosystem.mjs 抓生态目录（可 --status 只看缓存）
 │  ├─ register-dsh.mjs  写 cordis.patch.yml 搭桥（自动备份/幂等/--remove）
 │  └─ doctor.mjs        链路体检（DSH/SnowLuma/bridge/工具数）
 ├─ public/              市场前端（原生 HTML/JS，暗色主题）
-└─ docs/                部署/搭桥/插件规范/全网源 文档
+└─ docs/                部署/搭桥/插件规范/消息接入/生态/上架 文档
 ```
+
+## 测试
+
+```bash
+for t in scripts/test-*.mjs; do node "$t"; done
+node plugins/_template/test.mjs      # 插件开发模板自检
+node scripts/build-permissions.mjs --check   # 权限表是否与源码一致
+```
+
+当前：**283 项，0 失败**（bridge 19 / hub 11 / installer 15 / methods 28 / registry 46 / router 62 / satori 36 / version 45 / 模板 21）。
 
 ## 常见问题
 

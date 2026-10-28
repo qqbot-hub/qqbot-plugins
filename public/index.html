@@ -897,6 +897,77 @@
 .mon-msg code { font-family: var(--mono, ui-monospace, monospace); font-size: 11.5px; padding: 2px 6px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; color: var(--fg); word-break: break-all; }
 .mon-msg .mm-stat b { color: var(--fg); font-weight: 600; }
 .mon-msg .mm-err { color: var(--bad); font-size: 11.5px; }
+/* ============ 生态插件：真实第三方商店里的插件 ============ */
+.src-bar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:0 0 4px; }
+.src-bar .sb-label { font-size:11px; color:var(--dim-2); letter-spacing:.4px; }
+.src-bar button {
+  font: inherit; font-size:12px; padding:5px 11px; cursor:pointer;
+  background:var(--surface-2); color:var(--dim); border:1px solid var(--line);
+  border-radius:999px; transition:.16s; display:inline-flex; align-items:center; gap:6px;
+}
+.src-bar button:hover { color:var(--text); border-color:var(--line-2); }
+.src-bar button.on { color:#fff; background:rgba(91,140,255,.18); border-color:rgba(91,140,255,.55); }
+.src-bar button .n { font-size:10px; color:var(--dim-2); }
+.src-bar button.on .n { color:#b8ccff; }
+.src-bar button:disabled { opacity:.45; cursor:default; }
+
+/* 生态条目：多一行「装到哪」的提示，别让人以为能直接跑 */
+.eco-need { display:flex; align-items:center; gap:6px; margin-top:7px; font-size:11px; color:var(--warn, #ffb454); }
+.eco-need b { color:var(--text); font-weight:600; }
+.eco-more { display:flex; justify-content:center; margin:18px 0 4px; }
+.eco-empty { padding:28px; text-align:center; color:var(--dim); font-size:13px; }
+
+/* 更新提示条：只有真的有新版才出现 */
+.upd-bar {
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  margin:14px 0 4px; padding:10px 14px; font-size:12.5px;
+  background:rgba(47,220,166,.08); border:1px solid rgba(47,220,166,.28);
+  border-radius:var(--r-sm, 8px); color:var(--text);
+}
+.upd-bar.warn { background:rgba(255,180,84,.08); border-color:rgba(255,180,84,.3); }
+.upd-bar .ub-t { flex:1; min-width:180px; }
+.upd-bar .ub-t b { color:var(--ok, #2fdca6); }
+.upd-list { margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+.upd-row {
+  display:flex; align-items:center; gap:10px; font-size:12px; padding:8px 12px;
+  background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm, 8px);
+}
+.upd-row .ur-name { flex:1; }
+.upd-row .ur-eco { font-size:10px; color:var(--dim-2); }
+.upd-row .ur-ver { font-family:var(--mono, monospace); font-size:11.5px; color:var(--dim); }
+.upd-row .ur-ver b { color:var(--ok, #2fdca6); }
+
+/* ============ 插件上架（提交 / 审核 / 版本） ============ */
+.reg-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:14px 0 12px; }
+.reg-list { display:flex; flex-direction:column; gap:8px; }
+.reg-row {
+  display:flex; align-items:flex-start; gap:12px; padding:12px 14px;
+  background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm, 8px);
+}
+.reg-row .rr-main { flex:1; min-width:0; }
+.reg-row .rr-t { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.reg-row .rr-t b { font-size:13.5px; }
+.reg-row .rr-id { font-family:var(--mono, monospace); font-size:11px; color:var(--dim-2); }
+.reg-row .rr-v { font-family:var(--mono, monospace); font-size:11.5px; color:var(--accent-2); }
+.reg-row .rr-d { font-size:12px; color:var(--dim); margin-top:5px; line-height:1.65; }
+.reg-row .rr-m { font-size:11px; color:var(--dim-2); margin-top:6px; display:flex; gap:10px; flex-wrap:wrap; }
+.reg-row .rr-act { display:flex; gap:6px; flex-shrink:0; }
+.st-chip { font-size:10.5px; padding:1.5px 8px; border-radius:999px; border:1px solid; }
+.st-pending { color:#ffcf87; border-color:rgba(255,180,84,.4); background:rgba(255,180,84,.1); }
+.st-approved { color:#7ff0c8; border-color:rgba(47,220,166,.4); background:rgba(47,220,166,.1); }
+.st-rejected { color:#ff9e9e; border-color:rgba(255,110,110,.4); background:rgba(255,110,110,.1); }
+.reg-form { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.reg-form .full { grid-column:1 / -1; }
+.reg-form label { display:block; font-size:11.5px; color:var(--dim); margin-bottom:5px; }
+.reg-form input[type=text], .reg-form select, .reg-form textarea {
+  width:100%; box-sizing:border-box; font:inherit; font-size:12.5px; padding:8px 10px;
+  background:var(--bg-1); color:var(--text); border:1px solid var(--line-2); border-radius:6px;
+}
+.reg-form textarea { resize:vertical; min-height:110px; font-family:var(--mono, monospace); font-size:11.5px; line-height:1.6; }
+.reg-form .hintline { font-size:11px; color:var(--dim-2); margin-top:4px; line-height:1.6; }
+.reg-err { margin-top:10px; padding:10px 12px; border-radius:6px; font-size:12px;
+  background:rgba(255,110,110,.09); border:1px solid rgba(255,110,110,.3); color:#ffb3b3; display:none; }
+.reg-err ul { margin:6px 0 0 18px; }
 </style>
 </head>
 <body>
@@ -918,6 +989,7 @@
       <a href="#monitor" data-nav="monitor"><span class="ic">◎</span>运行监控</a>
       <a href="#methods" data-nav="methods"><span class="ic">▤</span>部署方法</a>
       <a href="#market" data-nav="market"><span class="ic">▦</span>插件市场</a>
+      <a href="#registry" data-nav="registry"><span class="ic">↑</span>插件上架</a>
       <a href="#compat" data-nav="compat"><span class="ic">⊞</span>兼容性矩阵</a>
       <a href="#deploy" data-nav="deploy"><span class="ic">⤓</span>链路组件</a>
       <a href="#hub" data-nav="hub"><span class="ic">◇</span>全网插件源</a>
@@ -973,12 +1045,12 @@
         <p class="lede">
           教程只教会它说话。这里给它更多——
           <strong>一段记得住你的记忆、一副能开口的嗓子、一支会画画的笔，和一双能替你管群的手。</strong>
-          <strong>46 个插件、75 项能力</strong>，点一下安装就变成 AI 能自己调用的工具：
+          <strong>47 个插件、76 项能力</strong>，点一下安装就变成 AI 能自己调用的工具：
           它会记得你不吃辣，会用语音回你，会按描述画图，会在群里禁言、记账、发提醒，还能陪人玩一整天成语接龙。
         </p>
         <div class="stats">
-          <div class="stat-box"><b data-count="46">0</b><span>插件</span></div>
-          <div class="stat-box"><b data-count="75">0</b><span>可调用工具</span></div>
+          <div class="stat-box"><b data-count="47">0</b><span>插件</span></div>
+          <div class="stat-box"><b data-count="76">0</b><span>可调用工具</span></div>
           <div class="stat-box"><b data-count="59">0</b><span>项已实测通过</span></div>
           <div class="stat-box"><b data-count="0">0</b><span>第三方依赖</span></div>
         </div>
@@ -1103,9 +1175,31 @@
             <span class="kbd">/</span>
           </div>
         </div>
+        <div class="src-bar" id="srcBar"></div>
+        <div id="updWrap"></div>
         <div class="seg" id="chips"></div>
         <div class="grid" id="grid"></div>
+        <div class="eco-more" id="ecoMore"></div>
         <div id="companion"></div>
+      </section>
+
+      <section class="sec" id="registry">
+        <div class="sec-head">
+          <h2>插件上架</h2>
+          <span class="hub-badge" id="regBadge">读取中…</span>
+          <span class="ln"></span>
+        </div>
+        <p class="sec-sub">
+          提交 → 审核 → 通过后代码<b>真的写进 <code>plugins/</code></b> 并进市场，权限表同步重建。
+          说清楚边界：这是<b>单机登记流程</b>，没有多用户身份认证，审核拦的是明显不合格的提交
+          （缺字段、版本号乱写、声明了执行命令却不说用途），<b>不是防恶意投毒</b>——那需要签名与沙箱，当前没有。
+        </p>
+        <div class="reg-bar">
+          <button class="pri" onclick="openSubmit()">提交新插件</button>
+          <button class="ghost" onclick="loadRegistry()">刷新</button>
+          <span class="dep-hint" id="regHint"></span>
+        </div>
+        <div class="reg-list" id="regList"></div>
       </section>
 
       <section class="sec" id="compat">
@@ -1245,6 +1339,15 @@
 
 <script>
 let PLUGINS = [], CAT = '全部';
+
+/* ============ 生态插件（真实第三方商店） ============
+ * SRC = 市场顶部的「来源」：native 是本平台重写的 .mjs，
+ * 其余是 NoneBot / AstrBot / Koishi 商店里的真插件。
+ * 这两类东西不能混在一起当成一种东西卖 —— 前者装了就能用，
+ * 后者必须先有对应框架的运行时，所以卡片上会明确写「装到哪」。 */
+let SRC = 'native';
+let ECO = { items: [], total: 0, filtered: 0, offset: 0, limit: 60, cats: {}, frameworks: {}, fetchedAt: '', syncing: false, loading: false, sources: {} };
+let UPDATES = null;
 const $ = (s) => document.querySelector(s);
 const REPO = 'https://github.com/qqbot-hub/qqbot-plugins';
 const GROUP_NO = '973971153';
@@ -1655,22 +1758,291 @@ function skeleton() {
 }
 
 async function load() {
+  /* 支持 ?src=nonebot 直接打开某个来源：方便把「生态插件」这一屏发给别人 */
+  const wantSrc = new URL(location.href).searchParams.get('src');
+  if (wantSrc && ['native', 'all', 'nonebot', 'astrbot', 'koishi'].includes(wantSrc)) SRC = wantSrc;
   loadHealth();
   loadMonitor();
   loadMethods();
   const r = await (await fetch('/api/list')).json();
   PLUGINS = r.plugins || [];
-  /* 外部桌面程序单独成区，不参与插件计数与筛选 */
   const mcpPlugins = PLUGINS.filter((p) => !p.external);
   const counts = {};
   mcpPlugins.forEach((p) => { counts[p.category] = (counts[p.category] || 0) + 1; });
-  const cats = ['全部', ...Object.keys(counts)];
-  $('#chips').innerHTML = cats.map((c) => {
-    const n = c === '全部' ? mcpPlugins.length : counts[c];
-    return `<button class="${c === CAT ? 'on' : ''}" data-c="${c}">${c}    <span class="n">${n}</span></button>`;
-  }).join('');
+  renderChips(counts, mcpPlugins.length);
+  renderSrcBar();
   render();
   loadCompat();
+  if (SRC !== 'native') loadEco(true);
+  /* 生态目录的框架计数只为了在来源条上显示数字，拉一次不重渲染 */
+  if (!Object.keys(ECO.frameworks).length) {
+    fetch('/api/ecosystem?limit=1').then((x) => x.json()).then((j) => {
+      ECO.frameworks = j.frameworks || {};
+      ECO.total = j.total || 0;
+      ECO.fetchedAt = j.fetchedAt || '';
+      ECO.sources = j.sources || {};
+      renderSrcBar();
+    }).catch(() => {});
+  }
+  loadUpdates();
+  loadRegistry();
+}
+
+/** 分类筛选条：本平台用自有插件的分类，生态用商店里的分类 */
+function renderChips(counts, total) {
+  const cats = ['全部', ...Object.keys(counts).sort((a, b) => counts[b] - counts[a])];
+  $('#chips').innerHTML = cats.map((c) => {
+    const n = c === '全部' ? total : counts[c];
+    return `<button class="${c === CAT ? 'on' : ''}" data-c="${c}">${esc(c)}    <span class="n">${n}</span></button>`;
+  }).join('');
+}
+
+/** 来源条：本平台 / 三种生态 / 生态全部 */
+function renderSrcBar() {
+  const fw = ECO.frameworks || {};
+  const ecoTotal = (fw.nonebot || 0) + (fw.astrbot || 0) + (fw.koishi || 0);
+  const own = (PLUGINS || []).filter((p) => !p.external).length;
+  const rows = [
+    ['native', '本平台', own],
+    ['all', '生态全部', ecoTotal],
+    ['nonebot', 'NoneBot', fw.nonebot || 0],
+    ['astrbot', 'AstrBot', fw.astrbot || 0],
+    ['koishi', 'Koishi', fw.koishi || 0],
+  ];
+  $('#srcBar').innerHTML = '<span class="sb-label">来源</span>' + rows.map(([k, label, n]) => {
+    /* 没有数据的生态不给点，免得点进去一片空白还以为是坏了 */
+    const dis = k !== 'native' && !n;
+    return `<button class="${SRC === k ? 'on' : ''}" data-src="${k}" ${dis ? 'disabled' : ''}
+      title="${dis ? '这个生态还没有同步到数据' : ''}">${label}<span class="n">${n || 0}</span></button>`;
+  }).join('');
+}
+
+function render() {
+  if (SRC !== 'native') return renderEco();
+  const q = $('#q').value.trim().toLowerCase();
+  const list = PLUGINS.filter((p) => !p.external).filter((p) => (CAT === '全部' || p.category === CAT) &&
+    (!q || p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) ||
+      (p.tools || []).some((t) => t.name.toLowerCase().includes(q) || (t.description || '').toLowerCase().includes(q))));
+  $('#grid').innerHTML = list.length
+    ? list.map((p, i) => card(p, i)).join('')
+    : `<div class="empty"><b>没有匹配的插件</b>换个关键词，或者点上面的「全部」看看</div>`;
+  $('#ecoMore').innerHTML = '';
+  renderCompanion();
+}
+
+/* ---------- 生态视图 ---------- */
+async function loadEco(reset) {
+  if (ECO.loading) return;
+  ECO.loading = true;
+  if (reset) { ECO.offset = 0; ECO.items = []; }
+  const fw = SRC === 'all' ? '' : SRC;
+  const q = ($('#q').value || '').trim();
+  const cat = CAT === '全部' ? '' : CAT;
+  const url = '/api/ecosystem?framework=' + encodeURIComponent(fw)
+    + '&q=' + encodeURIComponent(q)
+    + '&category=' + encodeURIComponent(cat)
+    + '&offset=' + ECO.offset + '&limit=' + ECO.limit;
+  $('#grid').innerHTML = skeleton();
+  $('#ecoMore').innerHTML = '';
+  try {
+    const j = await (await fetch(url)).json();
+    ECO.total = j.total || 0;
+    ECO.filtered = j.filtered || 0;
+    ECO.cats = j.categories || {};
+    ECO.frameworks = j.frameworks || ECO.frameworks;
+    ECO.fetchedAt = j.fetchedAt || '';
+    ECO.syncing = !!j.syncing;
+    ECO.sources = j.sources || ECO.sources;
+    ECO.items = reset ? (j.items || []) : ECO.items.concat(j.items || []);
+    renderSrcBar();
+    renderEcoChips();
+    renderEco();
+  } catch (e) {
+    $('#grid').innerHTML = `<div class="eco-empty">读取生态目录失败：${esc(e.message)}</div>`;
+  } finally {
+    ECO.loading = false;
+  }
+}
+
+function renderEcoChips() {
+  const c = ECO.cats || {};
+  const cats = ['全部', ...Object.keys(c).sort((a, b) => c[b] - c[a])];
+  const total = Object.values(c).reduce((a, b) => a + b, 0);
+  $('#chips').innerHTML = cats.map((x) => {
+    const n = x === '全部' ? total : c[x];
+    return `<button class="${x === CAT ? 'on' : ''}" data-c="${esc(x)}">${esc(x)}    <span class="n">${n}</span></button>`;
+  }).join('');
+}
+
+function renderEco() {
+  const box = $('#grid');
+  if (!ECO.fetchedAt) {
+    box.innerHTML = `<div class="eco-empty">
+      <b>还没有生态插件目录</b><br>
+      点下面的「同步」去拉 NoneBot / AstrBot / Koishi 三个商店的索引（约 10 秒，只拉目录不装东西）
+      <div style="margin-top:14px"><button class="pri" onclick="syncEco()">同步生态目录</button></div>
+    </div>`;
+    $('#ecoMore').innerHTML = '';
+    return;
+  }
+  const list = ECO.items || [];
+  if (!list.length) {
+    box.innerHTML = `<div class="eco-empty">${ECO.syncing
+      ? '正在同步生态目录，稍等几秒再刷新…'
+      : '这个筛选下没有插件'}</div>`;
+    $('#ecoMore').innerHTML = '';
+    if (ECO.syncing) setTimeout(() => { if (SRC !== 'native') loadEco(true); }, 3000);
+    return;
+  }
+  box.innerHTML = list.map((it, i) => ecoCard(it, i)).join('');
+  const rest = ECO.filtered - list.length;
+  $('#ecoMore').innerHTML = rest > 0
+    ? `<button class="ghost" onclick="moreEco()">再看 ${Math.min(rest, ECO.limit)} 个（还有 ${rest} 个没显示）</button>`
+    : `<span style="font-size:11.5px;color:var(--dim-2)">共 ${ECO.filtered} 个，已全部显示${ECO.fetchedAt ? ' · 目录同步于 ' + new Date(ECO.fetchedAt).toLocaleString('zh-CN') : ''}</span>`;
+}
+
+function moreEco() {
+  ECO.offset = ECO.items.length;
+  loadEco(false);
+}
+
+async function syncEco() {
+  toast('开始同步生态目录，约 10 秒', 'ok');
+  await fetch('/api/ecosystem/sync', { method: 'POST' }).catch(() => {});
+  ECO.syncing = true;
+  renderEco();
+  /* 轮询到同步结束：页面上要让用户看到「在动」，不能点完没反应 */
+  let tries = 0;
+  const t = setInterval(async () => {
+    tries++;
+    try {
+      const j = await (await fetch('/api/ecosystem?limit=1')).json();
+      if (!j.syncing || tries > 40) {
+        clearInterval(t);
+        ECO.syncing = false;
+        ECO.frameworks = j.frameworks || {};
+        ECO.fetchedAt = j.fetchedAt || '';
+        ECO.sources = j.sources || {};
+        renderSrcBar();
+        loadEco(true);
+        toast(`同步完成：${j.total || 0} 个生态插件`, 'ok');
+      }
+    } catch { /* 网络抖一下就再等一轮 */ }
+  }, 1500);
+}
+
+/** 生态插件卡：和自有插件同一套视觉，但多一行「装到哪」 */
+function ecoCard(it, i) {
+  const color = catColor(it.category || '其它');
+  const fwName = { nonebot: 'NoneBot', astrbot: 'AstrBot', koishi: 'Koishi' }[it.framework] || it.framework;
+  const method = (METHODS || []).find((m) => m.id === it.needsMethod);
+  /* 方法名取前 3 段：'NapCatQQ + NoneBot2 真·一键' → 'NapCatQQ + NoneBot2'，别把修饰词也算进去 */
+  const needText = method ? method.name.split(' ').slice(0, 3).join(' ') : it.needsMethod;
+  const official = it.official ? '<span class="chip-src" title="官方插件">官方</span>' : '';
+  const stars = it.stars ? `<span title="GitHub star">★ ${it.stars}</span><span>·</span>` : '';
+  const ver = it.version ? `<span>v${esc(it.version)}</span><span>·</span>` : '';
+  return `<article class="card" style="--cat:${color};animation-delay:${Math.min(i, 16) * 16}ms">
+    <div class="c-top">
+      <h3>${esc(it.name)}</h3>
+      <span class="chip-cat">${esc(it.category || '其它')}</span>
+      ${official}
+    </div>
+    <p class="c-desc">${esc(it.description || '（作者没写简介）')}</p>
+    <div class="c-meta">
+      <span title="宿主框架">${fwName}</span><span>·</span>
+      <span>${esc(it.language || '')}</span><span>·</span>
+      ${stars}${ver}
+      <span title="作者">${esc(it.author || '未知作者')}</span>
+      <span class="compat-chip" title="这是 ${fwName} 原生插件，必须先有 ${needText} 的运行时">${fwName} 原生</span>
+    </div>
+    <div class="eco-need">装进 <b>${esc(needText)}</b>${method ? '' : '（对应部署方法）'}${it.homepage ? ` · <a href="${esc(it.homepage)}" target="_blank" rel="noopener" style="color:var(--accent-2)">仓库</a>` : ''}</div>
+    <div class="c-btns">
+      <button class="pri" onclick="installEcoPlugin('${esc(it.id)}')">装到 ${esc(needText)}</button>
+    </div>
+  </article>`;
+}
+
+/** 点「装到 XX」：走对应生态的安装 recipe，不是假按钮 */
+async function installEcoPlugin(id) {
+  const it = (ECO.items || []).find((x) => x.id === id);
+  if (!it) return;
+  const method = (METHODS || []).find((m) => m.id === it.needsMethod);
+  const fwName = { nonebot: 'NoneBot', astrbot: 'AstrBot', koishi: 'Koishi' }[it.framework] || it.framework;
+  const ok = await askConfirm({
+    title: `装到 ${fwName}`,
+    body: `<p>要把 <b>${esc(it.name)}</b> 装进本机的 ${fwName}：</p>
+      <ul style="margin:8px 0 0 18px;font-size:12.5px;line-height:1.9">
+        <li>装的是 <code>${esc((it.install.params && (it.install.params.package || it.install.params.repo)) || '')}</code></li>
+        <li>需要先有 <b>${esc(method ? method.name : it.needsMethod)}</b> 部署出来的 ${fwName} 运行时，否则装不进去</li>
+        <li>装完会重启一次 ${fwName}，机器人会短暂掉线</li>
+      </ul>`,
+    okMsg: '开始安装',
+  });
+  if (!ok) return;
+  const st = await startInstall(it.install.target, it.install.params, `${fwName} 插件 · ${it.name}`, {});
+  if (st === 'done') toast(`「${it.name}」已装进 ${fwName}`, 'ok');
+  else if (st === 'manual') toast(`「${it.name}」需要你手动确认一步，看日志`, 'warn');
+  else toast(`「${it.name}」没装成，展开日志看哪一步红的`, 'err');
+  loadUpdates(true);
+}
+
+/* ---------- 生态插件的更新 ---------- */
+async function loadUpdates(force) {
+  try {
+    const j = await (await fetch('/api/plugin/updates' + (force ? '?force=1' : ''))).json();
+    UPDATES = j;
+    renderUpdBar();
+  } catch { UPDATES = null; }
+}
+
+function renderUpdBar() {
+  const box = $('#updWrap');
+  if (!box) return;
+  const j = UPDATES;
+  if (!j || !j.total) { box.innerHTML = ''; return; }
+  const c = j.counts || {};
+  if (!c.update) {
+    /* 没有更新就不占地方：只在有「查不到」时给一行灰字，避免天天跳提示 */
+    box.innerHTML = c.unknown
+      ? `<div class="upd-bar warn" style="opacity:.75"><span class="ub-t">已装 ${j.total} 个生态插件，都没有新版；其中 ${c.unknown} 个查不到最新版（仓库没打 tag 或网络失败）</span>
+         <button class="ghost" onclick="loadUpdates(true)">重新检查</button></div>`
+      : '';
+    return;
+  }
+  const list = (j.items || []).filter((x) => x.state === 'update');
+  const fwName = { nonebot: 'NoneBot', astrbot: 'AstrBot', koishi: 'Koishi' };
+  box.innerHTML = `<div class="upd-bar">
+      <span class="ub-t">有 <b>${c.update}</b> 个生态插件可以更新（${fwName[list[0].ecosystem] || list[0].ecosystem} 等），更新会重启对应框架</span>
+      <button class="ghost" onclick="loadUpdates(true)">重新检查</button>
+    </div>
+    <div class="upd-list">${list.map((x) => `
+      <div class="upd-row">
+        <span class="ur-eco">${fwName[x.ecosystem] || x.ecosystem}</span>
+        <span class="ur-name">${esc(x.name)}</span>
+        <span class="ur-ver">v${esc(x.current || '?')} <b>→ v${esc(x.latest)}</b></span>
+        <button class="pri" onclick="doUpdate('${esc(x.key)}')">更新</button>
+      </div>`).join('')}</div>`;
+}
+
+async function doUpdate(key) {
+  const item = ((UPDATES && UPDATES.items) || []).find((x) => x.key === key);
+  if (!item || !item.install) return;
+  const fwName = { nonebot: 'NoneBot', astrbot: 'AstrBot', koishi: 'Koishi' }[item.ecosystem] || item.ecosystem;
+  const ok = await askConfirm({
+    title: `更新 ${item.name}`,
+    body: `<p>把 <b>${esc(item.name)}</b> 从 v${esc(item.current || '?')} 升到 <b style="color:var(--ok)">v${esc(item.latest)}</b>：</p>
+      <ul style="margin:8px 0 0 18px;font-size:12.5px;line-height:1.9">
+        <li>会重新执行 ${fwName} 的安装步骤，然后重启 ${fwName}</li>
+        <li>机器人会短暂掉线</li>
+        <li>如果新版和现有依赖不兼容，插件会被自动从启动清单撤下并告诉你原因</li>
+      </ul>`,
+    okMsg: '开始更新',
+  });
+  if (!ok) return;
+  const st = await startInstall(item.install.target, Object.assign({}, item.install.params, { action: 'update' }), `更新 · ${item.name}`, {});
+  if (st === 'done') { toast(`「${item.name}」已更新到 v${item.latest}`, 'ok'); loadUpdates(true); }
+  else if (st === 'manual') toast(`「${item.name}」需要手动看一眼日志`, 'warn');
+  else toast(`「${item.name}」更新失败，日志里有真实原因`, 'err');
 }
 
 function render() {
@@ -1843,13 +2215,13 @@ function addRollbackBtn(jobIds, tip) {
 /* ============ 生态插件安装 ============
  * 部署完某个方法后，用户真正想装的是那个生态的插件（AstrBot/NoneBot/Koishi 的），
  * 不是我们重写的 JS 插件。这里按 pluginApi 给出对应的安装入口，装完用日志核对加载。 */
-const ECO = {
+const ECO_API = {
   nonebot: { label: 'NoneBot 生态（PyPI 包）', target: 'nonebot-plugin', key: 'package', ph: 'nonebot-plugin-apscheduler', dir: 'runtimes/nonebot' },
   koishi: { label: 'Koishi 生态（npm 包）', target: 'koishi-plugin', key: 'package', ph: 'koishi-plugin-dataview', dir: 'runtimes/koishi' },
   astrbot: { label: 'AstrBot 生态（GitHub 仓库）', target: 'astrbot-plugin', key: 'repo', ph: 'https://github.com/作者/插件仓库', dir: 'runtimes/astrbot/data/plugins' },
 };
 function ecoBlock(m) {
-  const e = ECO[m.pluginApi];
+  const e = ECO_API[m.pluginApi];
   if (!e) return '';
   return `<div class="mth-sec">装这个生态的插件</div>
       <div class="eco-inst">
@@ -1861,7 +2233,7 @@ function ecoBlock(m) {
 }
 
 async function installEco(methodId, kind) {
-  const e = ECO[kind];
+  const e = ECO_API[kind];
   if (!e) return;
   const inp = document.getElementById('ecoPkg');
   const v = (inp && inp.value || '').trim();
@@ -2011,6 +2383,36 @@ function renderMatrix() {
 }
 
 /* 安装前的权限确认：能执行命令 / 能写文件 / 能以机器人身份说话，必须勾选 */
+/** 通用确认框（返回 Promise<boolean>）：生态插件的安装/更新都用它，别静默动手 */
+function askConfirm(opt) {
+  return new Promise((resolve) => {
+    const old = document.getElementById('askModal');
+    if (old) old.remove();
+    const d = document.createElement('div');
+    d.className = 'modal';
+    d.id = 'askModal';
+    d.innerHTML = `<div class="mask"></div>
+      <div class="modal-in" style="width:min(560px,92vw)">
+        <div class="modal-head"><b>${esc(opt.title || '确认')}</b>
+          <button class="x" style="margin-left:auto;background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer;padding:2px 8px">×</button></div>
+        <div class="modal-body">${opt.body || ''}</div>
+        <div class="modal-foot">
+          <span class="hint"></span>
+          <button class="ghost" data-a="0">取消</button>
+          <button class="pri" data-a="1">${esc(opt.okMsg || '确定')}</button>
+        </div>
+      </div>`;
+    d.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-a]');
+      if (b) { d.remove(); resolve(b.dataset.a === '1'); return; }
+      if (e.target.classList.contains('mask') || e.target.classList.contains('x')) {
+        d.remove(); resolve(false);
+      }
+    });
+    document.body.appendChild(d);
+  });
+}
+
 function confirmInstall(id) {
   const p = PLUGINS.find((x) => x.id === id);
   if (!p) return;
@@ -2590,12 +2992,299 @@ async function openGlobalCfg() {
   });
 }
 
+/* ============ 插件上架（提交 / 审核 / 版本） ============ */
+let REG = { items: [], stats: {} };
+const REG_ST = { pending: '待审核', approved: '已通过', rejected: '已拒绝' };
+
+async function loadRegistry() {
+  try {
+    const j = await (await fetch('/api/registry')).json();
+    REG = j;
+    renderRegistry();
+  } catch (e) {
+    const box = $('#regList');
+    if (box) box.innerHTML = `<div class="eco-empty">读取上架列表失败：${esc(e.message)}</div>`;
+  }
+}
+
+function renderRegistry() {
+  const st = REG.stats || {};
+  const badge = $('#regBadge');
+  if (badge) badge.textContent = `待审 ${st.pending || 0} · 已通过 ${st.approved || 0} · 已拒绝 ${st.rejected || 0}`;
+  const hint = $('#regHint');
+  if (hint) hint.textContent = (REG.items || []).length ? `共 ${REG.total || 0} 条提交记录` : '';
+  const box = $('#regList');
+  if (!box) return;
+  if (!(REG.items || []).length) {
+    box.innerHTML = `<div class="eco-empty">还没有提交记录。点「提交新插件」走一遍完整流程：填清单 → 审核 → 落地进市场。</div>`;
+    return;
+  }
+  box.innerHTML = REG.items.map(regRow).join('');
+}
+
+function regRow(s) {
+  const acts = s.status === 'pending'
+    ? `<button class="pri" onclick="reviewSub('${esc(s.id)}','approve')">通过</button>
+       <button class="ghost" onclick="reviewSub('${esc(s.id)}','reject')">拒绝</button>`
+    : `<button class="ghost" onclick="showVersions('${esc(s.pluginId)}')">版本记录</button>`;
+  const codeNote = s.hasCode
+    ? `<span title="审核通过会把代码写进 plugins/">带代码 ${Math.round((s.codeSize || 0) / 1024) || '<1'}KB</span>`
+    : '<span style="color:var(--warn,#ffb454)" title="只登记，不会出现在市场里">只登记（无代码）</span>';
+  const upNote = s.isUpdateOf ? `<span>更新自 v${esc(s.isUpdateOf)}</span>` : '';
+  const note = s.reviewNote ? `<div class="rr-d" style="color:${s.status === 'rejected' ? '#ff9e9e' : 'var(--dim-2)'}">审核意见：${esc(s.reviewNote)}</div>` : '';
+  return `<div class="reg-row">
+    <div class="rr-main">
+      <div class="rr-t">
+        <b>${esc(s.name)}</b>
+        <span class="rr-id">${esc(s.pluginId)}</span>
+        <span class="rr-v">v${esc(s.version)}</span>
+        <span class="st-chip st-${esc(s.status)}">${REG_ST[s.status] || s.status}</span>
+      </div>
+      <div class="rr-d">${esc(s.description)}</div>
+      ${note}
+      <div class="rr-m">
+        <span>${esc(s.author)}</span>
+        <span>${esc(s.category)}</span>
+        <span>${new Date(s.submittedAt).toLocaleString('zh-CN')}</span>
+        ${codeNote}${upNote}
+        ${s.deployed ? '<span style="color:var(--ok)">已落地</span>' : ''}
+      </div>
+    </div>
+    <div class="rr-act">${acts}</div>
+  </div>`;
+}
+
+/** 提交表单 */
+function openSubmit() {
+  const old = document.getElementById('subModal');
+  if (old) old.remove();
+  const d = document.createElement('div');
+  d.className = 'modal';
+  d.id = 'subModal';
+  d.innerHTML = `<div class="mask"></div>
+    <div class="modal-in" style="width:min(820px,94vw);max-height:90vh;overflow:auto">
+      <div class="modal-head"><b>提交插件</b><span class="hub-badge" style="margin-left:8px">审核通过后会写进 plugins/</span>
+        <button class="x" style="margin-left:auto;background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer;padding:2px 8px">×</button></div>
+      <div class="modal-body">
+        <div class="reg-form">
+          <div><label>插件 id（小写字母开头，市场内唯一）</label>
+            <input type="text" id="sfId" placeholder="word-count">
+            <div class="hintline">会成为文件名 <code>plugins/&lt;id&gt;.mjs</code>，只能小写字母/数字/短横线</div></div>
+          <div><label>显示名称</label><input type="text" id="sfName" placeholder="字数统计"></div>
+          <div><label>版本号（三段式 semver）</label><input type="text" id="sfVer" placeholder="1.0.0"></div>
+          <div><label>作者</label><input type="text" id="sfAuthor" placeholder="你的名字"></div>
+          <div><label>分类</label><input type="text" id="sfCat" placeholder="工具" value="工具"></div>
+          <div><label>仓库地址（可选）</label><input type="text" id="sfHome" placeholder="https://github.com/you/plugin"></div>
+          <div class="full"><label>简介（审核靠它判断这插件干什么）</label>
+            <input type="text" id="sfDesc" placeholder="统计一段文字的字数和中文字占比">
+          </div>
+          <div class="full"><label>这个版本改了什么（可选）</label>
+            <input type="text" id="sfLog" placeholder="首个版本">
+          </div>
+          <div class="full"><label>它需要哪些能力（勾了就会在市场卡片上显示，并触发安装二次确认）</label>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--dim)">
+              <label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" value="exec" class="sfPerm"> 执行系统命令</label>
+              <label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" value="file:write" class="sfPerm"> 写本地文件</label>
+              <label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" value="message:send" class="sfPerm"> 以机器人身份发消息</label>
+            </div>
+            <div class="hintline">勾了敏感能力，简介要写清用途（否则提交会被拒）</div>
+          </div>
+          <div class="full"><label>插件代码（.mjs，可留空=只登记不落地）</label>
+            <textarea id="sfCode" placeholder="export default {&#10;  meta: { id: 'word-count', name: '字数统计', description: '统计字数', category: '工具' },&#10;  tools: [{ name: 'qq_wordcount', description: '统计字数', inputSchema: { type: 'object', properties: { text: { type: 'string' } } }, run: async ({ text }) => String(text || '').length + ' 字' }],&#10;}"></textarea>
+            <div class="hintline">提交时会先跑 <code>node --check</code> 验语法；审核通过后才写入 plugins/</div>
+          </div>
+          <div class="full"><label style="display:flex;gap:8px;align-items:center;margin:0;color:var(--dim)">
+            <input type="checkbox" id="sfOver"> 允许覆盖已存在的同名插件文件</label></div>
+        </div>
+        <div class="reg-err" id="sfErr"></div>
+      </div>
+      <div class="modal-foot">
+        <span class="hint">提交后进入待审核，不会立刻出现在市场</span>
+        <button class="ghost">取消</button>
+        <button class="pri" onclick="doSubmit()">提交</button>
+      </div>
+    </div>`;
+  /* 取消/关闭：统一走一个处理，别留三种关闭方式 */
+  d.addEventListener('click', (e) => {
+    if (e.target.closest('.ghost') || e.target.classList.contains('x') || e.target.classList.contains('mask')) d.remove();
+  });
+  document.body.appendChild(d);
+  setTimeout(() => { const el = document.getElementById('sfId'); if (el) el.focus(); }, 60);
+}
+
+async function doSubmit() {
+  const val = (id) => (document.getElementById(id) || {}).value || '';
+  const perms = [...document.querySelectorAll('.sfPerm:checked')].map((x) => x.value);
+  const body = {
+    pluginId: val('sfId').trim(),
+    name: val('sfName').trim(),
+    version: val('sfVer').trim(),
+    author: val('sfAuthor').trim(),
+    category: val('sfCat').trim() || '工具',
+    homepage: val('sfHome').trim(),
+    description: val('sfDesc').trim(),
+    changelog: val('sfLog').trim(),
+    permissions: perms,
+    code: val('sfCode'),
+    overwrite: !!(document.getElementById('sfOver') || {}).checked,
+  };
+  const errBox = document.getElementById('sfErr');
+  errBox.style.display = 'none';
+  let j;
+  try {
+    j = await (await fetch('/api/registry/submit', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+    })).json();
+  } catch (e) {
+    errBox.innerHTML = '请求失败：' + esc(e.message);
+    errBox.style.display = 'block';
+    return;
+  }
+  if (!j.ok) {
+    errBox.innerHTML = '提交被拦下：<ul>' + (j.errors || [j.error]).map((x) => `<li>${esc(x)}</li>`).join('') + '</ul>';
+    errBox.style.display = 'block';
+    return;
+  }
+  document.getElementById('subModal').remove();
+  toast(j.detail || '已提交，等审核', 'ok');
+  loadRegistry();
+}
+
+/** 通过/拒绝。通过会真的写文件，所以必须二次确认并把后果讲清楚 */
+async function reviewSub(id, action) {
+  const s = (REG.items || []).find((x) => x.id === id);
+  if (!s) return;
+  let note = '';
+  if (action === 'approve') {
+    const ok = await askConfirm({
+      title: `通过 ${s.pluginId}@${s.version}`,
+      body: `<p>通过后会做这些事，不是只改个状态：</p>
+        <ul style="margin:8px 0 0 18px;font-size:12.5px;line-height:1.9">
+          ${s.hasCode ? `<li>把代码写入 <code>plugins/${esc(s.pluginId)}.mjs</code></li>
+          <li>在市场的插件目录里登记这条</li>
+          <li>重建权限表（否则它没有权限标注，等于绕过安装前确认）</li>` : '<li>这次没提交代码，只登记状态，<b>市场里不会出现这个插件</b></li>'}
+        </ul>`,
+      okMsg: '确认通过',
+    });
+    if (!ok) return;
+  } else {
+    const reason = await askText({
+      title: `拒绝 ${s.pluginId}@${s.version}`,
+      label: '拒绝原因（会存下来给作者看，别只写"不行"）',
+      placeholder: '例如：简介没说清用途；声明的权限和代码实际行为不一致',
+      okMsg: '确认拒绝',
+    });
+    if (reason === null) return;
+    if (!reason.trim()) { toast('拒绝要写原因，否则作者不知道改什么', 'err'); return; }
+    note = reason.trim();
+  }
+  const j = await (await fetch('/api/registry/review', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, action, note }),
+  })).json();
+  if (!j.ok) { toast(j.error || '审核失败', 'err'); return; }
+  toast(j.detail || (action === 'approve' ? '已通过' : '已拒绝'), 'ok');
+  loadRegistry();
+  if (j.deployed) load();          /* 新插件进市场了，刷新插件列表 */
+}
+
+/** 带输入框的确认（拒绝要写原因，不能用 window.prompt：那个在部分环境里被拦） */
+function askText(opt) {
+  return new Promise((resolve) => {
+    const old = document.getElementById('txtModal');
+    if (old) old.remove();
+    const d = document.createElement('div');
+    d.className = 'modal';
+    d.id = 'txtModal';
+    d.innerHTML = `<div class="mask"></div>
+      <div class="modal-in" style="width:min(520px,92vw)">
+        <div class="modal-head"><b>${esc(opt.title || '')}</b>
+          <button class="x" style="margin-left:auto;background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer;padding:2px 8px">×</button></div>
+        <div class="modal-body">
+          <label style="display:block;font-size:12px;color:var(--dim);margin-bottom:6px">${esc(opt.label || '')}</label>
+          <textarea id="txtVal" placeholder="${esc(opt.placeholder || '')}"
+            style="width:100%;box-sizing:border-box;min-height:88px;font:inherit;font-size:12.5px;padding:8px 10px;background:var(--bg-1);color:var(--text);border:1px solid var(--line-2);border-radius:6px;resize:vertical"></textarea>
+        </div>
+        <div class="modal-foot">
+          <span class="hint"></span>
+          <button class="ghost" data-a="0">取消</button>
+          <button class="pri" data-a="1">${esc(opt.okMsg || '确定')}</button>
+        </div>
+      </div>`;
+    d.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-a]');
+      if (b) {
+        const v = b.dataset.a === '1' ? (document.getElementById('txtVal') || {}).value || '' : null;
+        d.remove();
+        resolve(v);
+        return;
+      }
+      if (e.target.classList.contains('mask') || e.target.classList.contains('x')) { d.remove(); resolve(null); }
+    });
+    document.body.appendChild(d);
+    setTimeout(() => { const el = document.getElementById('txtVal'); if (el) el.focus(); }, 60);
+  });
+}
+
+async function showVersions(pluginId) {
+  let j;
+  try {
+    j = await (await fetch('/api/registry/versions?pluginId=' + encodeURIComponent(pluginId))).json();
+  } catch (e) { toast('读版本记录失败', 'err'); return; }
+  const old = document.getElementById('verModal');
+  if (old) old.remove();
+  const d = document.createElement('div');
+  d.className = 'modal';
+  d.id = 'verModal';
+  const rows = (j.items || []).map((v) => `<div class="upd-row">
+      <span class="ur-name"><b>v${esc(v.version)}</b></span>
+      <span class="st-chip st-${esc(v.status)}">${REG_ST[v.status] || v.status}</span>
+      <span class="ur-ver">${v.changelog ? esc(v.changelog) : '<span style="color:var(--dim-2)">没写更新说明</span>'}</span>
+      <span style="font-size:11px;color:var(--dim-2)">${new Date(v.submittedAt).toLocaleString('zh-CN')}</span>
+    </div>`).join('');
+  d.innerHTML = `<div class="mask"></div>
+    <div class="modal-in" style="width:min(680px,92vw)">
+      <div class="modal-head"><b>${esc(pluginId)} · 版本记录</b>
+        <span class="hub-badge" style="margin-left:8px">线上版本 ${j.live ? 'v' + esc(j.live) : '无'}</span>
+        <button class="x" style="margin-left:auto;background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer;padding:2px 8px">×</button></div>
+      <div class="modal-body">
+        <div class="upd-list">${rows || '<div class="eco-empty">没有记录</div>'}</div>
+      </div>
+      <div class="modal-foot"><span class="hint"></span><button class="ghost">关闭</button></div>
+    </div>`;
+  d.addEventListener('click', (e) => {
+    if (e.target.closest('.ghost') || e.target.classList.contains('x') || e.target.classList.contains('mask')) d.remove();
+  });
+  document.body.appendChild(d);
+}
+
 /* ============ 交互 ============ */
+/* 来源切换：本平台 ↔ 三种生态，两套渲染完全分开，因为数据来源和安装方式都不同 */
+$('#srcBar').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-src]');
+  if (!b || b.disabled) return;
+  SRC = b.dataset.src;
+  CAT = '全部';
+  renderSrcBar();
+  if (SRC === 'native') { load(); return; }
+  loadEco(true);
+});
+
 $('#chips').addEventListener('click', (e) => {
   const b = e.target.closest('[data-c]');
-  if (b) { CAT = b.dataset.c; load(); }
+  if (!b) return;
+  CAT = b.dataset.c;
+  if (SRC === 'native') load(); else loadEco(true);
 });
-$('#q').addEventListener('input', render);
+{
+  /* 生态目录是服务端过滤的，搜索要防抖，不然每敲一个字就打一次接口 */
+  let qTimer = 0;
+  $('#q').addEventListener('input', () => {
+    if (SRC === 'native') { render(); return; }
+    clearTimeout(qTimer);
+    qTimer = setTimeout(() => loadEco(true), 320);
+  });
+}
 
 /* 全网插件源：筛选 / 搜索 / 排序 / 复制提示词 */
 $('#hubChips').addEventListener('click', (e) => {

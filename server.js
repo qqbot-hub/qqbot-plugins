@@ -189,6 +189,74 @@ function permissionsMap() {
     return permsCache.data;
   } catch { return {}; }
 }
+/* ---------- 生态插件目录（NoneBot / AstrBot / Koishi 的真实索引） ----------
+ * 数据来自 scripts/sync-ecosystem.mjs 抓回来的第三方注册表，不是我们编的。
+ * 条目里带 install.target/params，点「安装」就是把它们交给对应的 recipe。 */
+const ECO_FILE = path.join(ROOT, 'data', 'sources', 'ecosystem.json');
+let ecoCache = { at: 0, data: { fetchedAt: '', sources: {}, errors: [], items: [] } };
+let ecoSyncing = null;
+
+function ecosystemDoc() {
+  try {
+    const st = fs.statSync(ECO_FILE);
+    if (ecoCache.at !== st.mtimeMs) {
+      const doc = JSON.parse(fs.readFileSync(ECO_FILE, 'utf8'));
+      ecoCache = {
+        at: st.mtimeMs,
+        data: {
+          fetchedAt: doc.fetchedAt || '',
+          sources: doc.sources || {},
+          errors: doc.errors || [],
+          items: Array.isArray(doc.items) ? doc.items : [],
+        },
+      };
+    }
+  } catch { /* 还没抓过就返回空目录，页面显示「点同步」 */ }
+  return ecoCache.data;
+}
+
+/** 生态目录查询：搜索 + 框架/分类过滤 + 分页（1368 条不能一次全发） */
+function ecoQuery(opt) {
+  const q = String(opt.q || '').trim().toLowerCase();
+  const fw = String(opt.framework || '').trim();
+  const cat = String(opt.category || '').trim();
+  let items = ecosystemDoc().items;
+  if (fw) items = items.filter((x) => x.framework === fw);
+  if (cat) items = items.filter((x) => x.category === cat);
+  if (q) {
+    items = items.filter((x) => (
+      String(x.name || '').toLowerCase().includes(q)
+      || String(x.description || '').toLowerCase().includes(q)
+      || String(x.author || '').toLowerCase().includes(q)
+      || String(x.id || '').includes(q)
+      || (x.install && String(x.install.params && (x.install.params.package || x.install.params.repo) || '').toLowerCase().includes(q))
+    ));
+  }
+  /* 排序：官方优先 → star 多的在前 → 名字；纯 JS 排序，量级只有千条，不用建索引 */
+  items = items.slice().sort((a, b) => {
+    if (!!b.official !== !!a.official) return b.official ? 1 : -1;
+    if ((b.stars || 0) !== (a.stars || 0)) return (b.stars || 0) - (a.stars || 0);
+    return String(a.name).localeCompare(String(b.name));
+  });
+  const total = items.length;
+  const offset = Math.max(0, Number(opt.offset) || 0);
+  const limit = Math.min(200, Math.max(1, Number(opt.limit) || 60));
+  return { total, offset, limit, items: items.slice(offset, offset + limit) };
+}
+
+/** 触发同步（同一时刻只允许一个，重复点复用同一个 Promise） */
+function ecoSync() {
+  if (ecoSyncing) return ecoSyncing;
+  ecoSyncing = (async () => {
+    const mod = await import(pathToFileURL(path.join(ROOT, 'scripts', 'lib', 'ecosystem.mjs')).href);
+    const doc = await mod.syncAll();
+    ecoCache.at = 0;                       /* 让下次读重新 stat，别拿到旧缓存 */
+    return { items: doc.items.length, sources: doc.sources, errors: doc.errors };
+  })();
+  ecoSyncing.catch(() => {}).finally(() => { ecoSyncing = null; });
+  return ecoSyncing;
+}
+
 function currentPlugins() {
   return catalog().map((p) => {
     const s = STATE[p.id];
@@ -947,16 +1015,24 @@ function slimEvent(type, p) {
   return p ? { id: p.id, status: p.status, title: p.title } : {};
 }
 
-async function startInstallJob(target, params) {
+async function startInstallJob(target, params, hooks) {
   const mod = await installer();
   const jobId = 'job-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+  const h = hooks || {};
   mod.runInstall(target, {
     params: params || {},
     jobId,
     onEvent: (type, payload) => broadcastInstall({ jobId, type, payload: slimEvent(type, payload) }),
-  }).catch((e) => broadcastInstall({ jobId, type: 'fail', payload: { id: jobId, status: 'failed', error: e.message } }));
+  }).then((job) => { if (h.onDone) h.onDone(job); })
+    .catch((e) => {
+      broadcastInstall({ jobId, type: 'fail', payload: { id: jobId, status: 'failed', error: e.message } });
+      if (h.onDone) h.onDone(null);
+    });
   return jobId;
 }
+
+/* 正在跑的生态插件更新：防止一个插件被点两次，同时产生两个 pip 进程抢同一个 venv */
+const ECO_UPDATING = new Set();
 
 /* 组件的实时状态：端口开没开，页面用来显示「已运行 / 未安装」 */
 async function componentsWithState() {
@@ -984,6 +1060,8 @@ const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; cha
 
 /* ---------- 服务器 ---------- */
 const server = http.createServer(async (req, res) => {
+ try {   /* 整段包一层：某个接口写错不该把整个市场打挂（真发生过——一个未定义变量让进程退出，
+            机器人控制台跟着 502，用户只看到"市场打不开了"）。下面整块不重缩进，只为不制造 1500 行 diff。 */
   let p;
   try { p = new URL(req.url, 'http://x').pathname; } catch { p = '/'; }
   const method = req.method;
@@ -1039,7 +1117,92 @@ const server = http.createServer(async (req, res) => {
         }),
       });
     }
-    /* ---------- 消息接入状态：收到了什么、谁被触发、谁被拦 ---------- */
+    /* ---------- 生态插件目录：别人家商店里的真东西 ---------- */
+    if (method === 'GET' && p === '/api/ecosystem') {
+      const d = ecosystemDoc();
+      const qs = new URL(req.url, 'http://x').searchParams;
+      const fwQ = qs.get('framework') || '';
+      const r = ecoQuery({
+        q: qs.get('q') || '',
+        framework: fwQ,
+        category: qs.get('category') || '',
+        offset: qs.get('offset') || 0,
+        limit: qs.get('limit') || 60,
+      });
+      /* 分类计数按当前框架过滤后的全集算，页面上的筛选条才有意义 */
+      const base = fwQ ? d.items.filter((x) => x.framework === fwQ) : d.items;
+      const cats = {};
+      for (const it of base) cats[it.category] = (cats[it.category] || 0) + 1;
+      const fwCount = {};
+      for (const it of d.items) fwCount[it.framework] = (fwCount[it.framework] || 0) + 1;
+      return sendJson(res, 200, {
+        ok: true,
+        fetchedAt: d.fetchedAt,
+        sources: d.sources,
+        errors: d.errors,
+        syncing: !!ecoSyncing,
+        total: d.items.length,
+        frameworks: fwCount,
+        categories: cats,
+        filtered: r.total,
+        offset: r.offset,
+        limit: r.limit,
+        items: r.items,
+      });
+    }
+    if (method === 'POST' && p === '/api/ecosystem/sync') {
+      /* 同步要 10 秒上下，不等它 —— 前端显示「同步中」，完成后重新拉列表 */
+      if (!ecoSyncing) ecoSync().catch(() => {});
+      return sendJson(res, 200, { ok: true, started: true, syncing: true });
+    }
+
+    /* ---------- 插件上架：提交 → 审核 → 落地 ---------- */
+    if (method === 'GET' && p === '/api/registry') {
+      const mod = await import(pathToFileURL(path.join(ROOT, 'scripts', 'lib', 'registry.mjs')).href);
+      const qs = new URL(req.url, 'http://x').searchParams;
+      const r = mod.list({ status: qs.get('status') || '', pluginId: qs.get('pluginId') || '' });
+      return sendJson(res, 200, Object.assign({ ok: true, stats: mod.stats() }, r));
+    }
+    if (method === 'GET' && p === '/api/registry/item') {
+      const mod = await import(pathToFileURL(path.join(ROOT, 'scripts', 'lib', 'registry.mjs')).href);
+      const id = new URL(req.url, 'http://x').searchParams.get('id') || '';
+      const item = mod.get(id);
+      if (!item) return sendJson(res, 404, { ok: false, error: '没有这条提交' });
+      return sendJson(res, 200, { ok: true, item });
+    }
+    if (method === 'GET' && p === '/api/registry/versions') {
+      const mod = await import(pathToFileURL(path.join(ROOT, 'scripts', 'lib', 'registry.mjs')).href);
+      const pid = new URL(req.url, 'http://x').searchParams.get('pluginId') || '';
+      return sendJson(res, 200, Object.assign({ ok: true }, mod.versions(pid)));
+    }
+    if (method === 'POST' && p === '/api/registry/submit') {
+      const mod = await import(pathToFileURL(path.join(ROOT, 'scripts', 'lib', 'registry.mjs')).href);
+      const raw = await readBody(req);
+      const obj = (() => { try { return JSON.parse(raw || '{}'); } catch { return {}; } })();
+      const r = mod.submit(obj);
+      return sendJson(res, r.ok ? 200 : 400, r);
+    }
+    if (method === 'POST' && p === '/api/registry/review') {
+      const mod = await import(pathToFileURL(path.join(ROOT, 'scripts', 'lib', 'registry.mjs')).href);
+      const raw = await readBody(req);
+      const obj = (() => { try { return JSON.parse(raw || '{}'); } catch { return {}; } })();
+      const r = mod.review(String(obj.id || ''), String(obj.action || ''), obj.note);
+      if (r.ok && r.deployed) {
+        /* 新插件落地了：让消息路由和 schema 缓存都重新加载，否则要重启才用得上 */
+        schemaCache.clear();
+        refreshHandlers().catch(() => {});
+      }
+      return sendJson(res, r.ok ? 200 : 400, r);
+    }
+
+
+    if (method === 'GET' && p === '/api/plugin/updates') {
+      const mod = await import(pathToFileURL(path.join(ROOT, 'scripts', 'lib', 'updates.mjs')).href);
+      const force = new URL(req.url, 'http://x').searchParams.get('force') === '1';
+      return sendJson(res, 200, await mod.checkUpdates({ force }));
+    }
+
+
     if (method === 'GET' && p === '/api/messages') {
       await refreshHandlers();
       const rt = await messageRuntime();
@@ -1267,6 +1430,25 @@ const server = http.createServer(async (req, res) => {
     if (method === 'POST' && p === '/api/op') {
       const raw = await readBody(req);
       const obj = (() => { try { return JSON.parse(raw || '{}'); } catch { return {}; } })();
+      /* 生态插件的「更新」不是改本地状态：得真的重跑 pip / npm / git。
+       * 走安装任务是为了复用同一套步骤日志与回滚记录，不是新造一套。 */
+      if (obj.action === 'update') {
+        const target = String(obj.target || '').trim();
+        const allowed = ['nonebot-plugin', 'koishi-plugin', 'astrbot-plugin'];
+        if (!allowed.includes(target)) {
+          return sendJson(res, 400, { ok: false, error: `这个对象不支持更新：${target || '(空)'}` });
+        }
+        const params = Object.assign({}, obj.params || {}, { action: 'update' });
+        const key = target + ':' + (params.package || params.repo || '');
+        if (ECO_UPDATING.has(key)) {
+          return sendJson(res, 409, { ok: false, error: '这个插件正在更新中，等它跑完' });
+        }
+        ECO_UPDATING.add(key);
+        const jobId = await startInstallJob(target, params, {
+          onDone: () => { ECO_UPDATING.delete(key); },
+        });
+        return sendJson(res, 200, { ok: true, jobId, updating: true, msg: '已开始更新，进度会实时推过来' });
+      }
       const result = performOp(obj.action, obj.id, obj);
       /* 装/卸/启停之后必须让消息路由看到新的插件状态，否则「装了插件还是不回消息」 */
       if (obj.action !== 'restart') refreshHandlers().catch(() => {});
@@ -1340,6 +1522,13 @@ const server = http.createServer(async (req, res) => {
   }
   if (!authed(req)) return sendRedirect(res, '/login');
   return sendHtml(res, 404, '<!doctype html><meta charset="utf-8"><h1>404</h1>');
+ } catch (e) {
+  console.error('[http] ' + req.method + ' ' + req.url + ' → ' + ((e && e.stack) || e));
+  try {
+    if (!res.headersSent) sendJson(res, 500, { ok: false, error: String((e && e.message) || e) });
+    else res.end();
+  } catch { /* 回包也失败就只能记日志了 */ }
+ }
 });
 
 /* 先把密钥初始化完再开始监听：避免第一个 /api/health 因为 token 还没解出来而显示未配置 */

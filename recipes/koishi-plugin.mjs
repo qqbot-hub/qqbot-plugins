@@ -18,6 +18,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { ROOT, readJson, writeJson } from '../scripts/lib/paths.mjs';
+import { isNewer } from '../scripts/lib/version.mjs';
 
 const RUNTIME_ID = 'koishi';
 const CONSOLE_PORT = 5140;
@@ -87,8 +88,20 @@ export default {
         const latest = meta && meta['dist-tags'] && meta['dist-tags'].latest;
         if (!latest) return { status: 'fail', detail: `${pkg} 查不到最新版本号` };
         ctx.state.version = latest;
+        /* 已装版本读 node_modules 里的 package.json —— 那是 npm 真正落盘的东西 */
+        let installed = '';
+        try {
+          const pj = path.join(ctx.state.dir, 'node_modules', pkg, 'package.json');
+          if (fs.existsSync(pj)) installed = JSON.parse(fs.readFileSync(pj, 'utf8')).version || '';
+        } catch { /* 读不到就当没装 */ }
+        ctx.state.installedVersion = installed;
+        ctx.state.upToDate = !!installed && !isNewer(latest, installed);
+        ctx.state.removing = String(ctx.params.action || '') === 'remove';
         const desc = (meta.description || '').slice(0, 60);
-        return { status: 'ok', detail: `${pkg}@${latest} ${desc ? '· ' + desc : ''}` };
+        const tail = installed
+          ? (ctx.state.upToDate ? `（已装 v${installed}，就是最新）` : `（本地 v${installed}，可升级）`)
+          : '（本机还没装）';
+        return { status: 'ok', detail: `${pkg}@${latest} ${desc ? '· ' + desc : ''}${tail}` };
       },
     },
     {
@@ -96,6 +109,9 @@ export default {
       title: 'npm 安装到 Koishi',
       hint: '装不动通常是网络问题，脚本会自动换源重试一次',
       async run(ctx) {
+        if (ctx.state.upToDate) {
+          return { status: 'skip', detail: `${ctx.state.pkg} 已是 v${ctx.state.installedVersion}（最新版），不重复安装` };
+        }
         const npm = ctx.isWin ? 'npm.cmd' : 'npm';
         const mirrors = [
           ['--registry=https://registry.npmmirror.com'],
@@ -142,6 +158,10 @@ export default {
       title: '重启 Koishi 让其生效',
       hint: '重启后控制台应该还能打开；起来了又掉下去说明插件把它弄坏了',
       async run(ctx) {
+        /* 版本没变就不重启：重启一次 Koishi 会让机器人掉线重连 */
+        if (ctx.state.upToDate) {
+          return { status: 'skip', detail: `${ctx.state.pkg} 已是最新版，不重启 Koishi` };
+        }
         /* 先停：按端口找进程，避免误杀别的 node */
         if (await ctx.portOpen('127.0.0.1', CONSOLE_PORT)) {
           const r = await ctx.exec(ctx.isWin ? 'powershell' : 'sh', ctx.isWin
