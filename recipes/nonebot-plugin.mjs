@@ -68,13 +68,15 @@ function moduleTraceback(logText, mod) {
   const tbIdx = logText.lastIndexOf('Traceback (most recent call last)', idx);
   if (tbIdx < 0) return '';
   const seg = logText.slice(tbIdx, idx + 600);
+  /* 日志带 ANSI 颜色码（\x1b[31m），原样存进 state/展示到页面就是一串乱码，先剥掉 */
+  const strip = (s) => String(s).replace(/\x1b\[[0-9;]*m/g, '');
   const errLine = seg.split(/\r?\n/)
-    .map((l) => l.trim())
+    .map((l) => strip(l).trim())
     .filter((l) => /^[A-Za-z_.]*(Error|Exception)\b.*:/.test(l))
     .pop();
   if (errLine) return errLine.slice(0, 300);
   /* 拿不到 "XxxError: ..." 就退一步取 traceback 最后一行非空内容 */
-  const lines = seg.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const lines = seg.split(/\r?\n/).map((l) => strip(l).trim()).filter(Boolean);
   return (lines[lines.length - 1] || '').slice(0, 300);
 }
 
