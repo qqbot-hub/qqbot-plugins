@@ -359,7 +359,31 @@
   }
   .seg button .n { font-size: 10px; opacity: .6; font-variant-numeric: tabular-nums; }
 
-  /* 全网插件源（聚合目录） */
+  /* 全网插件源（聚合目录）：独立平台分区，跟上面的市场列表拉开档次 */
+  #hub {
+    position: relative; margin-top: 60px; padding: 26px 26px 30px;
+    border-radius: 20px; border: 1px solid rgba(96,141,255,.26); overflow: hidden;
+    background:
+      radial-gradient(1100px 320px at 18% 0%, rgba(91,140,255,.13), transparent 62%),
+      radial-gradient(900px 300px at 88% 10%, rgba(56,189,248,.07), transparent 60%),
+      linear-gradient(180deg, rgba(24,32,50,.6), rgba(13,18,28,.4));
+  }
+  #hub::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 2px;
+    background: linear-gradient(90deg, transparent 4%, rgba(96,141,255,.95) 30%, rgba(56,189,248,.75) 70%, transparent 96%);
+  }
+  #hub .sec-head { margin-bottom: 8px; }
+  #hub .sec-head h2 {
+    font-size: 21px; font-weight: 700; letter-spacing: -.2px;
+    background: linear-gradient(95deg, #ffffff 30%, #9dc0ff);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  #hub .sec-head .ln { background: linear-gradient(90deg, rgba(96,141,255,.5), transparent); }
+  .hub-badge {
+    font-size: 10.5px; letter-spacing: .6px; color: #a8c6ff; white-space: nowrap;
+    border: 1px solid rgba(96,141,255,.4); border-radius: 999px; padding: 3px 10px;
+    background: rgba(91,140,255,.12);
+  }
   .hub-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 18px 0 12px; }
   .hub-bar .seg { margin-bottom: 0; }
   .hub-tools { display: flex; gap: 8px; align-items: center; margin-left: auto; flex-wrap: wrap; }
@@ -377,26 +401,30 @@
   .hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(298px, 1fr)); gap: 11px; }
   .hub-card {
     display: flex; flex-direction: column; gap: 7px; padding: 13px 14px 12px;
-    border-radius: var(--r-md); border: 1px solid var(--line);
-    background: linear-gradient(180deg, rgba(21,27,39,.7), rgba(13,18,27,.55));
-    transition: border-color .16s, transform .16s;
+    border-radius: var(--r-md); border: 1px solid rgba(126,155,214,.3);
+    background: linear-gradient(180deg, rgba(33,43,63,.92), rgba(20,27,41,.88));
+    box-shadow: 0 8px 22px -16px rgba(0,0,0,.8);
+    transition: border-color .16s, transform .16s, box-shadow .16s;
   }
-  .hub-card:hover { border-color: rgba(91,140,255,.32); transform: translateY(-1px); }
+  .hub-card:hover {
+    border-color: rgba(120,160,255,.6); transform: translateY(-1px);
+    box-shadow: 0 12px 26px -14px rgba(60,100,220,.35);
+  }
   .hc-top { display: flex; align-items: baseline; gap: 8px; }
-  .hc-top b { font-size: 13px; font-weight: 600; letter-spacing: -.1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .hc-star { margin-left: auto; font-size: 11px; color: var(--warn); font-variant-numeric: tabular-nums; flex: 0 0 auto; }
+  .hc-top b { font-size: 13.5px; font-weight: 650; color: #fff; letter-spacing: -.1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hc-star { margin-left: auto; font-size: 12px; font-weight: 600; color: #ffcc55; font-variant-numeric: tabular-nums; flex: 0 0 auto; }
   .hc-desc {
-    font-size: 12px; color: var(--dim); line-height: 1.6; min-height: 38px;
+    font-size: 12px; color: rgba(228,237,248,.82); line-height: 1.6; min-height: 38px;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
-  .hc-meta { display: flex; gap: 5px; flex-wrap: wrap; font-size: 10.5px; color: var(--dim-2); }
-  .hc-meta span { border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; white-space: nowrap; }
+  .hc-meta { display: flex; gap: 5px; flex-wrap: wrap; font-size: 10.5px; color: rgba(190,205,226,.75); }
+  .hc-meta span { border: 1px solid rgba(126,155,214,.3); border-radius: 5px; padding: 1px 6px; white-space: nowrap; }
   .hc-actions { display: flex; gap: 8px; margin-top: 3px; }
   .hc-actions a, .hc-actions button {
     flex: 1; text-align: center; font-size: 11.5px; padding: 6px 8px; border-radius: 8px;
-    border: 1px solid var(--line); color: var(--dim); background: transparent; transition: .16s;
+    border: 1px solid rgba(126,155,214,.34); color: #cfe0ff; background: rgba(30,42,66,.5); transition: .16s; cursor: pointer;
   }
-  .hc-actions a:hover, .hc-actions button:hover { color: var(--text); border-color: rgba(91,140,255,.5); background: rgba(91,140,255,.08); }
+  .hc-actions a:hover, .hc-actions button:hover { color: #fff; border-color: rgba(120,160,255,.7); background: rgba(91,140,255,.16); }
   .hub-more { display: flex; justify-content: center; margin-top: 14px; }
   .hub-empty { text-align: center; padding: 34px 10px; color: var(--dim-2); font-size: 12.5px; }
 
@@ -798,11 +826,15 @@
         <div id="companion"></div>
       </section>
 
-      <section class="sec reveal" id="hub">
-        <div class="sec-head"><h2>全网插件源</h2><span class="ln"></span></div>
-        <p class="sec-sub">
+      <section class="sec" id="hub">
+        <div class="sec-head">
+          <h2>全网插件源</h2>
+          <span class="hub-badge">平台聚合 · 持续抓取</span>
+          <span class="ln"></span>
+        </div>
+        <p class="sec-sub" style="color:rgba(220,231,246,.85)">
           像外卖平台一样：不自己做所有菜，但把各家店都摆在一张桌上。这里聚合 Yunzai / NoneBot / Koishi / AstrBot / OneBot
-          生态里真实存在的插件仓库，统一检索。<b>目录接入 ≠ 能直接装</b>——它们依赖各自的加载器，点「复制适配提示词」
+          生态里真实存在的插件仓库，统一检索。<b style="color:#e8f0ff">目录接入 ≠ 能直接装</b>——它们依赖各自的加载器，点「复制适配提示词」
           就能让它按本市场的规范重写成一个零依赖的 <code>.mjs</code> 插件。
         </p>
         <div class="hub-bar">
@@ -1187,6 +1219,27 @@ function render() {
 }
 
 /* 配套桌面程序（非 MCP 插件，点按钮直接下载） */
+/* 调音台：在当前页内嵌打开（不用另开标签，预览面板/iframe 环境也能用） */
+function openLab(ev) {
+  if (ev) ev.preventDefault();
+  const old = document.getElementById('labModal');
+  if (old) old.remove();
+  const d = document.createElement('div');
+  d.className = 'modal';
+  d.id = 'labModal';
+  d.innerHTML = `<div class="modal-in" style="width:min(1100px,95vw);height:88vh;max-height:88vh">
+    <div class="modal-head">
+      <b>调音台 · Voice Lab</b>
+      <span style="font-size:11px;color:var(--dim-2)">本机 3120 · 市场代理 /lab/</span>
+      <a class="btn-ghost" style="margin-left:auto;text-decoration:none" href="/lab/" target="_blank" rel="noopener">新窗口打开 ↗</a>
+      <button class="x" style="background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer;padding:2px 8px" title="关闭" onclick="document.getElementById('labModal').remove()">×</button>
+    </div>
+    <iframe src="/lab/" title="调音台" style="flex:1;width:100%;border:0;background:#0d1014"></iframe>
+  </div>`;
+  d.addEventListener('click', (e) => { if (e.target === d) d.remove(); });
+  document.body.appendChild(d);
+}
+
 function renderCompanion() {
   const box = $('#companion');
   const items = PLUGINS.filter((p) => p.external);
@@ -1209,8 +1262,11 @@ function renderCompanion() {
           </div>
           <p class="c-desc">${esc(p.description)}</p>
           <div class="dl-row">
-            ${(p.downloads || []).map((d) => `<a class="dl ${d.primary ? 'pri' : ''}" href="${esc(d.url)}" target="_blank" rel="noopener">
-              <b>${esc(d.label)}</b><span>${esc(d.note || '')}</span></a>`).join('')}
+            ${(p.downloads || []).map((d) => d.url === '/lab/'
+              ? `<button class="dl ${d.primary ? 'pri' : ''}" onclick="openLab(event)" title="在当前页内嵌打开调音台">
+                  <b>${esc(d.label)}</b><span>${esc(d.note || '')}</span></button>`
+              : `<a class="dl ${d.primary ? 'pri' : ''}" href="${esc(d.url)}" target="_blank" rel="noopener">
+                  <b>${esc(d.label)}</b><span>${esc(d.note || '')}</span></a>`).join('')}
           </div>
           <div class="comp-foot">
             <a href="${esc(p.releases || p.homepage)}" target="_blank" rel="noopener">所有版本 / 更新记录 ↗</a>
@@ -1524,10 +1580,12 @@ window.addEventListener('scroll', spy, { passive: true });
 /* 启动 */
 skeleton();
 document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
-/* ?noreveal=1：直接显示所有区块（无头截图 / 打印 / 排查用） */
+/* ?noreveal=1：直接显示所有区块（无头截图 / 打印 / 排查用）；?only=hub 只留一个区块 */
 if (new URLSearchParams(location.search).has('noreveal')) {
   document.querySelectorAll('.reveal').forEach((el) => el.classList.add('in'));
 }
+const __only = new URLSearchParams(location.search).get('only');
+if (__only) document.querySelectorAll('section.sec').forEach((s) => { if (s.id !== __only) s.style.display = 'none'; });
 countUp();
 load().then(() => { spy(); });
 loadStars();

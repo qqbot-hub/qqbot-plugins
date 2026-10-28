@@ -1069,7 +1069,7 @@
     "downloads": [
       {
         "label": "在市场里打开",
-        "note": "走 /lab/ 代理，不用另开窗口",
+        "note": "当前页内嵌打开，不用另开窗口",
         "url": "/lab/",
         "primary": true
       },
