@@ -1011,5 +1011,48 @@
     "origin": "external",
     "installed": false,
     "enabled": false
+  },
+  {
+    "id": "breeze_tts",
+    "name": "Breeze-TTS-2 本地语音引擎",
+    "description": "英中双语 TTS（C++ + GGUF）：支持音色设计、音色克隆与语气指令，Vulkan 加速，自带 HTTP/WebSocket 服务与 Web UI。跑在本机、数据不出门——把它配成 voice 插件的后端，就能免 Key 发声。",
+    "category": "桌面程序",
+    "tools": [],
+    "external": true,
+    "version": "v0.1.3",
+    "homepage": "https://github.com/HoppouAI/Breeze-TTS-2.cpp",
+    "releases": "https://github.com/HoppouAI/Breeze-TTS-2.cpp/releases/latest",
+    "downloads": [
+      {
+        "label": "Windows 预编译",
+        "note": "70 MB · Vulkan",
+        "url": "https://github.com/HoppouAI/Breeze-TTS-2.cpp/releases/download/v0.1.3/breeze-tts-2-v0.1.3-windows-x64-vulkan.zip",
+        "primary": true
+      },
+      {
+        "label": "Linux 预编译",
+        "note": "69 MB · Vulkan",
+        "url": "https://github.com/HoppouAI/Breeze-TTS-2.cpp/releases/download/v0.1.3/breeze-tts-2-v0.1.3-linux-x64-vulkan.tar.gz"
+      },
+      {
+        "label": "模型权重 Q8_0",
+        "note": "3.3 GB · HuggingFace",
+        "url": "https://huggingface.co/HoppouAI/Breeze-TTS-2.cpp"
+      },
+      {
+        "label": "权重国内镜像",
+        "note": "hf-mirror.com",
+        "url": "https://hf-mirror.com/HoppouAI/Breeze-TTS-2.cpp"
+      }
+    ],
+    "setup": "解压后运行 breeze-server breeze-tts-2-q8_0.gguf --host 127.0.0.1 --port 8080；再把 voice 插件的后端切成「本地 Breeze-TTS」、地址填 http://127.0.0.1:8080/v1",
+    "license": "源码 Apache-2.0；模型权重为非商用许可（BreezeBlue），商用需另行授权",
+    "source": {
+      "label": "HoppouAI/Breeze-TTS-2.cpp · Apache-2.0",
+      "url": "https://github.com/HoppouAI/Breeze-TTS-2.cpp"
+    },
+    "origin": "external",
+    "installed": false,
+    "enabled": false
   }
 ]

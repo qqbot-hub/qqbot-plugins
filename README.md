@@ -336,6 +336,31 @@ qqbot-plugins/
 > 本站只提供跳转到该项目 GitHub Releases 的下载按钮，不代下、不重新打包、不修改其二进制。
 > 下载后请以该项目的说明为准；Windows 可能提示"未知发布者"，这是未签名的正常现象。
 
+## 本地语音引擎：Breeze-TTS-2.cpp
+
+除了云端 TTS，`voice` 插件也能直接接本地引擎 [HoppouAI/Breeze-TTS-2.cpp](https://github.com/HoppouAI/Breeze-TTS-2.cpp)
+（C++ + GGUF，英中双语，支持音色设计/克隆/语气指令，Vulkan 加速，自带 HTTP 服务）。
+
+它天生就适配——因为它提供的 `/v1/audio/speech` 就是 OpenAI 兼容接口：
+
+```bash
+# 1. 下载并解压（Windows / Linux 预编译在 Releases，模型权重在 HuggingFace）
+# 2. 启动服务（默认 8080，权重 Q8_0 约 3.3GB）
+breeze-server breeze-tts-2-q8_0.gguf --host 127.0.0.1 --port 8080
+
+# 3. 在市场里点 voice 的「⚙ 配置」
+#    后端 = 本地 Breeze-TTS-2.cpp
+#    接口地址 = http://127.0.0.1:8080/v1
+#    API Key = 留空（本地不需要鉴权）
+#    语气指令 = 可选，如「轻声、慢一点」
+```
+
+配好后 `qq_tts` 就会走本机合成：**不需要 Key、不联网、数据不出门**，还多出两个云端给不了的能力——
+`instruction`（用一句话描述语气）和 `voice_id`（保存/克隆的音色）。
+
+> **许可提醒**：源码 Apache-2.0，但**模型权重是非商用许可（BreezeBlue）**，商用需要另行授权。
+> 另外它的服务没有鉴权，务必只绑定 `127.0.0.1`，不要暴露到公网。
+
 ## 版权与第三方说明（不侵权）
 
 本项目从零实现，可以放心使用和二次分发：

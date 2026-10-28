@@ -467,6 +467,15 @@
   .comp-foot { display: flex; gap: 12px; flex-wrap: wrap; align-items: baseline; font-size: 11px; color: var(--dim-2); }
   .comp-foot a { font-size: 11.5px; }
   .comp-foot span { flex: 1 1 auto; }
+  .comp-lic { color: var(--warn); }
+  .comp-setup {
+    margin-top: 10px; padding: 9px 12px; border-radius: 9px; font-size: 11.5px; line-height: 1.65;
+    color: var(--dim); background: rgba(91,140,255,.06); border: 1px dashed rgba(91,140,255,.28);
+  }
+  .comp-setup b {
+    display: block; font-family: inherit; font-size: 10.5px; letter-spacing: 1px;
+    color: var(--accent-2); margin-bottom: 2px;
+  }
 
   /* 来源四卡 */
   .prov-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
@@ -948,8 +957,9 @@ function renderCompanion() {
           </div>
           <div class="comp-foot">
             <a href="${esc(p.releases || p.homepage)}" target="_blank" rel="noopener">所有版本 / 更新记录 ↗</a>
-            <span>下载后按压缩包内说明运行；Windows 可能提示"未知发布者"，选择"仍要运行"</span>
+            ${p.license ? `<span class="comp-lic">${esc(p.license)}</span>` : `<span>下载后按压缩包内说明运行；Windows 可能提示"未知发布者"，选择"仍要运行"</span>`}
           </div>
+          ${p.setup ? `<div class="comp-setup"><b>怎么接进来</b>${esc(p.setup)}</div>` : ''}
         </div>
       </article>`).join('')}`;
 }
