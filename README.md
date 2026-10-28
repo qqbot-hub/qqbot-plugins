@@ -133,6 +133,8 @@ node scripts/doctor.mjs
 
 合计 **46 个插件 / 75 个工具**。分类与数量由 `data/plugins.json` 统一驱动，市场页面按此分组筛选。
 
+另有 1 个**配套桌面程序**（dsh-pet 桌面宠物），单独成区、不占 MCP 工具位，详见下文。
+
 ## 插件来源与实测
 
 这一节把话说清楚，避免误会。
@@ -315,6 +317,24 @@ qqbot-plugins/
 > 免费后端限流比较严格，连续狂发会被 402。插件对同一句描述做了 10 分钟缓存，
 > 真被限流时会告诉群友"稍等十几秒再要"，而不是报错刷屏。
 > 参考 [Pollinations](https://github.com/pollinations/pollinations) 与 Yunzai 的 [ap-plugin](https://github.com/yhArcadia/ap-plugin)。
+
+## 配套桌面程序：dsh-pet 桌面宠物
+
+网页里「配套桌面程序」一栏放着 [MerZlin/dsh-pet-indesktop](https://github.com/MerZlin/dsh-pet-indesktop) 的下载入口——
+就是那只蓝色大肥鱼的桌面版。
+
+| | 说明 |
+| --- | --- |
+| 形态 | **独立桌面程序**（Python + PySide6），装在自己电脑上，不是 QQ 插件、也不进 DSH |
+| 功能 | 透明置顶、可拖拽、106 段动画、自说自话、待办提醒、全局快捷键；Chat 版还能直接和 DeepSeek 对话 |
+| 平台 | Windows（安装版 / 便携版）、macOS（Apple 芯片）、Linux x86_64 |
+| 协议 | MIT |
+
+它和本站的关系是**同一个角色形象的两种形态**：QQ 里那只是"在群里干活的大肥鱼"，
+桌面这只坐在你屏幕上陪你。两者互不依赖，装不装都不影响。
+
+> 本站只提供跳转到该项目 GitHub Releases 的下载按钮，不代下、不重新打包、不修改其二进制。
+> 下载后请以该项目的说明为准；Windows 可能提示"未知发布者"，这是未签名的正常现象。
 
 ## 版权与第三方说明（不侵权）
 

@@ -970,5 +970,46 @@
     "origin": "catalog",
     "installed": false,
     "enabled": false
+  },
+  {
+    "id": "dsh_pet",
+    "name": "dsh-pet 桌面宠物",
+    "description": "蓝色大肥鱼桌面宠物：透明置顶、可拖拽、106 段动画、自说自话、待办提醒、全局快捷键；Chat 版还能直接和 DeepSeek 对话、看屏幕、查余额。独立桌面程序，装在电脑上陪着你，不是 QQ 插件。",
+    "category": "桌面程序",
+    "tools": [],
+    "external": true,
+    "version": "v4.4.0",
+    "homepage": "https://github.com/MerZlin/dsh-pet-indesktop",
+    "releases": "https://github.com/MerZlin/dsh-pet-indesktop/releases/latest",
+    "downloads": [
+      {
+        "label": "Windows 安装版",
+        "note": "283 MB · .exe",
+        "url": "https://github.com/MerZlin/dsh-pet-indesktop/releases/download/v4.4.0/dsh-pet-standalone-webm-chat-setup.exe",
+        "primary": true
+      },
+      {
+        "label": "Windows 便携版",
+        "note": "333 MB · .zip",
+        "url": "https://github.com/MerZlin/dsh-pet-indesktop/releases/download/v4.4.0/dsh-pet-standalone-webm-chat-portable.zip"
+      },
+      {
+        "label": "macOS（Apple 芯片）",
+        "note": "359 MB · .zip",
+        "url": "https://github.com/MerZlin/dsh-pet-indesktop/releases/download/v4.4.0/dsh-pet-standalone-webm-chat-macos-arm64.zip"
+      },
+      {
+        "label": "Linux x86_64",
+        "note": "519 MB · .zip",
+        "url": "https://github.com/MerZlin/dsh-pet-indesktop/releases/download/v4.4.0/dsh-pet-standalone-webm-chat-linux-x86_64.zip"
+      }
+    ],
+    "source": {
+      "label": "MerZlin/dsh-pet-indesktop · MIT",
+      "url": "https://github.com/MerZlin/dsh-pet-indesktop"
+    },
+    "origin": "external",
+    "installed": false,
+    "enabled": false
   }
 ]

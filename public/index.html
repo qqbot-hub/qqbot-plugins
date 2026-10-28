@@ -438,6 +438,36 @@
   }
   @keyframes shimmer { to { background-position: -180% 0; } }
 
+  /* 配套桌面程序 */
+  .comp-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 30px 0 12px; }
+  .comp-head h2 { margin: 0; font-size: 16px; }
+  .comp-note { font-size: 11.5px; color: var(--dim-2); }
+  .comp-card {
+    border: 1px solid rgba(47,220,166,.22); border-radius: var(--r-md); padding: 16px 18px;
+    background:
+      radial-gradient(320px 140px at 0% 0%, rgba(47,220,166,.09), transparent 72%),
+      linear-gradient(180deg, rgba(20,32,38,.72), rgba(13,18,27,.55));
+  }
+  .dl-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin: 12px 0 10px; }
+  .dl {
+    display: flex; flex-direction: column; gap: 1px; padding: 9px 12px; border-radius: 9px;
+    border: 1px solid var(--line-2); background: rgba(255,255,255,.035);
+    color: var(--text); transition: .16s;
+  }
+  .dl:hover { border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.075); transform: translateY(-1px); }
+  .dl b { font-size: 12px; font-weight: 600; }
+  .dl span { font-size: 10.5px; color: var(--dim-2); }
+  .dl.pri {
+    color: #fff; border-color: transparent;
+    background: linear-gradient(150deg, #2bbf92, #158f6c);
+    box-shadow: 0 8px 20px -12px rgba(47,220,166,.9);
+  }
+  .dl.pri span { color: rgba(255,255,255,.8); }
+  .dl.pri:hover { filter: brightness(1.07); }
+  .comp-foot { display: flex; gap: 12px; flex-wrap: wrap; align-items: baseline; font-size: 11px; color: var(--dim-2); }
+  .comp-foot a { font-size: 11.5px; }
+  .comp-foot span { flex: 1 1 auto; }
+
   /* 来源四卡 */
   .prov-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
   .prov {
@@ -707,6 +737,7 @@
         </div>
         <div class="seg" id="chips"></div>
         <div class="grid" id="grid"></div>
+        <div id="companion"></div>
       </section>
 
       <section class="sec reveal" id="prov">
@@ -868,11 +899,13 @@ async function load() {
   loadHealth();
   const r = await (await fetch('/api/list')).json();
   PLUGINS = r.plugins || [];
+  /* 外部桌面程序单独成区，不参与插件计数与筛选 */
+  const mcpPlugins = PLUGINS.filter((p) => !p.external);
   const counts = {};
-  PLUGINS.forEach((p) => { counts[p.category] = (counts[p.category] || 0) + 1; });
+  mcpPlugins.forEach((p) => { counts[p.category] = (counts[p.category] || 0) + 1; });
   const cats = ['全部', ...Object.keys(counts)];
   $('#chips').innerHTML = cats.map((c) => {
-    const n = c === '全部' ? PLUGINS.length : counts[c];
+    const n = c === '全部' ? mcpPlugins.length : counts[c];
     return `<button class="${c === CAT ? 'on' : ''}" data-c="${c}">${c}<span class="n">${n}</span></button>`;
   }).join('');
   render();
@@ -880,12 +913,45 @@ async function load() {
 
 function render() {
   const q = $('#q').value.trim().toLowerCase();
-  const list = PLUGINS.filter((p) => (CAT === '全部' || p.category === CAT) &&
+  const list = PLUGINS.filter((p) => !p.external).filter((p) => (CAT === '全部' || p.category === CAT) &&
     (!q || p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) ||
       (p.tools || []).some((t) => t.name.toLowerCase().includes(q) || (t.description || '').toLowerCase().includes(q))));
   $('#grid').innerHTML = list.length
     ? list.map((p, i) => card(p, i)).join('')
     : `<div class="empty"><b>没有匹配的插件</b>换个关键词，或者点上面的「全部」看看</div>`;
+  renderCompanion();
+}
+
+/* 配套桌面程序（非 MCP 插件，点按钮直接下载） */
+function renderCompanion() {
+  const box = $('#companion');
+  const items = PLUGINS.filter((p) => p.external);
+  if (!items.length) { box.innerHTML = ''; return; }
+  box.innerHTML = `
+    <div class="comp-head">
+      <h2>配套桌面程序</h2>
+      <span class="comp-note">独立程序，装在电脑上陪着你，不装进 QQ 机器人</span>
+    </div>
+    ${items.map((p) => `
+      <article class="comp-card">
+        <div class="comp-main">
+          <div class="c-top">
+            <h3>${esc(p.name)}</h3>
+            <span class="chip-cat" style="--cat:var(--c-social)">${esc(p.category)}</span>
+            <span class="chip-src" title="${esc((p.source && p.source.label) || '')}">${esc((p.source && p.source.label) || '第三方')}</span>
+            <span class="c-state off"><span class="dot"></span>${esc(p.version || '')}</span>
+          </div>
+          <p class="c-desc">${esc(p.description)}</p>
+          <div class="dl-row">
+            ${(p.downloads || []).map((d) => `<a class="dl ${d.primary ? 'pri' : ''}" href="${esc(d.url)}" target="_blank" rel="noopener">
+              <b>${esc(d.label)}</b><span>${esc(d.note || '')}</span></a>`).join('')}
+          </div>
+          <div class="comp-foot">
+            <a href="${esc(p.releases || p.homepage)}" target="_blank" rel="noopener">所有版本 / 更新记录 ↗</a>
+            <span>下载后按压缩包内说明运行；Windows 可能提示"未知发布者"，选择"仍要运行"</span>
+          </div>
+        </div>
+      </article>`).join('')}`;
 }
 
 function card(p, i) {

@@ -136,6 +136,7 @@ async function main() {
 
   const rows = [];
   for (const meta of catalog) {
+    if (meta.external) continue;   // 外部桌面程序没有 MCP 工具，跳过
     const file = path.join(ROOT, 'plugins', meta.id + '.mjs');
     if (!fs.existsSync(file)) { rows.push({ plugin: meta.id, tool: '-', status: 'fail', msg: '插件文件不存在' }); continue; }
     let mod;
