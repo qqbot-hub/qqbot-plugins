@@ -181,7 +181,7 @@ async function main() {
       needNet: net.length,
       needCfg: cfgRows.length,
       fail: fail.length,
-      plugins: catalog.length,
+      plugins: catalog.filter((m) => !m.external).length,
       rows,
     }, null, 2));
     process.exit(fail.length ? 1 : 0);
@@ -195,7 +195,8 @@ async function main() {
   }
   console.log('');
   console.log('──────────────────────────────────────────');
-  console.log(`插件 ${catalog.length} 个 · 工具 ${rows.length} 个`);
+  const mcpCount = catalog.filter((m) => !m.external).length;
+  console.log(`插件 ${mcpCount} 个 · 工具 ${rows.length} 个${catalog.length > mcpCount ? `（另有 ${catalog.length - mcpCount} 个外部桌面程序，不参与实测）` : ''}`);
   console.log(`✅ 实测通过 ${pass.length}   🔌 需 QQ 在线 ${bot.length}   🔑 需配置 ${cfgRows.length}   🌐 需公网 ${net.length}   ❌ 失败 ${fail.length}`);
   if (fail.length) {
     console.log('\n失败明细：');
