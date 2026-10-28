@@ -8,7 +8,7 @@
 // plugins/hello.mjs
 export default {
   meta: {
-    id: 'hello',           // 唯一 ID，与文件名、data/plugins.json 里的 id 一致
+    id: 'hello',           // 唯一 ID，与文件名、data/catalog/plugins.json 里的 id 一致
     name: 'hello',
     description: '打招呼',
     category: '娱乐',       // 工具 / 群管理 / 群互动 / 娱乐 / 小游戏
@@ -29,7 +29,7 @@ export default {
 ## 上架
 
 1. 把文件放进 `plugins/`；
-2. 在 `data/plugins.json` 追加一条（id/name/description/category/tools 同 `meta`）；
+2. 在 `data/catalog/plugins.json` 追加一条（id/name/description/category/tools 同 `meta`）；
 3. 刷新市场页面 → 安装 → 重启 DSH。
 
 ## 可配置项（可选）

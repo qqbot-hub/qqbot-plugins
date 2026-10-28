@@ -58,7 +58,7 @@ AI（DSH 会话里）
  │ tools/list, tools/call（stdio JSON-RPC）
  ▼
 qqbot-plugins/mcp-server.mjs
- │ 读取 data/state.json 确定装了哪些插件 → 聚合各插件 tools
+ │ 读取 data/state/plugins.json 确定装了哪些插件 → 聚合各插件 tools
  ├─ 纯本地逻辑（计算/游戏/词库…）直接执行
  ├─ 联网数据（天气/汇率/B站…）走免费公开接口
  └─ 操作 QQ（发消息/禁言/查群…）走 OneBot HTTP API(3000)

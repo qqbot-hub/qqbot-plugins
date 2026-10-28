@@ -6,9 +6,9 @@
 
 ## 数据从哪来
 
-- 上游定义：`data/sources.json`。每条 = 一个真实的 GitHub 查询（topic / 关键词），加一条源**不用改代码**
+- 上游定义：`data/sources/external.json`。每条 = 一个真实的 GitHub 查询（topic / 关键词），加一条源**不用改代码**
 - 抓取：`node scripts/hub-sync.mjs`，走 GitHub Search API（**公开、只读**，不克隆、不下载、不改任何上游仓库）
-- 快照：`data/hub.json`（随仓库提交，页面离线也有内容；里面带 `fetchedAt` 和每个源的成功状态）
+- 快照：`data/snapshots/hub.json`（随仓库提交，页面离线也有内容；里面带 `fetchedAt` 和每个源的成功状态）
 - 去重：同一个仓库命中多个源时只留一条（星数高的为主），`sources` 数组记录它命中了哪些源
 - 截止 2026-10-28 首次同步：6/6 个源全部成功，共 204 个仓库
 

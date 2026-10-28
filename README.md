@@ -49,7 +49,7 @@ QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
 只是在 DSH 的 `cordis.patch.yml` 里并列追加一个 MCP 服务器——和官方
 `mcp__snowluma__` 用的是同一份文件、同一种格式，互不冲突。
 
-- **市场侧**：登录 → 浏览/搜索 43 个插件 → 一键安装/卸载/启停/配置，实时探测链路状态
+- **市场侧**：登录 → 浏览/搜索 46 个插件 → 一键安装/卸载/启停/配置，实时探测链路状态
 - **AI 侧**：`node scripts/register-dsh.mjs desktop` 把市场注册进 DSH → 重启 DSH → AI 工具列表里出现全部已装插件
 - **配置侧**：连接渠道（OneBot 地址/Token）、群管理白名单、默认城市等，全部在网页里填，改完立即生效
 - **安全侧**：踢人/全体禁言等危险操作必须 `confirm=true`；群管理还支持管理员 QQ 白名单与「只允许操作的群」双重护栏
@@ -125,7 +125,7 @@ node scripts/doctor.mjs
 > 白名单是"防误操作"的护栏，不是绝对安全边界——`operator_id` 由 AI 传入。真正兜底的是机器人自己的群权限（SnowLuma 侧）和只在可信群里使用。要加新的可配置插件，看 [docs/PLUGIN_SPEC.md](docs/PLUGIN_SPEC.md) 里的 `settings` 声明方式。
 
 
-## 插件一览（43 个）
+## 插件一览（46 个）
 
 | 分类 | 数量 | 插件 |
 | --- | --- | --- |
@@ -135,7 +135,7 @@ node scripts/doctor.mjs
 | 群管理 | 2 | group_admin 禁言/踢人/撤回/名片/头衔/公告 · group_info 群资料/成员列表 |
 | 群互动 | 3 | signin 群签到积分榜 · qzone QQ空间说说 · **memory 长期记忆/好感度** |
 
-合计 **46 个插件 / 75 个工具**。分类与数量由 `data/plugins.json` 统一驱动，市场页面按此分组筛选。
+合计 **46 个插件 / 75 个工具**。分类与数量由 `data/catalog/plugins.json` 统一驱动，市场页面按此分组筛选。
 
 另有 1 个**配套桌面程序**（dsh-pet 桌面宠物），单独成区、不占 MCP 工具位，详见下文。
 
@@ -229,7 +229,7 @@ export default {
 };
 ```
 
-放到 `plugins/` 下、在 `data/plugins.json` 加一条，市场里就能看到、AI 里就能用。`ctx` 注入 `ctx.onebot(action, params)`（OneBot 调用）与 `ctx.storage`（持久化）。
+放到 `plugins/` 下、在 `data/catalog/plugins.json` 加一条，市场里就能看到、AI 里就能用。`ctx` 注入 `ctx.onebot(action, params)`（OneBot 调用）与 `ctx.storage`（持久化）。
 
 ## 目录结构
 
@@ -351,7 +351,7 @@ qqbot-plugins/
 ## 全网插件源（平台模式）
 
 市场不只陈列自己写的 46 个插件，还像外卖平台一样把**各家店摆上同一张桌**：
-`data/sources.json` 定义了 Yunzai / NoneBot / Koishi / AstrBot / OneBot 生态的真实查询源，
+`data/sources/external.json` 定义了 Yunzai / NoneBot / Koishi / AstrBot / OneBot 生态的真实查询源，
 `node scripts/hub-sync.mjs` 一键抓成统一目录（截至 2026-10-28：6 个源、204 个仓库），
 网页「全网插件源」板块可以直接搜索、按平台筛选、按星数排序。
 
@@ -425,7 +425,7 @@ breeze-server breeze-tts-2-q8_0.gguf --host 127.0.0.1 --port 8080
 | 内容 | 来源 |
 | --- | --- |
 | 界面（HTML/CSS）、图标、Logo | 本仓库原创手写，仅使用纯 CSS 与手绘 SVG，**未使用任何第三方 UI 框架、图标库、字体或图片素材** |
-| 43 个插件的代码 | 本仓库原创实现，零第三方依赖 |
+| 46 个插件的代码 | 本仓库原创实现，零第三方依赖 |
 | 插件目录里的「源自 xxx」标签 | 仅是对同类功能上游项目的**文字致谢**（AstrBot / NoneBot / Koishi / Yunzai 社区），不包含、不复制其任何代码；这些项目各自遵循其自身许可 |
 | 联网插件调用的接口 | Open-Meteo、er-api、nbnhhsh、一言、B 站公开接口、必应每日图等公开接口，按其公开使用条款调用，无需 Key |
 
