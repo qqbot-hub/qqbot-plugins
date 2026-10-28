@@ -4,3 +4,7 @@ data/state.json
 data/store/
 *.bak
 *.log
+
+# 安装状态是本机运行时数据（含 QQ 号等隐私），不入库
+data/state/*.json
+runtimes/
