@@ -229,3 +229,68 @@ nonebot  nonebot-plugin-hammer-nbnhhsh  1.0.0 → 1.0.0     latest
 
 AstrBot 是目录型插件，没有注册表版本可比，所以「更新」= 重新拉一次仓库；
 `check` 阶段会明确提示「插件目录里的本地改动会丢」，不藏这个代价。
+
+---
+
+## AstrBot 的三个环境坑（本机实测，都不是理论）
+
+### 1. 6185 被 QQNT 自己占着
+
+AstrBot 的 dashboard 默认端口 `6185`，和**桌面版 QQ（QQNT）**用的端口撞了。
+`netstat` 里长这样：
+
+```
+TCP  0.0.0.0:6185  ...  BOUND  24980   ← QQ.exe
+```
+
+注意状态是 **BOUND 不是 LISTEN**。这种占位有两个后果：
+
+- `connect` 探测显示"不通"（看起来端口是空闲的）
+- 真去 `bind` 却失败 → AstrBot 启动几秒后静默退出，日志里只有正常的启动行，没有报错
+
+所以判断端口能不能用，**必须用 bind 试**，不能用 connect 试：
+
+```js
+function canBind(port) {
+  return new Promise((resolve) => {
+    const s = net.createServer();
+    s.once('error', () => resolve(false));
+    s.once('listening', () => { s.close(); resolve(true); });
+    s.listen(port, '127.0.0.1');
+  });
+}
+```
+
+`recipes/astrbot-plugin.mjs` 现在会在启动前检查：不能 bind 就从 `6199–6218` 里挑一个，
+写回 `data/cmd_config.json` 的 `dashboard.port`，并在步骤日志里说明
+「6185 端口被别的程序占着（本机是 QQNT 占了 6185），已把 AstrBot WebUI 改到 6199」。
+
+### 2. 判断顺序：先停旧的，再判端口
+
+第一版写成「先判端口 → 再停旧进程」，结果：AstrBot 自己正在 6185 上跑，
+`canBind(6185)` 必然失败 → 被当成"别人占了" → 每跑一次更新就换一个端口，端口号一路往上漂。
+
+正确顺序：
+
+```
+1. 读配置里的端口 → 按这个端口找到并停掉旧进程
+2. 停完后才 canBind 判断（此时自己已经不占了，竞争条件消失）
+3. 启动 → 等起来 → 8 秒后复检一次还活着
+```
+
+实测：AstrBot 正在 6185 运行时再跑一次更新，端口保持 6185 不变，任务 6 步全 done。
+
+### 3. 进程存活：谁来拉起它很重要
+
+同一条「经 cmd 的 `start /b` 启动」命令：
+
+| 触发方式 | 结果 |
+|---|---|
+| `node scripts/installer.mjs run astrbot-plugin`（CLI） | 起来了，但**命令一结束进程就跟着没了** |
+| `POST /api/install`（常驻的市场服务进程） | 稳定存活 |
+
+原因是 Windows 的 console 进程组：CLI 跑完退出时，它那一组的子进程会被一起收掉。
+**这不是脚本写错了，是环境行为**，所以：
+
+- 只想验证一次：用网页/接口触发，别用 CLI 起长期服务
+- 要长期跑：把它做成开机启动项或 Windows 服务，别挂在某个终端窗口下

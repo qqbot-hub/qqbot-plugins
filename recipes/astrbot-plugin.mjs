@@ -109,6 +109,62 @@ function runningPort(port) {
   });
 }
 
+/** 端口能不能自己绑上。
+ * 为什么不能只看 connect：本机的 QQNT（NapCat 挂载的桌面 QQ）会
+ * "Bound 0.0.0.0:6185" 但不 Listen —— 这时 connect 连不上（看起来"空闲"），
+ * 真去 bind 却失败，AstrBot 起几秒就没了。必须用 bind 试。
+ */
+function canBind(port) {
+  return new Promise((resolve) => {
+    const s = net.createServer();
+    s.once('error', () => resolve(false));
+    s.once('listening', () => { try { s.close(); } catch { /* 已关 */ } resolve(true); });
+    s.listen(port, '127.0.0.1');
+  });
+}
+
+/** 只读配置里的 dashboard 端口，不做任何判断 */
+function currentDashboardPort(ctx) {
+  try {
+    const raw = fs.readFileSync(path.join(ctx.state.dir, 'data', 'cmd_config.json'), 'utf8');
+    const cfg = JSON.parse(raw.replace(/^\uFEFF/, ''));
+    return Number((cfg.dashboard || {}).port) || WEBUI_PORT;
+  } catch {
+    return WEBUI_PORT;
+  }
+}
+
+/** 选一个真能用的 dashboard 端口；冲突时写回 cmd_config.json 并说明原因 */
+async function ensureDashboardPort(ctx) {
+  const cfgFile = path.join(ctx.state.dir, 'data', 'cmd_config.json');
+  let raw = '';
+  let cfg = {};
+  try {
+    raw = fs.readFileSync(cfgFile, 'utf8');
+    cfg = JSON.parse(raw.replace(/^\uFEFF/, ''));
+  } catch {
+    /* 配置还没生成（首次启动前）：用默认值，绑定失败会在重启那步暴露 */
+    return { port: WEBUI_PORT, note: '' };
+  }
+  const hasBom = raw.charCodeAt(0) === 0xFEFF;
+  const cur = Number((cfg.dashboard || {}).port) || WEBUI_PORT;
+  if (await canBind(cur)) return { port: cur, note: '' };
+
+  let alt = 0;
+  for (let p = 6199; p < 6219; p++) {
+    if (await canBind(p)) { alt = p; break; }
+  }
+  if (!alt) return { port: 0, error: '6199–6218 全被占用，找不到可用端口' };
+
+  cfg.dashboard = Object.assign({}, cfg.dashboard, { port: alt, host: '127.0.0.1' });
+  /* 保持原文件的 BOM：AstrBot 自己写的时候带 BOM，去掉会让别的工具读乱 */
+  fs.writeFileSync(cfgFile, (hasBom ? '\uFEFF' : '') + JSON.stringify(cfg, null, 2));
+  return {
+    port: alt,
+    note: `${cur} 端口被别的程序占着（本机是 QQNT 占了 6185，它 Bound 但不 Listen），已把 AstrBot WebUI 改到 ${alt}`,
+  };
+}
+
 export default {
   id: 'astrbot-plugin',
   title: '安装 AstrBot 插件',
@@ -279,15 +335,30 @@ export default {
       title: '重启 AstrBot 并确认插件被加载',
       hint: 'AstrBot 只在启动时扫插件目录；日志里出现 Loading plugin <目录名> 且没有 Failed to import 才算成功',
       async run(ctx) {
-        const wasUp = await runningPort(WEBUI_PORT);
+        /* 顺序很重要：先按「配置里的端口」找到并停掉旧进程，**再**判断端口是否被占。
+         * 反过来会把 AstrBot 自己占着的端口当成"别人占了"，从而每跑一次更新就换一个端口
+         * （本机实测过：自己在 6185 运行时，canBind 必然失败）。 */
+        const cfgPort = currentDashboardPort(ctx);
+        const wasUp = await runningPort(cfgPort);
         if (wasUp) {
           const r = await ctx.exec(ctx.isWin ? 'powershell' : 'sh', ctx.isWin
             ? ['-NoProfile', '-Command',
-              `Get-NetTCPConnection -LocalPort ${WEBUI_PORT} -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force }`]
-            : ['-c', `lsof -ti tcp:${WEBUI_PORT} | xargs -r kill -9`], { timeoutMs: 20000, quiet: true });
-          ctx.log(`停止旧 AstrBot 进程（退出码 ${r.code}）`);
+              `Get-NetTCPConnection -LocalPort ${cfgPort} -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force }`]
+            : ['-c', `lsof -ti tcp:${cfgPort} | xargs -r kill -9`], { timeoutMs: 20000, quiet: true });
+          ctx.log(`停止旧 AstrBot 进程（端口 ${cfgPort}，退出码 ${r.code}）`);
           await new Promise((res) => setTimeout(res, 1500));
         }
+        const pi = await ensureDashboardPort(ctx);
+        if (!pi.port) {
+          return {
+            status: 'fail',
+            detail: pi.error,
+            hint: '关掉占端口的程序，或手动改 runtimes\\astrbot\\data\\cmd_config.json 里的 dashboard.port',
+          };
+        }
+        const port = pi.port;
+        if (pi.note) ctx.log(pi.note);
+        ctx.state.port = port;
         const logFile = path.join(ctx.state.dir, 'astrbot.log');
         const sizeBefore = (() => { try { return fs.statSync(logFile).size; } catch { return 0; } })();
 
@@ -330,7 +401,7 @@ export default {
         let downloading = false;
         for (let i = 0; i < 100; i++) {
           await new Promise((res) => setTimeout(res, 1500));
-          if (await runningPort(WEBUI_PORT)) { up = true; break; }
+          if (await runningPort(port)) { up = true; break; }
           const now = (() => {
             try { const buf = fs.readFileSync(logFile); return buf.slice(sizeBefore).toString('utf8'); } catch { return ''; }
           })();
@@ -342,10 +413,10 @@ export default {
          * 隔 8 秒再确认一次，站得住才往下判插件加载 */
         if (up) {
           await new Promise((res) => setTimeout(res, 8000));
-          if (!(await runningPort(WEBUI_PORT))) {
+          if (!(await runningPort(port))) {
             return {
               status: 'manual',
-              detail: `AstrBot 起来后 8 秒又退出了（${WEBUI_PORT} 不通）`,
+              detail: `AstrBot 起来后 8 秒又退出了（${port} 不通）`,
               hint: '手动启动一次看真实报错：cd runtimes\\astrbot 然后 .venv\\Scripts\\python.exe main.py；插件文件已经放到位，跟插件无关',
             };
           }
@@ -369,8 +440,8 @@ export default {
           return {
             status: up ? 'ok' : 'manual',
             detail: up
-              ? `已重启，WebUI ${WEBUI_PORT} 在跑；日志里没有 ${name}，卸载生效`
-              : `目录已删，但 AstrBot 没能重新起来（${WEBUI_PORT} 不通）`,
+              ? `已重启，WebUI ${port} 在跑；日志里没有 ${name}，卸载生效`
+              : `目录已删，但 AstrBot 没能重新起来（${port} 不通）`,
             hint: up ? '' : '看 runtimes\\astrbot\\astrbot.log 尾部；也可能首次启动本来就需要先配 LLM，这跟卸载无关',
           };
         }
@@ -388,26 +459,26 @@ export default {
           if (downloading) {
             return {
               status: 'manual',
-              detail: `AstrBot 首次启动正在下载 WebUI（约 5MB），150 秒内没下载完，${WEBUI_PORT} 还没起来`,
+              detail: `AstrBot 首次启动正在下载 WebUI（约 5MB），150 秒内没下载完，${port} 还没起来`,
               hint: '这是首次运行的一次性动作，不用管它 —— 等 runtimes\\astrbot\\astrbot.log 里下载完、出现「WebUI」相关启动日志后，再点一次安装（或直接打开 http://127.0.0.1:6185 确认）。插件文件已经放到位了。',
             };
           }
           return {
             status: 'manual',
-            detail: `AstrBot 启动后 ${WEBUI_PORT} 没起来，无法确认插件是否加载`,
+            detail: `AstrBot 启动后 ${port} 没起来，无法确认插件是否加载`,
             hint: '看 runtimes\\astrbot\\astrbot.log 尾部（常见：缺依赖、缺配置、端口被占）；插件文件本身已经放到位了',
           };
         }
         if (!loaded) {
           return {
             status: 'manual',
-            detail: `AstrBot 已在 ${WEBUI_PORT} 端口运行，但日志里没看到 Loading plugin ${name}`,
+            detail: `AstrBot 已在 ${port} 端口运行，但日志里没看到 Loading plugin ${name}`,
             hint: '可能日志被截断，或者插件目录名和 metadata.name 不一致；去 WebUI 的「插件管理」里看一眼最准',
           };
         }
         return {
           status: 'ok',
-          detail: `${wasUp ? '已重启' : '已启动'}，WebUI ${WEBUI_PORT} 在跑；日志确认 AstrBot 正在加载 ${name}`,
+          detail: `${wasUp ? '已重启' : '已启动'}，WebUI ${port} 在跑；日志确认 AstrBot 正在加载 ${name}`,
         };
       },
     },
