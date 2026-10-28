@@ -9,6 +9,7 @@
  */
 'use strict';
 import { num, str } from './_lib.mjs';
+import { bridgeOf } from './_lib.mjs';
 
 const cfgOf = (ctx) => (ctx && ctx.cfg) || {};
 
@@ -157,11 +158,11 @@ export default {
       if (!out.buf || out.buf.length < 2000) return '出图返回的内容不像图片，稍后再试。';
 
       const b64 = out.buf.toString('base64');
-      const segment = [{ type: 'image', data: { file: 'base64://' + b64 } }];
       const gid = num(a.group_id), uid = num(a.user_id);
       try {
-        if (gid) await ctx.onebot('send_group_msg', { group_id: gid, message: segment });
-        else if (uid) await ctx.onebot('send_private_msg', { user_id: uid, message: segment });
+        const bridge = bridgeOf(ctx);
+        if (gid) await bridge.sendImage({ groupId: gid }, b64);
+        else if (uid) await bridge.sendImage({ userId: uid }, b64);
         else return out.url ? `画好了：${out.url}` : '画好了，但不知道发给谁：请带上 group_id 或 user_id。';
       } catch (e) {
         if (out.url) return `画好了但发不出去（${e.message}），图片直链：${out.url}`;

@@ -650,7 +650,7 @@
       <a href="#prov" data-nav="prov"><span class="ic">✓</span>来源与实测</a>
       <a href="#bridge" data-nav="bridge"><span class="ic">⇄</span>接入 DSH</a>
       <a href="javascript:void 0" onclick="openGlobalCfg()"><span class="ic">⚙</span>连接设置</a>
-      <a href="https://github.com/xiazhuo123456789/qqbot-plugins#readme" target="_blank" rel="noopener"><span class="ic">▤</span>使用文档</a>
+      <a href="https://github.com/qqbot-hub/qqbot-plugins#readme" target="_blank" rel="noopener"><span class="ic">▤</span>使用文档</a>
     </nav>
 
     <div class="side-label">运行状态</div>
@@ -673,7 +673,7 @@
         </svg>
         <b>请给我点一颗免费的心</b>
         <p>完全开源免费<br>一颗 Star 就是最好的鼓励 ❤</p>
-        <a class="star-btn" href="https://github.com/xiazhuo123456789/qqbot-plugins" target="_blank" rel="noopener">
+        <a class="star-btn" href="https://github.com/qqbot-hub/qqbot-plugins" target="_blank" rel="noopener">
           <span>★</span> 去 GitHub 点 Star
         </a>
         <div class="star-meta"><span id="starCount">开源 · MIT</span></div>
@@ -797,7 +797,7 @@
       </section>
 
       <footer>
-        <span>开源项目 <a href="https://github.com/xiazhuo123456789/qqbot-plugins" target="_blank" rel="noopener">qqbot-plugins</a></span>
+        <span>开源项目 <a href="https://github.com/qqbot-hub/qqbot-plugins" target="_blank" rel="noopener">qqbot-plugins</a></span>
         <span class="dotsep">·</span>
         <span>交流群 <b>973971153</b></span>
         <span class="dotsep">·</span>
@@ -833,7 +833,7 @@
 <script>
 let PLUGINS = [], CAT = '全部';
 const $ = (s) => document.querySelector(s);
-const REPO = 'https://github.com/xiazhuo123456789/qqbot-plugins';
+const REPO = 'https://github.com/qqbot-hub/qqbot-plugins';
 const GROUP_NO = '973971153';
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -878,8 +878,8 @@ async function loadHealth() {
     const row = (ok, name) => `<div class="stat-row"><span class="dot ${ok ? 'ok' : 'bad'}"></span><span class="nm">${name}</span><span class="vl ${ok ? 'ok' : 'bad'}">${ok ? '在线' : '未连接'}</span></div>`;
     box.innerHTML =
       row(r.dsh, 'DSH 3080') +
-      row(r.snowluma, 'SnowLuma') +
-      row(r.bridge, 'qq-bridge 3100') +
+      row(r.onebot ? r.onebot.ok : r.snowluma, (r.onebot && r.onebot.app) ? ('协议端 · ' + r.onebot.app) : '协议端 OneBot') +
+      row(r.bridge, '桥接 3100') +
       '<div class="hr"></div>' +
       `<div class="stat-total"><b>${r.installed}</b> 个已装<span class="sp">${r.tools} 工具</span></div>`;
   } catch {
@@ -890,7 +890,7 @@ async function loadHealth() {
 /* ============ Star 数 ============ */
 async function loadStars() {
   try {
-    const d = await (await fetch('https://api.github.com/repos/xiazhuo123456789/qqbot-plugins')).json();
+    const d = await (await fetch('https://api.github.com/repos/qqbot-hub/qqbot-plugins')).json();
     if (typeof d.stargazers_count === 'number') {
       $('#starCount').textContent = d.stargazers_count > 0
         ? `${d.stargazers_count} 颗心 · 谢谢 ❤`
@@ -1040,7 +1040,10 @@ function fieldHtml(f, v) {
       <input type="number" data-k="${f.key}" data-t="number" value="${esc(val)}" placeholder="${esc(f.placeholder || '')}">${help}</div>`;
   }
   if (f.type === 'select') {
-    const opts = (f.options || []).map((o) => (typeof o === 'string' ? { v: o, l: o } : o));
+    /* 选项兼容三种写法：字符串 / {value,label} / {v,l} */
+    const opts = (f.options || []).map((o) => (typeof o === 'string'
+      ? { v: o, l: o }
+      : { v: o.value !== undefined ? o.value : o.v, l: o.label !== undefined ? o.label : (o.l !== undefined ? o.l : o.value) }));
     return `<div class="field"><label>${esc(f.label)}</label>
       <select data-k="${f.key}" data-t="text">${opts.map((o) =>
         `<option value="${esc(o.v)}" ${String(v) === String(o.v) ? 'selected' : ''}>${esc(o.l)}</option>`).join('')}</select>${help}</div>`;
@@ -1112,7 +1115,26 @@ async function openPluginCfg(id) {
 }
 
 const GLOBAL_FIELDS = [
-  { key: 'httpUrl', group: 'OneBot 连接渠道（SnowLuma）', label: 'OneBot HTTP 地址', type: 'text', placeholder: 'http://127.0.0.1:3000', help: '插件发消息、禁言等操作都走这个地址。SnowLuma 的 HTTP API 端口一般是 3000。' },
+  { key: 'impl', group: '协议端（OneBot v11）', label: '用哪个协议端', type: 'select', default: 'auto',
+    options: [
+      { value: 'auto', label: '自动探测（推荐）' },
+      { value: 'snowluma', label: 'SnowLuma（HTTP 3000）' },
+      { value: 'napcat', label: 'NapCatQQ（HTTP 3000）' },
+      { value: 'llonebot', label: 'LLOneBot（HTTP 3000）' },
+      { value: 'lagrange', label: 'Lagrange.OneBot（常见 8080）' },
+      { value: 'gocqhttp', label: 'go-cqhttp（HTTP 5700）' },
+      { value: 'other', label: '其他 OneBot v11 实现' },
+    ],
+    help: '插件只依赖 OneBot v11 协议，换协议端不用换插件。选「自动探测」会读下面的地址去识别。' },
+  { key: 'httpUrl', label: 'OneBot HTTP 地址', type: 'text', placeholder: 'http://127.0.0.1:3000', help: '插件发消息、禁言等操作都走这个地址。' },
+  { key: 'authMode', label: '鉴权方式', type: 'select', default: 'header',
+    options: [
+      { value: 'header', label: 'Authorization: Bearer（多数实现）' },
+      { value: 'query', label: '?access_token=（部分实现）' },
+      { value: 'none', label: '不鉴权' },
+    ],
+    help: '协议端怎么校验 Token 就选哪个；填错会返回 401。' },
+  { key: 'pathPrefix', label: '路径前缀（可选）', type: 'text', placeholder: '/onebot', help: '有些实现把接口挂在子路径下，比如 /onebot/v11。没有就留空。' },
   { key: 'accessToken', label: 'AccessToken（可选）', type: 'password', placeholder: '没设置就留空', help: '如果 SnowLuma 配了 access token，填在这里。留空表示保持已保存的值不变。' },
   { key: 'clearToken', label: '清除已保存的 AccessToken', type: 'boolean', help: '勾选并保存即可清空。' },
   { key: 'wsPort', label: 'WebSocket 端口', type: 'number', default: 3001, help: '仅用于体检探测（qq-bridge 连的是这个端口）。' },
@@ -1132,10 +1154,12 @@ async function openGlobalCfg() {
     hint: '改完点「刷新」看状态是否变绿',
     fields: GLOBAL_FIELDS,
     values: {
-      httpUrl: g.snowluma.httpUrl, accessToken: '', clearToken: false, wsPort: g.snowluma.wsPort,
+      impl: g.onebot.impl, httpUrl: g.snowluma.httpUrl, authMode: g.onebot.authMode,
+      pathPrefix: g.onebot.pathPrefix, accessToken: '', clearToken: false, wsPort: g.snowluma.wsPort,
       dshBase: g.dsh.baseUrl, dshProfile: g.dsh.profile, bridgeConsole: g.bridge.consoleUrl,
     },
     save: (v) => ({
+      onebot: { impl: v.impl, authMode: v.authMode, pathPrefix: v.pathPrefix },
       snowluma: { httpUrl: v.httpUrl, accessToken: v.accessToken, clearToken: v.clearToken, wsPort: v.wsPort },
       dsh: { baseUrl: v.dshBase, profile: v.dshProfile },
       bridge: { consoleUrl: v.bridgeConsole },

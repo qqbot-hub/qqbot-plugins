@@ -18,6 +18,7 @@
  */
 'use strict';
 import { num, str } from './_lib.mjs';
+import { bridgeOf } from './_lib.mjs';
 
 const cfgOf = (ctx) => (ctx && ctx.cfg) || {};
 
@@ -35,11 +36,11 @@ const isLocal = (url) => /^https?:\/\/(127\.0\.0\.1|localhost|0\.0\.0\.0|\[::1\]
 /* 把音频字节作为语音条发出去（三个后端共用） */
 async function sendRecord(ctx, buf, a, text, sourceLabel) {
   const b64 = buf.toString('base64');
-  const segment = [{ type: 'record', data: { file: 'base64://' + b64 } }];
   const gid = num(a.group_id), uid = num(a.user_id);
   try {
-    if (gid) await ctx.onebot('send_group_msg', { group_id: gid, message: segment });
-    else if (uid) await ctx.onebot('send_private_msg', { user_id: uid, message: segment });
+    const bridge = bridgeOf(ctx);
+    if (gid) await bridge.sendRecord({ groupId: gid }, b64);
+    else if (uid) await bridge.sendRecord({ userId: uid }, b64);
     else return '语音已生成，但不知道发给谁：请带上 group_id 或 user_id。';
   } catch (e) {
     return `语音已生成（${Math.round(buf.length / 1024)}KB），但发送失败：${e.message}。检查 OneBot 是否在线、协议端是否支持语音格式。`;

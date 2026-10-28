@@ -1,6 +1,7 @@
 /* remind —— 定时提醒（到点由 Hub 运行时主动通过 OneBot 发消息） */
 'use strict';
 import { sessionOf, storage, num, str } from './_lib.mjs';
+import { bridgeOf } from './_lib.mjs';
 
 /* 主动消息通道由 mcp-server 注入：mcp-server 会调用本插件的 fireDue(ctx) */
 let TIMER_STARTED = false;
@@ -17,11 +18,10 @@ export function fireDue(ctx) {
         changed = true;
         const [type, id] = key.split(':');
         const msg = `⏰ 提醒到点：${r.text}`;
-        if (ctx && ctx.onebot) {
-          const action = type === 'group' ? 'send_group_msg' : 'send_private_msg';
-          const params = type === 'group' ? { group_id: +id, message: msg } : { user_id: +id, message: msg };
-          ctx.onebot(action, params).catch(() => {});
-        }
+        try {
+          const target = type === 'group' ? { groupId: +id } : { userId: +id };
+          bridgeOf(ctx).sendText(target, msg).catch(() => {});
+        } catch { /* 没有协议端连接时静默跳过 */ }
       } else keep.push(r);
     }
     if (keep.length) db[key] = keep; else delete db[key];

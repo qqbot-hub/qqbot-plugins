@@ -9,7 +9,8 @@
     "doctor": "node scripts/doctor.mjs",
     "register-dsh": "node scripts/register-dsh.mjs",
     "verify": "node scripts/verify-plugins.mjs",
-    "test": "node scripts/verify-plugins.mjs"
+    "test": "node scripts/verify-plugins.mjs && node scripts/test-bridge.mjs",
+    "test:bridge": "node scripts/test-bridge.mjs"
   },
   "keywords": [
     "qq",

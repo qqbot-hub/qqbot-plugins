@@ -68,7 +68,7 @@ QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
 # 0. 前置：已按教程跑通 SnowLuma + qq-bridge + DSH（DSH 里发一句话有回复）
 
 # 1. 拉取并启动市场
-git clone https://github.com/xiazhuo123456789/qqbot-plugins.git
+git clone https://github.com/qqbot-hub/qqbot-plugins.git
 cd qqbot-plugins
 node server.js
 # 浏览器打开 http://127.0.0.1:3210
@@ -319,6 +319,20 @@ qqbot-plugins/
 > 免费后端限流比较严格，连续狂发会被 402。插件对同一句描述做了 10 分钟缓存，
 > 真被限流时会告诉群友"稍等十几秒再要"，而不是报错刷屏。
 > 参考 [Pollinations](https://github.com/pollinations/pollinations) 与 Yunzai 的 [ap-plugin](https://github.com/yhArcadia/ap-plugin)。
+
+## 支持的协议端
+
+插件**不绑定桥接**，只依赖 **OneBot v11**。所以：
+
+- 桥接是 qq-bridge 还是 SurfCore —— 不影响
+- 协议端是 SnowLuma / NapCat / LLOneBot / Lagrange / go-cqhttp —— 都支持
+
+适配层（`plugins/_bridge.mjs`）已经吃掉三种差异：响应格式（`status` / `retcode` / 裸数据）、
+鉴权方式（Header / query token / 不鉴权）、以及个别动作名不同（如群公告）。
+
+在网页「连接设置 → 协议端」里选一下就行，**改完不用重启 DSH**。
+
+详见 [docs/PROTOCOLS.md](docs/PROTOCOLS.md)。自测：`node scripts/test-bridge.mjs`（11 项）。
 
 ## 与 SurfCore 共存
 

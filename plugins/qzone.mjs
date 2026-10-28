@@ -1,12 +1,13 @@
 /* qzone —— QQ 空间动态（SnowLuma 扩展 API；不可用时给出明确降级提示） */
 'use strict';
 import { num } from './_lib.mjs';
+import { bridgeOf } from './_lib.mjs';
 
 /* OneBot v11 标准没有空间接口；SnowLuma 提供了扩展端点。
  * 若当前 OneBot 实现不支持，会返回友好提示而不是报错。 */
 async function tryExtension(ctx, action, params) {
   try {
-    const r = await ctx.onebot(action, params);
+    const r = await bridgeOf(ctx).raw(action, params);
     return r;
   } catch (e) {
     throw new Error('当前 OneBot 实现（SnowLuma）不支持空间接口：' + (e && e.message ? e.message : action));

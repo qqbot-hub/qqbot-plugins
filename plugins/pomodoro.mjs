@@ -1,6 +1,7 @@
 /* pomodoro —— 番茄钟（到点由 fireDue 主动通知） */
 'use strict';
 import { sessionOf, storage, num } from './_lib.mjs';
+import { bridgeOf } from './_lib.mjs';
 
 export function fireDue(ctx) {
   const st = storage('pomodoro');
@@ -12,11 +13,10 @@ export function fireDue(ctx) {
       changed = true;
       p.endAt = 0;
       const [type, id] = key.split(':');
-      if (ctx && ctx.onebot) {
-        const action = type === 'group' ? 'send_group_msg' : 'send_private_msg';
-        const params = type === 'group' ? { group_id: +id, message: '🍅 番茄钟到点！休息 5 分钟吧。' } : { user_id: +id, message: '🍅 番茄钟到点！休息 5 分钟吧。' };
-        ctx.onebot(action, params).catch(() => {});
-      }
+      try {
+        const target = type === 'group' ? { groupId: +id } : { userId: +id };
+        bridgeOf(ctx).sendText(target, '🍅 番茄钟到点！休息 5 分钟吧。').catch(() => {});
+      } catch { /* 没有协议端连接时静默跳过 */ }
     }
   }
   if (changed) st.set('db', db);

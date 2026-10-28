@@ -1,6 +1,7 @@
 /* roulette —— 轮盘点名（纯娱乐） */
 'use strict';
 import { sessionOf } from './_lib.mjs';
+import { bridgeOf } from './_lib.mjs';
 
 export default {
   meta: { id: 'roulette', name: 'roulette', description: '轮盘禁言（纯娱乐）：随机点一个人，看谁运气差', category: '小游戏' },
@@ -20,7 +21,7 @@ export default {
       if (sess.type !== 'group') return '轮盘要在群里玩才有意思。';
       let members = null;
       if (ctx && ctx.onebot) {
-        try { const r = await ctx.onebot('get_group_member_list', { group_id: sess.groupId }); if (Array.isArray(r)) members = r; } catch { /* 降级 */ }
+        try { const r = await bridgeOf(ctx).getMembers(sess.groupId); if (Array.isArray(r)) members = r; } catch { /* 降级 */ }
       }
       let victim;
       if (members && members.length) {

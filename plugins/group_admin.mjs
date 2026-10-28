@@ -8,6 +8,7 @@
  */
 'use strict';
 import { num, str } from './_lib.mjs';
+import { bridgeOf } from './_lib.mjs';
 
 const need = (v, name) => {
   const n = num(v);
@@ -76,9 +77,9 @@ export default {
         guard(ctx, a);
         const def = num(cfgOf(ctx).defaultBanMinutes);
         const mins = a.minutes == null ? (Number.isFinite(def) ? def : 10) : num(a.minutes);
-        const duration = Math.min(Math.max(Math.trunc(mins) || 0, 0), 43200) * 60;
-        await ctx.onebot('set_group_ban', { group_id: need(a.group_id, 'group_id'), user_id: need(a.user_id, 'user_id'), duration });
-        return duration === 0 ? `🔊 已解除 QQ${a.user_id} 的禁言。` : `🔇 已禁言 QQ${a.user_id} ${Math.round(duration / 60)} 分钟。`;
+        const minutes = Math.min(Math.max(Math.trunc(mins) || 0, 0), 43200);
+        await bridgeOf(ctx).banMember(need(a.group_id, 'group_id'), need(a.user_id, 'user_id'), minutes);
+        return minutes === 0 ? `🔊 已解除 QQ${a.user_id} 的禁言。` : `🔇 已禁言 QQ${a.user_id} ${minutes} 分钟。`;
       },
     },
     {
@@ -91,7 +92,7 @@ export default {
       run: async (a, ctx) => {
         guard(ctx, a);
         confirmGuard(ctx, a, '踢人');
-        await ctx.onebot('set_group_kick', { group_id: need(a.group_id, 'group_id'), user_id: need(a.user_id, 'user_id'), reject_add_request: false });
+        await bridgeOf(ctx).kickMember(need(a.group_id, 'group_id'), need(a.user_id, 'user_id'), false);
         return `👢 已将 QQ${a.user_id} 移出群聊。`;
       },
     },
@@ -104,7 +105,7 @@ export default {
       },
       run: async (a, ctx) => {
         if (a.group_id != null) guard(ctx, a);
-        await ctx.onebot('delete_msg', { message_id: need(a.message_id, 'message_id') });
+        await bridgeOf(ctx).recall(need(a.message_id, 'message_id'));
         return '🗑️ 已撤回该消息。';
       },
     },
@@ -117,7 +118,7 @@ export default {
       },
       run: async (a, ctx) => {
         guard(ctx, a);
-        await ctx.onebot('set_group_card', { group_id: need(a.group_id, 'group_id'), user_id: need(a.user_id, 'user_id'), card: str(a.card) });
+        await bridgeOf(ctx).setCard(need(a.group_id, 'group_id'), need(a.user_id, 'user_id'), str(a.card));
         return `💳 已把 QQ${a.user_id} 的群名片改为「${str(a.card) || '（清除）'}」。`;
       },
     },
@@ -130,7 +131,7 @@ export default {
       },
       run: async (a, ctx) => {
         guard(ctx, a);
-        await ctx.onebot('set_group_special_title', { group_id: need(a.group_id, 'group_id'), user_id: need(a.user_id, 'user_id'), special_title: str(a.title) });
+        await bridgeOf(ctx).setTitle(need(a.group_id, 'group_id'), need(a.user_id, 'user_id'), str(a.title));
         return `🏷️ 已把 QQ${a.user_id} 的头衔改为「${str(a.title) || '（清除）'}」。`;
       },
     },
@@ -144,7 +145,7 @@ export default {
       run: async (a, ctx) => {
         guard(ctx, a);
         confirmGuard(ctx, a, '全体禁言');
-        await ctx.onebot('set_group_whole_ban', { group_id: need(a.group_id, 'group_id'), enable: a.enable !== false });
+        await bridgeOf(ctx).wholeBan(need(a.group_id, 'group_id'), a.enable !== false);
         return a.enable !== false ? '🔇 已开启全体禁言。' : '🔊 已解除全体禁言。';
       },
     },
@@ -158,7 +159,7 @@ export default {
       run: async (a, ctx) => {
         guard(ctx, a);
         confirmGuard(ctx, a, '设置管理员');
-        await ctx.onebot('set_group_admin', { group_id: need(a.group_id, 'group_id'), user_id: need(a.user_id, 'user_id'), enable: a.enable !== false });
+        await bridgeOf(ctx).setAdmin(need(a.group_id, 'group_id'), need(a.user_id, 'user_id'), a.enable !== false);
         return a.enable !== false ? `⭐ 已设 QQ${a.user_id} 为管理员。` : `已撤销 QQ${a.user_id} 的管理员。`;
       },
     },
@@ -171,7 +172,7 @@ export default {
       },
       run: async (a, ctx) => {
         guard(ctx, a);
-        await ctx.onebot('_send_group_notice', { group_id: need(a.group_id, 'group_id'), content: str(a.content).slice(0, 500) });
+        await bridgeOf(ctx).setNotice(need(a.group_id, 'group_id'), str(a.content).slice(0, 500));
         return '📢 群公告已发布。';
       },
     },

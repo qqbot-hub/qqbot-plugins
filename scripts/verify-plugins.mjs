@@ -20,6 +20,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { wrapOnebot } from '../plugins/_bridge.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const JSON_OUT = process.argv.includes('--json');
@@ -132,7 +133,7 @@ async function main() {
 
   /* 用假 OneBot 连接地址，避免误打真实 QQ */
   const onebot = async (action) => { throw new Error('fetch failed: 测试环境未启用 OneBot（' + action + '）'); };
-  const ctx = (pluginId) => ({ onebot, config, cfg: (config.plugins || {})[pluginId] || {} });
+  const ctx = (pluginId) => ({ onebot, bridge: wrapOnebot(onebot), config, cfg: (config.plugins || {})[pluginId] || {} });
 
   const rows = [];
   for (const meta of catalog) {

@@ -19,6 +19,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { createBridge, createOneBot } from './plugins/_bridge.mjs';
 
 const HUB_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)));
 const DATA_DIR = path.join(HUB_ROOT, 'data');
@@ -39,11 +40,17 @@ function loadConfig() {
     return cfgCache.data || {};
   }
 }
-function snowlumaCfg() {
-  const sl = loadConfig().snowluma || {};
+/* 协议端配置：优先读 onebot 段，兼容旧的 snowluma 段 */
+function onebotCfg() {
+  const c = loadConfig();
+  const ob = c.onebot || {};
+  const sl = c.snowluma || {};
   return {
-    httpUrl: String(sl.httpUrl || 'http://127.0.0.1:3000').replace(/\/+$/, ''),
-    accessToken: String(sl.accessToken || ''),
+    impl: String(ob.impl || 'auto'),
+    httpUrl: String(ob.httpUrl || sl.httpUrl || 'http://127.0.0.1:3000').replace(/\/+$/, ''),
+    accessToken: String(ob.accessToken != null && ob.accessToken !== '' ? ob.accessToken : (sl.accessToken || '')),
+    authMode: String(ob.authMode || 'header'),
+    pathPrefix: String(ob.pathPrefix || ''),
   };
 }
 function pluginCfg(id) {
@@ -52,26 +59,16 @@ function pluginCfg(id) {
   return v && typeof v === 'object' ? v : {};
 }
 
-/* ---------- OneBot 客户端（每次调用都读最新渠道配置） ---------- */
+/* ---------- 协议端客户端（每次调用都读最新配置，改地址/Token 不用重启） ---------- */
 async function onebot(action, params = {}) {
-  const sl = snowlumaCfg();
-  const res = await fetch(sl.httpUrl + '/' + action, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(sl.accessToken ? { Authorization: 'Bearer ' + sl.accessToken } : {}),
-    },
-    body: JSON.stringify(params),
-  });
-  const text = await res.text();
-  let data;
-  try { data = JSON.parse(text); } catch { throw new Error(action + ' 响应不是 JSON: ' + text.slice(0, 120)); }
-  if (data && data.status === 'failed') throw new Error(action + ' 失败: ' + (data.wording || data.message || data.retcode));
-  return data && data.data !== undefined ? data.data : data;
+  return createOneBot(onebotCfg()).onebot(action, params);
+}
+function bridge() {
+  return createBridge(onebotCfg());
 }
 
 /* 每次工具调用构造独立 ctx：插件私有配置放在 ctx.cfg */
-const ctxFor = (pluginId) => ({ onebot, config: loadConfig(), cfg: pluginCfg(pluginId) });
+const ctxFor = (pluginId) => ({ onebot, bridge: bridge(), config: loadConfig(), cfg: pluginCfg(pluginId) });
 
 /* ---------- 插件加载：data/plugins.json + data/state.json ---------- */
 async function loadPlugins() {

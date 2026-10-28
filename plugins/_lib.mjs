@@ -11,6 +11,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { wrapOnebot } from './_bridge.mjs';
 
 export const HUB_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 /* 允许用 QQBOT_STORE 重定向数据目录（自动化测试用临时目录，不污染真实数据） */
@@ -31,7 +32,14 @@ export function storage(pluginId) {
       catch { return fallback; }
     },
     set(name, value) {
-      fs.writeFileSync(file(name), JSON.stringify(value, null, 2));
+      const f = file(name);
+      /* 传 undefined/null = 清空这份数据（删文件），
+         不能直接 JSON.stringify（它对 undefined 返回 undefined，写文件会崩） */
+      if (value === undefined || value === null) {
+        try { fs.unlinkSync(f); } catch { /* 本来就不存在 */ }
+        return value;
+      }
+      fs.writeFileSync(f, JSON.stringify(value, null, 2));
       return value;
     },
     update(name, fallback, fn) {
@@ -86,6 +94,13 @@ export function sessionOf(args) {
   return gid && Number.isFinite(gid)
     ? { type: 'group', key: 'group:' + gid, groupId: gid, userId: num(args.user_id) || 0 }
     : { type: 'private', key: 'private:' + (num(args.user_id) || 'me'), groupId: 0, userId: num(args.user_id) || 0 };
+}
+
+/* ---------- 协议端适配：插件优先用 ctx.bridge，没有时用 ctx.onebot 兜底 ---------- */
+export function bridgeOf(ctx) {
+  if (ctx && ctx.bridge) return ctx.bridge;
+  if (ctx && ctx.onebot) return wrapOnebot(ctx.onebot);
+  throw new Error('缺少协议端连接：市场没有注入 ctx.bridge / ctx.onebot');
 }
 
 /* ---------- 简易超时包装 ---------- */

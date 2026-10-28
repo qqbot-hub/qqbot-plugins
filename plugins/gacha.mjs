@@ -1,6 +1,7 @@
 /* gacha —— 抽群友卡（稀有度 SSR/SR/R/N） */
 'use strict';
 import { pick, randInt, sessionOf } from './_lib.mjs';
+import { bridgeOf } from './_lib.mjs';
 
 export default {
   meta: { id: 'gacha', name: 'gacha', description: '抽卡：随机抽一张群友卡，带稀有度（SSR / SR / R / N）', category: '娱乐' },
@@ -19,7 +20,7 @@ export default {
       let member = '';
       if (sess.type === 'group' && ctx && ctx.onebot) {
         try {
-          const r = await ctx.onebot('get_group_member_list', { group_id: sess.groupId });
+          const r = await bridgeOf(ctx).getMembers(sess.groupId);
           if (Array.isArray(r) && r.length) member = `\n抽中了群友：${pick(r).nickname || pick(r).card || '神秘群友'}`;
         } catch { /* 拿不到成员列表就只抽稀有度 */ }
       }

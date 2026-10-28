@@ -16,5 +16,10 @@
   "bridge": {
     "consoleUrl": "http://127.0.0.1:3100"
   },
-  "plugins": {}
+  "plugins": {},
+  "onebot": {
+    "impl": "auto",
+    "authMode": "header",
+    "pathPrefix": ""
+  }
 }
