@@ -26,13 +26,27 @@ async function isUvicorn(port) {
 }
 
 const BOT_PY = `# 由 qqbot-plugins 一键部署生成：NoneBot2 + OneBot v11（反向 WebSocket）
+# 插件清单在 pyproject.toml 的 [tool.nonebot] plugins 里 —— 由市场安装插件时自动维护，
+# 手改也没问题，下次安装只会往数组里追加，不会清掉你已有的。
+import os
 import nonebot
 from nonebot.adapters.onebot.v11 import Adapter
 
 nonebot.init()
 driver = nonebot.get_driver()
 driver.register_adapter(Adapter)
+
+# 没有 pyproject.toml 也能跑（纯 NoneBot），有就按清单加载插件
+if os.path.exists("pyproject.toml"):
+    nonebot.load_from_toml("pyproject.toml")
+
 nonebot.run()
+`;
+
+/** 初始 pyproject.toml：只放 NoneBot 认的那一段，别的不写，免得和你自己的项目配置打架 */
+const PYPROJECT = `# 由 qqbot-plugins 生成：NoneBot 从这里读插件清单
+[tool.nonebot]
+plugins = []
 `;
 
 /* pip 走镜像：国内直连 pypi 经常卡死，失败再回退官方源 */
@@ -148,7 +162,10 @@ export default {
         ].join('\n') + '\n';
         fs.writeFileSync(path.join(dir, '.env'), env);
         fs.writeFileSync(path.join(dir, 'bot.py'), BOT_PY);
-        return { status: 'ok', detail: `已写 bot.py + .env（端口 ${port}，token ${token ? '已配置（加密保存）' : '未配置'}）` };
+        /* pyproject.toml 只在不存在时写：已经装过插件的话，plugins 数组不能被部署流程清空 */
+        const pyproject = path.join(dir, 'pyproject.toml');
+        if (!fs.existsSync(pyproject)) fs.writeFileSync(pyproject, PYPROJECT);
+        return { status: 'ok', detail: `已写 bot.py + .env + pyproject.toml（端口 ${port}，token ${token ? '已配置（加密保存）' : '未配置'}）` };
       },
     },
     {

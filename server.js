@@ -431,6 +431,108 @@ async function probeOnebot(force = false) {
   return value;
 }
 
+/* ---------- 消息接入：让插件真的能「收消息」 ----------
+ * 之前插件只是等 AI 调用的工具，群里的消息一条也进不来。
+ * 这里做三件事：
+ *   1. 收集已安装且已启用插件的 handlers（插件自己声明匹配规则/权限）
+ *   2. 把 OneBot v11 的上报事件归一化后分发给它们
+ *   3. 把统计暴露给前端，让「收到了几条、谁被触发了、谁被权限拦了」看得见
+ * 明确不支持：Satori 收消息（Satori 规范只有 WS /v1/events，要用自定义头鉴权，
+ * 而 Node 内置 WebSocket 不支持自定义头；宁可不做，也不装一个假的能收）
+ */
+let msgMod = null;
+let msgRouter = null;
+let handlerCache = [];
+let handlerLoading = null;
+let msgStats = { received: 0, matched: 0, handled: 0, denied: 0, throttled: 0, failed: 0, lastAt: 0, lastError: '', recent: [] };
+
+async function messageModule() {
+  if (!msgMod) msgMod = await import(pathToFileURL(path.join(ROOT, 'plugins', '_router.mjs')).href);
+  return msgMod;
+}
+
+/** 读已装 + 已启用插件的 handlers；单插件报错不影响其它插件 */
+async function collectHandlers() {
+  const out = [];
+  for (const p of currentPlugins()) {
+    if (!p.installed || !p.enabled) continue;
+    const file = path.join(ROOT, 'plugins', p.id + '.mjs');
+    if (!fs.existsSync(file)) continue;
+    try {
+      const mod = await import(pathToFileURL(file).href);
+      const list = (mod.default && mod.default.handlers) || [];
+      for (const h of [].concat(list)) {
+        if (!h || typeof h.run !== 'function') continue;
+        out.push({ pluginId: p.id, handler: Object.assign({ __cfg: pluginValues(p.id) }, h) });
+      }
+    } catch (e) {
+      console.log(`[msg] 插件 ${p.id} 的 handler 加载失败：${e.message}`);
+    }
+  }
+  return out;
+}
+
+async function refreshHandlers() {
+  if (handlerLoading) return handlerLoading;
+  handlerLoading = (async () => {
+    try {
+      handlerCache = await collectHandlers();
+    } catch (e) {
+      console.log('[msg] 刷新 handler 失败：' + e.message);
+    }
+  })().finally(() => { handlerLoading = null; });
+  return handlerLoading;
+}
+
+/** 发消息走统一协议层：插件不需要知道底下是 OneBot 还是 Satori */
+async function sendViaProtocol(target, text) {
+  const { createProtocol } = await protocolModule();
+  const proto = createProtocol(onebotCfg());
+  const to = target && target.groupId ? { groupId: target.groupId } : { userId: target.userId };
+  return proto.sendText(to, text);
+}
+
+async function messageRuntime() {
+  if (msgRouter) return msgRouter;
+  const { createRouter } = await messageModule();
+  await refreshHandlers();
+  msgRouter = createRouter({
+    listHandlers: () => handlerCache,
+    send: sendViaProtocol,
+    log: (m) => console.log('[msg] ' + m),
+  });
+  return msgRouter;
+}
+
+/** OneBot v11 上报的入口：鉴权走「只认本机 + 可选 token」，因为协议端不会带登录 Cookie */
+async function handleOnebotEvent(req, res) {
+  const ip = String(req.socket.remoteAddress || '').replace(/^::ffff:/, '');
+  if (!/^(127\.0\.0\.1|::1|0:0:0:0:0:0:0:1)$/.test(ip)) {
+    return sendJson(res, 403, { ok: false, error: '只接受本机上报（协议端应与本服务同机）' });
+  }
+  const raw = await readBody(req);
+  let evt;
+  try { evt = JSON.parse(raw || '{}'); } catch { return sendJson(res, 400, { ok: false, error: '不是合法 JSON' }); }
+
+  const c = onebotCfg();
+  const need = String(c.accessToken || '');
+  if (need) {
+    const got = String(new URL(req.url, 'http://x').searchParams.get('token') || req.headers['x-onebot-token'] || '');
+    if (got !== need) return sendJson(res, 403, { ok: false, error: 'token 不匹配（请把上报地址写成 ?token=你的 AccessToken）' });
+  }
+
+  const { normalizeOneBot } = await messageModule();
+  const msg = normalizeOneBot(evt, c.selfId || '');
+  if (!msg) {
+    /* 不是消息事件（群成员变动/心跳/自己发的消息）→ 明确忽略，不报错 */
+    return sendJson(res, 200, { ok: true, ignored: true });
+  }
+  const rt = await messageRuntime();
+  const r = await rt.dispatch(msg);
+  msgStats = rt.stats;
+  return sendJson(res, 200, Object.assign({ ok: true }, r));
+}
+
 /* ---------- 运行监控 ----------
  * 只报**探测到的事实**：端口通不通、协议端心跳活不活。
  * 探测不到就明确说没在跑，不做"看起来像在跑"的推断。
@@ -899,6 +1001,13 @@ const server = http.createServer(async (req, res) => {
     return sendHtml(res, 401, html);
   }
 
+  /* 消息上报入口：协议端（NapCat/LLOneBot）不认登录 Cookie，必须放在统一鉴权之前。
+   * 它自己的防护是「只接受本机来源」+「配了 AccessToken 就校验 token」。 */
+  if (p === '/api/onebot/event') {
+    if (method !== 'POST') return sendJson(res, 405, { ok: false, error: '只接受 POST' });
+    return handleOnebotEvent(req, res);
+  }
+
   /* API */
   if (p.startsWith('/api/')) {
     if (!authed(req)) return sendJson(res, 401, { ok: false, error: '未登录' });
@@ -928,6 +1037,32 @@ const server = http.createServer(async (req, res) => {
             compat: { methods: compat.methods, needsBridge: compat.needsBridge },
           });
         }),
+      });
+    }
+    /* ---------- 消息接入状态：收到了什么、谁被触发、谁被拦 ---------- */
+    if (method === 'GET' && p === '/api/messages') {
+      await refreshHandlers();
+      const rt = await messageRuntime();
+      const c = onebotCfg();
+      /* Satori 为什么不能收：写清楚原因，别让用户以为是我们忘了做 */
+      const satoriNote = c.protocol === 'satori'
+        ? 'Satori 规范只提供 WS /v1/events 收事件，且鉴权要用 Authorization 头；Node 内置 WebSocket 不支持自定义头。当前协议是 Satori，所以「收消息」不可用 —— 要用消息驱动请走 OneBot 路线的上报地址。'
+        : '';
+      return sendJson(res, 200, {
+        ok: true,
+        protocol: c.protocol,
+        supported: c.protocol !== 'satori',
+        endpoint: `http://127.0.0.1:${PORT}/api/onebot/event${c.accessToken ? '?token=你的AccessToken' : ''}`,
+        needToken: !!c.accessToken,
+        handlers: handlerCache.map((x) => ({
+          plugin: x.pluginId,
+          id: x.handler.id || '',
+          match: String(x.handler.match instanceof RegExp ? x.handler.match : (typeof x.handler.match === 'string' ? x.handler.match : (x.handler.match && (x.handler.match.prefix || x.handler.match.exact || '自定义函数')) || '')),
+          permission: x.handler.permission || 'everyone',
+          scope: x.handler.scope || ['group', 'private'],
+        })),
+        stats: rt.stats,
+        note: satoriNote,
       });
     }
     /* ---------- 运行监控：端口 + 进程 + 协议心跳 + 最近任务 ---------- */
@@ -1132,7 +1267,10 @@ const server = http.createServer(async (req, res) => {
     if (method === 'POST' && p === '/api/op') {
       const raw = await readBody(req);
       const obj = (() => { try { return JSON.parse(raw || '{}'); } catch { return {}; } })();
-      return sendJson(res, 200, performOp(obj.action, obj.id, obj));
+      const result = performOp(obj.action, obj.id, obj);
+      /* 装/卸/启停之后必须让消息路由看到新的插件状态，否则「装了插件还是不回消息」 */
+      if (obj.action !== 'restart') refreshHandlers().catch(() => {});
+      return sendJson(res, 200, result);
     }
     if (method === 'POST' && p === '/api/bridge/register-dsh') {
       const raw = await readBody(req);
@@ -1209,5 +1347,9 @@ initSecrets().catch((e) => console.log('[secrets] 初始化失败（不影响启
   server.listen(PORT, '127.0.0.1', () => {
     console.log('qqbot-plugins 插件市场已启动');
     console.log('地址: http://127.0.0.1:' + PORT + (PASSWORD ? '' : '（未设口令，本机开放访问）'));
+    console.log('消息上报: POST http://127.0.0.1:' + PORT + '/api/onebot/event');
+    refreshHandlers().then(() => {
+      console.log('消息路由就绪，已挂载 ' + handlerCache.length + ' 个插件处理器');
+    }).catch(() => {});
   });
 });

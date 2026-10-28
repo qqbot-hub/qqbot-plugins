@@ -91,6 +91,51 @@ st.get('db', {});                      // 带默认值
 
 导出 `export function fireDue(ctx)`，MCP 进程每 15 秒会调用一次；到点时用 `ctx.onebot('send_group_msg', …)` / `send_private_msg` 主动推送。参考 `plugins/remind.mjs`。
 
+## 消息驱动（可选，第二套出口）
+
+`tools` 是「等 AI 来调」，`handlers` 是「群里有消息就响应」。两者可以写在同一个插件里。
+
+```js
+export default {
+  meta: { id: 'hello', name: 'hello', description: '收到 /hi 就打招呼', category: '工具' },
+  handlers: [{
+    id: 'hi',                          // 同一插件内多个 handler 用 id 区分
+    match: { prefix: '/hi' },          // 正则 / 字符串(完全相等) / {prefix} / {contains} / 函数
+    scope: ['group', 'private'],        // 默认两者都听
+    permission: 'everyone',             // everyone | admin | owner
+    cooldownMs: 3000,                   // 同一人同一 handler 的冷却
+    requireAtMe: false,                 // true = 只处理 @机器人 的消息
+    async run(msg, api) {
+      await api.reply(`你好，${msg.nickname}`);
+    },
+  }],
+};
+```
+
+### msg（两种协议归一化后完全一致）
+
+`protocol` · `scope` · `groupId` · `userId` · `nickname` · `role`（owner/admin/member）·
+`text` · `atMe` · `messageId` · `selfId` · `time` · `raw`（原始事件）
+
+### api
+
+| 方法 | 说明 |
+| --- | --- |
+| `api.reply(text)` | 回到消息来的地方（群→群，私聊→私聊），走统一协议层 |
+| `api.sendText({groupId｜userId}, text)` | 发给指定会话 |
+| `api.cfg` | 本插件配置（同 `ctx.cfg`） |
+| `api.log(msg)` | 写日志，自动带插件名前缀 |
+
+### 路由层替你做了什么
+
+- 机器人自己发的消息直接丢弃（防自触发死循环）
+- 权限不够时**根本不执行 `run`**，并计入「权限拦」统计
+- 一个插件抛错不影响其它插件收这条消息
+- 匹配函数自己抛错 → 当作不匹配，不崩路由
+
+完整说明与排查表见 [MESSAGE.md](MESSAGE.md)；可直接复制的骨架见 `plugins/_template/`，
+自检命令 `node plugins/_template/test.mjs`（21 项断言，不需要连 QQ）。
+
 ## 规范与红线
 
 1. **危险操作必须要求 `confirm: true`**（踢人/全体禁言/设管理员/删数据），schema 里写清楚，run 里先校验；

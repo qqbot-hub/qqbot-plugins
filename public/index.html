@@ -837,6 +837,11 @@
   .mth-cell span { display:block; font-size:10.5px; color:var(--dim-2); margin-bottom:3px; }
   .mth-cell b { font-size:12.5px; font-weight:550; color:#dbe6f6; }
   .mth-sec { margin:16px 0 6px; font-size:12px; color:var(--dim); letter-spacing:.4px; text-transform:uppercase; }
+  /* 生态插件安装：一行输入 + 一个按钮，不做花活 */
+  .eco-inst { display:flex; gap:8px; align-items:center; }
+  .eco-inst input { flex:1; min-width:0; padding:8px 10px; font-size:12.5px; background:var(--surface-2); border:1px solid var(--line); border-radius:8px; color:var(--fg); font-family:inherit; }
+  .eco-inst input:focus { outline:none; border-color:var(--acc, #6aa9ff); }
+  .eco-inst button { flex:none; }
   .risk-list, .step-list { margin:0; padding-left:18px; font-size:12.5px; color:#ffc2cf; }
   .step-list { color:#c8d5e8; }
   .risk-list li, .step-list li { margin:4px 0; line-height:1.6; }
@@ -881,6 +886,17 @@
 .mon-job { display: flex; align-items: center; gap: 10px; font-size: 12px; padding: 8px 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-sm); }
 .mon-job .mj-t { flex: 1; }
 .mon-job .mj-s { color: var(--dim-2); }
+/* 消息接入：让「插件能不能收到群消息」看得见 */
+.mon-msg { margin-top: 12px; padding: 14px 16px; background: var(--surface-1); border: 1px solid var(--line); border-radius: var(--r-md); border-left: 3px solid var(--line-2); }
+.mon-msg.up { border-left-color: var(--ok); }
+.mon-msg.off { border-left-color: var(--warn); }
+.mon-msg .mm-h { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.mon-msg .mm-t { font-size: 13.5px; font-weight: 600; }
+.mon-msg .mm-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; color: var(--dim); margin-top: 7px; line-height: 1.6; }
+.mon-msg .mm-k { color: var(--dim-2); flex: none; min-width: 62px; }
+.mon-msg code { font-family: var(--mono, ui-monospace, monospace); font-size: 11.5px; padding: 2px 6px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; color: var(--fg); word-break: break-all; }
+.mon-msg .mm-stat b { color: var(--fg); font-weight: 600; }
+.mon-msg .mm-err { color: var(--bad); font-size: 11.5px; }
 </style>
 </head>
 <body>
@@ -997,6 +1013,25 @@
             </div>
             <button class="ghost" onclick="openProtocolCfg()">切换</button>
           </div>
+        </div>
+
+        <!-- 消息接入：插件能不能「收到」群消息，这里是唯一的真相来源 -->
+        <div class="mon-msg" id="monMsg">
+          <div class="mm-h">
+            <span class="mm-t">消息接入</span>
+            <span class="mon-badge" id="monMsgBadge">读取中…</span>
+          </div>
+          <div class="mm-row">
+            <span class="mm-k">上报地址</span>
+            <code id="monMsgUrl">—</code>
+            <button class="ghost" onclick="copyMsgUrl()">复制</button>
+          </div>
+          <div class="mm-row">
+            <span class="mm-k">已挂载</span>
+            <span id="monMsgHandlers">—</span>
+          </div>
+          <div class="mm-row mm-stat" id="monMsgStats"></div>
+          <div class="mm-row" id="monMsgHint"></div>
         </div>
         <div class="mon-grid" id="monGrid"></div>
         <div class="mon-jobs" id="monJobs"></div>
@@ -1422,11 +1457,58 @@ function onebotSub(o) {
   if (o.latencyMs != null && o.latencyMs >= 0) bits.push('心跳 ' + o.latencyMs + 'ms');
   return bits.length ? `<div class="stat-sub" title="${bits.join(' · ')}">${bits.join(' · ')}</div>` : '';
 }
+/* ============ 消息接入 ============ */
+/* 「插件到底能不能收到群消息」只看这里：/api/messages 报的是路由层的真实状态
+ *  —— 已挂载几个 handler、收到几条、被权限拦了几次、最近错误是什么 */
+let LAST_MSG_URL = '';
+async function loadMessages() {
+  const box = $('#monMsg');
+  if (!box) return;
+  let j;
+  try { j = await (await fetch('/api/messages')).json(); } catch { return; }
+  const supported = !!j.supported;
+  const badge = $('#monMsgBadge');
+  const urlEl = $('#monMsgUrl');
+  LAST_MSG_URL = j.endpoint || '';
+  if (urlEl) urlEl.textContent = LAST_MSG_URL || '—';
+  box.className = 'mon-msg ' + (supported ? 'up' : 'off');
+  if (badge) {
+    badge.textContent = supported ? (j.needToken ? '可用 · 需带 token' : '可用') : '当前协议不支持收消息';
+    badge.className = 'mon-badge ' + (supported ? 'up' : 'warn');
+  }
+  const hs = j.handlers || [];
+  const hEl = $('#monMsgHandlers');
+  if (hEl) {
+    hEl.innerHTML = hs.length
+      ? hs.map((h) => `<code>${esc(h.plugin)}${h.id ? '/' + h.id : ''}</code> <span style="color:var(--dim-2)">${esc(h.match || '')} · ${esc([].concat(h.scope || []).join('/'))} · ${esc(h.permission)}</span>`).join('<br>')
+      : '<span style="color:var(--warn)">还没有插件声明消息处理器 —— 装一个带 handlers 的插件（如 ping）才会有</span>';
+  }
+  const s = j.stats || {};
+  const st = $('#monMsgStats');
+  if (st) {
+    st.innerHTML = `<span class="mm-k">收到</span><b>${s.received || 0}</b> 条 · 命中 <b>${s.matched || 0}</b> · 执行 <b>${s.handled || 0}</b> · 权限拦 <b>${s.denied || 0}</b> · 限流 <b>${s.throttled || 0}</b> · 失败 <b>${s.failed || 0}</b>`
+      + (s.lastError ? `<div class="mm-err">最近错误：${esc(s.lastError)}</div>` : '');
+  }
+  const hint = $('#monMsgHint');
+  if (hint) {
+    hint.innerHTML = j.note
+      ? `<span class="mm-k">说明</span><span>${esc(j.note)}</span>`
+      : `<span class="mm-k">怎么用</span><span>把协议端的 HTTP 上报地址填成上面这个（NapCat：网络配置 → HTTP 服务器 → 上报地址）；填完在群里发 <code>/ping</code>，上面的计数会变。</span>`;
+  }
+}
+function copyMsgUrl() {
+  if (!LAST_MSG_URL) return;
+  navigator.clipboard.writeText(LAST_MSG_URL)
+    .then(() => toast('已复制上报地址'))
+    .catch(() => toast('复制失败，手动选中复制', 'warn'));
+}
+
 /* ============ 运行监控 ============ */
 /* 数据全部来自 /api/monitor 的真实探测：
  *   端口通不通用 TCP 探，认不认得出用内容指纹（NoneBot 看 openapi.json、Koishi 看页面、Satori 看协议文本）
  *   端口被别的程序占着时，running=false 并写清原因，不给假绿灯 */
 async function loadMonitor() {
+  loadMessages();          // 与端口探测并行，互不阻塞
   let j;
   try {
     j = await (await fetch('/api/monitor')).json();
@@ -1758,6 +1840,38 @@ function addRollbackBtn(jobIds, tip) {
   foot.appendChild(btn);
 }
 
+/* ============ 生态插件安装 ============
+ * 部署完某个方法后，用户真正想装的是那个生态的插件（AstrBot/NoneBot/Koishi 的），
+ * 不是我们重写的 JS 插件。这里按 pluginApi 给出对应的安装入口，装完用日志核对加载。 */
+const ECO = {
+  nonebot: { label: 'NoneBot 生态（PyPI 包）', target: 'nonebot-plugin', key: 'package', ph: 'nonebot-plugin-apscheduler', dir: 'runtimes/nonebot' },
+  koishi: { label: 'Koishi 生态（npm 包）', target: 'koishi-plugin', key: 'package', ph: 'koishi-plugin-dataview', dir: 'runtimes/koishi' },
+  astrbot: { label: 'AstrBot 生态（GitHub 仓库）', target: 'astrbot-plugin', key: 'repo', ph: 'https://github.com/作者/插件仓库', dir: 'runtimes/astrbot/data/plugins' },
+};
+function ecoBlock(m) {
+  const e = ECO[m.pluginApi];
+  if (!e) return '';
+  return `<div class="mth-sec">装这个生态的插件</div>
+      <div class="eco-inst">
+        <input id="ecoPkg" placeholder="${esc(e.ph)}" />
+        <button class="ghost" onclick="installEco('${esc(m.id)}','${esc(m.pluginApi)}')">安装</button>
+      </div>
+      <p class="dep-hint" style="margin-top:8px">${esc(e.label)}：装进 <code>${esc(e.dir)}</code>，然后<b>核对它真的被框架加载</b>（看日志，不是看命令返回 0）。
+      装失败会从启动清单里撤下，不留每次启动都报错的残骸。</p>`;
+}
+
+async function installEco(methodId, kind) {
+  const e = ECO[kind];
+  if (!e) return;
+  const inp = document.getElementById('ecoPkg');
+  const v = (inp && inp.value || '').trim();
+  if (!v) { toast('先填' + (e.key === 'repo' ? '仓库地址' : '包名'), 'warn'); return; }
+  const st = await startInstall(e.target, { [e.key]: v }, `${e.label} · ${v}`, { method: methodId });
+  if (st === 'done') toast('已装好，日志里确认过加载成功', 'ok');
+  else if (st === 'manual') toast('装到一半需要人工，展开日志看提示', 'warn');
+  else toast('安装失败，展开日志看红字（里面是框架返回的原文）', 'err');
+}
+
 /* 方法详情：完整参数 + 加密填 Key + 手工步骤 + 风险 */
 function openMethod(id) {
   const m = METHODS.find((x) => x.id === id);
@@ -1809,6 +1923,7 @@ function openMethod(id) {
       ${keyFields || '<p class="dep-hint">这条方法没有需要预先填的密钥。</p>'}
       <p class="dep-hint" style="margin-top:8px">密钥用 AES-256-GCM 加密后存在本机（data/state/.secrets.key），接口不回传明文，日志里也会打码。本市场不收集、不存储 QQ 密码，登录一律扫码。</p>
       ${risks}
+      ${ecoBlock(m)}
       ${steps}
       <div class="mth-sec">自动化程度</div>
       <p class="dep-hint">${esc(m.deploy.verifiedNote || (m.deploy.verified ? '已在本机跑通' : '尚未在本机验证，请按步骤核对'))}</p>

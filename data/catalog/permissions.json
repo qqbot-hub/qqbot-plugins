@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T13:30:19.299Z",
+  "generatedAt": "2026-10-28T15:23:04.873Z",
   "method": "静态扫描 plugins/*.mjs 的 API 使用情况（见 scripts/build-permissions.mjs）",
   "sourceHashes": {
     "abbr": "aaf2b0777f4d",
@@ -33,6 +33,7 @@
     "memory": "d0600a0aac0e",
     "morse": "dc542ea0856f",
     "passgen": "bdd9a86cb6e6",
+    "ping": "0b997ee44d98",
     "poem": "05edc9a13b83",
     "pomodoro": "cbea9cf938de",
     "quote": "ec80eee2c574",
@@ -452,6 +453,22 @@
       "framework": "mcp",
       "language": "JavaScript (ESM)",
       "loc": 28
+    },
+    "ping": {
+      "permissions": [
+        {
+          "key": "message:send",
+          "label": "以机器人身份发消息 / 管理群",
+          "level": "warn",
+          "why": "会在群里说话、发图、禁言或踢人（受机器人自身群权限限制）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": true,
+      "hasSettings": true,
+      "framework": "mcp+message",
+      "language": "JavaScript (ESM)",
+      "loc": 76
     },
     "poem": {
       "permissions": [],

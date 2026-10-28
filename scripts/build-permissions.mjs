@@ -56,7 +56,7 @@ const RULES = [
     label: '以机器人身份发消息 / 管理群',
     level: 'warn',
     why: '会在群里说话、发图、禁言或踢人（受机器人自身群权限限制）',
-    re: /bridgeOf|\.bridge\.|send_group_msg|send_private_msg|send_msg|sendGroup|sendPrivate|set_group_ban|setGroupBan|sendText|sendImage/,
+    re: /bridgeOf|\.bridge\.|send_group_msg|send_private_msg|send_msg|sendGroup|sendPrivate|set_group_ban|setGroupBan|sendText|sendImage|api\.reply|api\.sendText/,
   },
   {
     key: 'network',
@@ -88,9 +88,18 @@ export function scan() {
       permissions: perms,
       /* 二次确认只对这三类做：能执行命令、能写文件、能以机器人身份说话 */
       confirmRequired: perms.some((p) => ['exec', 'file:write', 'message:send'].includes(p.key)),
-      needsBridge: /bridgeOf|\.bridge\.|send_group_msg|send_group_msg|set_group_ban|setGroupBan|sendGroup|sendPrivate/.test(src),
+      /* 需要协议端：主动调 OneBot 动作，或者注册了消息处理器（要能收消息就必须有协议端） */
+      needsBridge: /bridgeOf|\.bridge\.|send_group_msg|set_group_ban|setGroupBan|sendGroup|sendPrivate/.test(src)
+        || /\bhandlers\s*:/.test(src),
       hasSettings: /settings\s*:/.test(src),
-      framework: 'mcp',
+      /* 框架按真实形态标：只有工具是 mcp，只有 handler 是 message，两者都有就都写 */
+      framework: (() => {
+        const hasTools = /\btools\s*:\s*\[/.test(src);
+        const hasMsg = /\bhandlers\s*:\s*\[/.test(src);
+        if (hasTools && hasMsg) return 'mcp+message';
+        if (hasMsg) return 'message';
+        return 'mcp';
+      })(),
       language: 'JavaScript (ESM)',
       loc: src.split(/\r?\n/).length,
     };

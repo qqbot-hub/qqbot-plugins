@@ -970,5 +970,22 @@
     "origin": "catalog",
     "installed": false,
     "enabled": false
+  },
+  {
+    "id": "ping",
+    "name": "ping",
+    "description": "测活：群里发 /ping 或 @机器人，回一条带运行时长的 pong（用于验证消息链路是否通）",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_ping",
+        "description": "测活：返回插件市场进程是否在线、已运行多久"
+      }
+    ],
+    "source": {
+      "label": "本项目原生（消息驱动示例）",
+      "url": ""
+    },
+    "origin": "catalog"
   }
 ]

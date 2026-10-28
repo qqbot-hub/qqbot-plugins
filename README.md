@@ -7,7 +7,7 @@
 **它会说话，但没有生活。** 你让它"禁言这个人十分钟"，它只能回你一句解释；
 你跟它聊三天，它转头就忘了你是谁。
 
-这个市场就是它的人生补丁：**46 个插件 / 75 项能力**，网页上点一下安装，
+这个市场就是它的人生补丁：**47 个插件 / 76 项能力**，网页上点一下安装，
 就变成 AI 能自己调用的工具（`mcp__qqbot__*`）。从此它**记得住你**（长期记忆）、
 **开得了口**（语音合成）、**画得了画**（文生图）、**管得了群**（禁言/踢人/公告），
 还会查天气、记账、发提醒、陪人玩成语接龙。
@@ -16,7 +16,7 @@
 QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
                                         │
                                         └── ⇄  qqbot-plugins（MCP 插件层）
-                                                46 个插件 / 75 个工具
+                                                47 个插件 / 76 个工具
 ```
 
 零第三方依赖 · 一个命令启动 · 网页里配置 · MIT 开源
@@ -49,7 +49,7 @@ QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
 只是在 DSH 的 `cordis.patch.yml` 里并列追加一个 MCP 服务器——和官方
 `mcp__snowluma__` 用的是同一份文件、同一种格式，互不冲突。
 
-- **市场侧**：登录 → 浏览/搜索 46 个插件 → 一键安装/卸载/启停/配置，实时探测链路状态
+- **市场侧**：登录 → 浏览/搜索 47 个插件 → 一键安装/卸载/启停/配置，实时探测链路状态
 - **部署方法**：10 条路线（NapCat+AstrBot / NapCat+Koishi / NapCat+NoneBot2 / SnowLuma+DSH / 官方通道等），
   每条都标清：个人号还是官方号、要不要桌面 QQ、Node/Python/Docker 依赖、端口、关键配置；
   本机能自动的才给「部署」按钮，只给步骤的绝不放假按钮（详见 [docs/METHODS.md](docs/METHODS.md)）
@@ -131,17 +131,17 @@ node scripts/doctor.mjs
 > 白名单是"防误操作"的护栏，不是绝对安全边界——`operator_id` 由 AI 传入。真正兜底的是机器人自己的群权限（SnowLuma 侧）和只在可信群里使用。要加新的可配置插件，看 [docs/PLUGIN_SPEC.md](docs/PLUGIN_SPEC.md) 里的 `settings` 声明方式。
 
 
-## 插件一览（46 个）
+## 插件一览（47 个）
 
 | 分类 | 数量 | 插件 |
 | --- | --- | --- |
-| 工具 | 21 | calc 计算 · weather 天气 · translate 翻译 · exchange 汇率 · unit 单位换算 · baseconv 进制 · morse 摩斯电码 · passgen 密码 · abbr 缩写解释 · remind 定时提醒(主动消息) · memo 群备忘 · ledger 群记账 · birthday 生日倒计时 · clock 报时 · jukebox 点歌链接 · pomodoro 番茄钟(主动消息) · coin 抛硬币 · color 颜色卡 · bilihot B站热门 · bingimg 必应每日图 · **voice 语音合成(TTS)** |
+| 工具 | 22 | calc 计算 · weather 天气 · translate 翻译 · exchange 汇率 · unit 单位换算 · baseconv 进制 · morse 摩斯电码 · passgen 密码 · abbr 缩写解释 · remind 定时提醒(主动消息) · memo 群备忘 · ledger 群记账 · birthday 生日倒计时 · clock 报时 · jukebox 点歌链接 · pomodoro 番茄钟(主动消息) · coin 抛硬币 · color 颜色卡 · bilihot B站热门 · bingimg 必应每日图 · **voice 语音合成(TTS)** · ping 测活(收消息示例) |
 | 娱乐 | 14 | fortune 今日运势 · dice 骰子/多选一 · draw 抽签 · sensoji 赛博浅草寺 · tarot 塔罗 · zodiac 星座 · meihua 梅花易数 · hitokoto 一言 · joke 冷笑话 · quote 毒鸡汤 · riddle 脑筋急转弯 · poem 古诗 · gacha 抽群友卡 · **imagine AI 画画** |
 | 小游戏 | 6 | blackjack 21点 · guess 猜数字 · bombgame 数字炸弹 · idiom 成语接龙 · wordle 猜单词 · roulette 轮盘点名 |
 | 群管理 | 2 | group_admin 禁言/踢人/撤回/名片/头衔/公告 · group_info 群资料/成员列表 |
 | 群互动 | 3 | signin 群签到积分榜 · qzone QQ空间说说 · **memory 长期记忆/好感度** |
 
-合计 **46 个插件 / 75 个工具**。分类与数量由 `data/catalog/plugins.json` 统一驱动，市场页面按此分组筛选。
+合计 **47 个插件 / 76 个工具**。分类与数量由 `data/catalog/plugins.json` 统一驱动，市场页面按此分组筛选。
 
 另有 1 个**配套桌面程序**（dsh-pet 桌面宠物），单独成区、不占 MCP 工具位，详见下文。
 
@@ -221,7 +221,17 @@ DSH 会同时加载人格和这些工具——它既能用大肥鱼的口吻说�
 
 ## 开发自己的插件
 
-看 [docs/PLUGIN_SPEC.md](docs/PLUGIN_SPEC.md)。一个插件 = 一个 `.mjs` 文件：
+两套出口，可只写一套，也可都写：
+
+| 出口 | 什么时候用 | 谁触发 |
+|---|---|---|
+| `tools` | 给 AI 调用的能力（查天气、算个卦） | DSH 里的 AI |
+| `handlers` | 群里有人发消息就要响应（命令、关键词） | 真实 QQ 消息 |
+
+**直接复制模板**：`plugins/_template/`（`index.mjs` 骨架 + `test.mjs` 自检）。
+自检不用连 QQ：`node plugins/_template/test.mjs` → 21 项断言，覆盖匹配、权限、限流、回复。
+
+最小例子（工具型）：
 
 ```js
 export default {
@@ -235,7 +245,39 @@ export default {
 };
 ```
 
-放到 `plugins/` 下、在 `data/catalog/plugins.json` 加一条，市场里就能看到、AI 里就能用。`ctx` 注入 `ctx.onebot(action, params)`（OneBot 调用）与 `ctx.storage`（持久化）。
+消息驱动型（真收群消息）：
+
+```js
+export default {
+  meta: { id: 'mycmd', name: 'mycmd', description: '响应 /hi', category: '工具' },
+  handlers: [{
+    id: 'hi',
+    match: { prefix: '/hi' },        // 也支持正则 / 字符串 / {contains} / 函数
+    scope: ['group', 'private'],
+    permission: 'everyone',           // everyone | admin | owner
+    cooldownMs: 3000,
+    async run(msg, api) {
+      await api.reply(`你好，${msg.nickname}`);
+    },
+  }],
+};
+```
+
+放到 `plugins/<id>.mjs`、在 `data/catalog/plugins.json` 加一条，市场里就能看到。
+细节见 [docs/PLUGIN_SPEC.md](docs/PLUGIN_SPEC.md)、[docs/MESSAGE.md](docs/MESSAGE.md)。
+
+## 跨部署方法装插件
+
+如果你部署的是 AstrBot / NoneBot / Koishi，市场里点「安装」装的是**那些生态的插件**，
+不是上面这些 JS 插件 —— 它们装进各自框架、写各自的配置，然后验证「真的被加载」：
+
+```bash
+node scripts/installer.mjs run nonebot-plugin --package=nonebot-plugin-apscheduler
+node scripts/installer.mjs run astrbot-plugin --repo=https://github.com/作者/插件仓库
+node scripts/installer.mjs run koishi-plugin  --package=koishi-plugin-dataview
+```
+
+三条路线的原理、踩过的坑、怎么验证见 [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md)。
 
 ## 目录结构
 
@@ -243,8 +285,8 @@ export default {
 qqbot-plugins/
 ├─ server.js            市场服务端（登录/API/体检/搭桥/安装任务，零依赖）
 ├─ mcp-server.mjs       MCP stdio 服务器（暴露插件工具给 DSH）
-├─ plugins/             46 个插件（每个 .mjs 自包含）
-├─ recipes/             每个可安装对象一份安装脚本（协议端/桥/DSH/插件…）
+├─ plugins/             47 个插件（每个 .mjs 自包含）+ _template/ 开发模板 + _router.mjs 消息路由
+├─ recipes/             每个可安装对象一份安装脚本（协议端/桥/DSH/插件/三生态插件…）
 ├─ data/
 │  ├─ catalog/          清单：plugins（插件）/ companions（配套）/ components（链路组件）
 │  ├─ sources/          外部插件源定义

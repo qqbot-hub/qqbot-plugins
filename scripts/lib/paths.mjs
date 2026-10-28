@@ -32,6 +32,9 @@ const MAP = {
   state: ['state/plugins.json', 'state.json'],
   jobs: ['state/jobs.json'],
   koishiPlugins: ['state/koishi-plugins.json'],
+  /* 生态插件安装登记：都是本机运行时状态（含包名/路径），必须落在 state/ 下、不入库 */
+  nonebotPlugins: ['state/nonebot-plugins.json'],
+  astrbotPlugins: ['state/astrbot-plugins.json'],
 };
 
 /** 返回某个逻辑数据文件的真实路径（不存在时返回首选新路径，便于首次写入） */
