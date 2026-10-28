@@ -320,6 +320,19 @@ qqbot-plugins/
 > 真被限流时会告诉群友"稍等十几秒再要"，而不是报错刷屏。
 > 参考 [Pollinations](https://github.com/pollinations/pollinations) 与 Yunzai 的 [ap-plugin](https://github.com/yhArcadia/ap-plugin)。
 
+## 与 SurfCore 共存
+
+[SurfCore](https://github.com/Mieksido/surfcore) 是另一套「QQ × B站 × 桌宠」的完整栈，它**接替 qq-bridge 的位置**。
+两者可以并存在同一个 DSH 上：SurfCore 负责"她是谁"（身份、记忆、作息、语音、B站、桌宠），本市场负责"她能做什么"（群管、记账、游戏、画画）。
+
+三个要点：
+
+- **端口 3100 二选一** —— 装了 SurfCore 就不要再启动 qq-bridge
+- **两个脚本各写各的块** —— 装完 SurfCore 再跑本市场的 `register-dsh.mjs`，互不覆盖
+- **记忆/语音会重复** —— 建议只留一套；语音可以用本市场的 `voice` 插件直连 SurfCore 的 voxd 引擎（免 Key，共用音色）
+
+完整说明（含冲突清单和操作顺序）见 [docs/INTEGRATION-SURFCORE.md](docs/INTEGRATION-SURFCORE.md)。
+
 ## 配套桌面程序：dsh-pet 桌面宠物
 
 网页里「配套桌面程序」一栏放着 [MerZlin/dsh-pet-indesktop](https://github.com/MerZlin/dsh-pet-indesktop) 的下载入口——
@@ -375,7 +388,6 @@ breeze-server breeze-tts-2-q8_0.gguf --host 127.0.0.1 --port 8080
 | 联网插件调用的接口 | Open-Meteo、er-api、nbnhhsh、一言、B 站公开接口、必应每日图等公开接口，按其公开使用条款调用，无需 Key |
 
 字体走系统字体栈，不发网络请求；不抓取任何版权音视频内容（点歌插件只返回平台搜索链接）。仓库整体采用 MIT 协议。
-| @xujun221 | 插件目录与生态调研：提供插件市场的数据来源与资料，负责插件来源核实 |
 
 ## License
 

@@ -7,8 +7,11 @@
  *   breeze  本地 Breeze-TTS-2.cpp（免 Key，数据不出本机）
  *           · 先跑起来：breeze-server breeze-tts-2-q8_0.gguf --host 127.0.0.1 --port 8080
  *           · 地址填 http://127.0.0.1:8080/v1，支持音色设计/克隆（instruction / voice）
+ *   voxd    SurfCore 的语音引擎（免 Key，直接复用它的本地/云端 TTS）
+ *           · 本地 8765 / 云端 8767，接口是 POST {baseUrl}/v1/speak/file → 返回 wav 字节
+ *           · 装了 SurfCore 就不用再配 Key，两边共用同一套音色
  *
- * 两者都走 POST {baseUrl}/audio/speech。
+ * openai / breeze 走 POST {baseUrl}/audio/speech；voxd 走 POST {baseUrl}/v1/speak/file。
  *
  * 说明：QQ 语音对编码有要求（silk/amr），多数 OneBot 实现会自动转码 mp3；
  * 若你的协议端报错，请在协议端开启转码。
@@ -20,13 +23,29 @@ const cfgOf = (ctx) => (ctx && ctx.cfg) || {};
 
 function baseOf(ctx) {
   const c = cfgOf(ctx);
-  const fallback = (str(c.provider) === 'breeze')
-    ? 'http://127.0.0.1:8080/v1'
+  const provider = str(c.provider);
+  const fallback = provider === 'breeze' ? 'http://127.0.0.1:8080/v1'
+    : provider === 'voxd' ? 'http://127.0.0.1:8765'
     : 'https://api.siliconflow.cn/v1';
   return str(c.baseUrl || fallback).replace(/\/+$/, '');
 }
 
 const isLocal = (url) => /^https?:\/\/(127\.0\.0\.1|localhost|0\.0\.0\.0|\[::1\]|host\.docker\.internal)(:|\/|$)/i.test(url);
+
+/* 把音频字节作为语音条发出去（三个后端共用） */
+async function sendRecord(ctx, buf, a, text, sourceLabel) {
+  const b64 = buf.toString('base64');
+  const segment = [{ type: 'record', data: { file: 'base64://' + b64 } }];
+  const gid = num(a.group_id), uid = num(a.user_id);
+  try {
+    if (gid) await ctx.onebot('send_group_msg', { group_id: gid, message: segment });
+    else if (uid) await ctx.onebot('send_private_msg', { user_id: uid, message: segment });
+    else return '语音已生成，但不知道发给谁：请带上 group_id 或 user_id。';
+  } catch (e) {
+    return `语音已生成（${Math.round(buf.length / 1024)}KB），但发送失败：${e.message}。检查 OneBot 是否在线、协议端是否支持语音格式。`;
+  }
+  return `🔊 语音已发出（${Math.round(buf.length / 1024)}KB，${text.length} 字，${sourceLabel}）`;
+}
 
 export default {
   meta: {
@@ -45,12 +64,14 @@ export default {
         options: [
           { value: 'openai', label: 'OpenAI 兼容云端接口（需 Key）' },
           { value: 'breeze', label: '本地 Breeze-TTS-2.cpp（免 Key）' },
+          { value: 'voxd', label: 'SurfCore 语音引擎 voxd（免 Key）' },
         ],
       },
       { key: 'baseUrl', label: '接口地址', type: 'text', placeholder: 'https://api.siliconflow.cn/v1 或 http://127.0.0.1:8080/v1', help: 'OpenAI 填 https://api.openai.com/v1；本地 Breeze 填 http://127.0.0.1:8080/v1（它默认 8080 端口）' },
       { key: 'apiKey', label: 'API Key', type: 'password', placeholder: 'sk-...（本地后端可留空）', help: '云端必填；本地 Breeze 不需要，留空即可' },
       { key: 'model', label: '模型（仅云端）', type: 'text', placeholder: 'FunAudioLLM/CosyVoice2-0.5B', help: 'OpenAI 用 tts-1；硅基流动用 FunAudioLLM/CosyVoice2-0.5B；本地 Breeze 不用填' },
       { key: 'voice', label: '音色 / voice_id', type: 'text', placeholder: 'FunAudioLLM/CosyVoice2-0.5B:anna 或 narrator', help: '云端填音色名；本地 Breeze 填保存过的 voice_id，留空用默认音色' },
+      { key: 'character', label: '角色名（仅 SurfCore voxd）', type: 'text', placeholder: '如 大肥鱼', help: 'SurfCore 语音引擎按角色选择音色；留空用它的默认音色' },
       { key: 'instruction', label: '语气指令（仅本地 Breeze）', type: 'text', placeholder: '轻声、慢一点、带点笑意', help: 'Breeze 支持用一句话描述语气，会直接影响合成效果' },
       { key: 'speed', label: '语速', type: 'number', default: 1, help: '0.5 - 2.0，默认 1（本地 Breeze 可能忽略）' },
       { key: 'format', label: '音频格式', type: 'select', options: ['mp3', 'wav', 'opus'], default: 'mp3' },
@@ -79,12 +100,34 @@ export default {
       const provider = str(c.provider) || 'openai';
       const base = baseOf(ctx);
       const key = str(c.apiKey);
-      if (provider !== 'breeze' && !key) {
-        return '还没配置语音接口：去市场「⚙ 配置」里填 voice 插件的接口地址和 API Key（或把后端切成「本地 Breeze-TTS」）。';
+      const voiceId = str(a.voice) || str(c.voice);
+      if (provider === 'openai' && !key) {
+        return '还没配置语音接口：去市场「⚙ 配置」里填 voice 插件的接口地址和 API Key（或把后端切成「本地 Breeze-TTS」/「SurfCore voxd」，这两个不用 Key）。';
+      }
+
+      if (provider === 'voxd') {
+        const body = { text, format: 'wav', sr: 24000, cache: true };
+        if (voiceId) body.voice = voiceId;
+        const ch = str(c.character);
+        if (ch) body.character = ch;
+        let buf2;
+        try {
+          const res = await fetch(base + '/v1/speak/file', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+            signal: AbortSignal.timeout(120000),
+          });
+          if (!res.ok) return `SurfCore 语音引擎返回 ${res.status}：${(await res.text()).slice(0, 160)}`;
+          buf2 = Buffer.from(await res.arrayBuffer());
+        } catch (e) {
+          return `连不上 SurfCore 语音引擎（${base}）：确认 SurfCore 的语音包已启动（本地默认 8765）`;
+        }
+        if (!buf2 || buf2.length < 1000) return 'SurfCore 语音引擎返回的内容不像音频，检查角色名/语音包是否安装。';
+        return await sendRecord(ctx, buf2, a, text, 'SurfCore 本地引擎');
       }
 
       const format = str(c.format) || 'mp3';
-      const voiceId = str(a.voice) || str(c.voice);
       let body;
       if (provider === 'breeze') {
         /* Breeze 本地服务：无鉴权；额外支持 instruction 语气指令与 voice_id */
@@ -132,17 +175,7 @@ export default {
       }
       if (!buf || buf.length < 1000) return '语音接口返回的内容不像音频，检查模型/音色名是否正确。';
 
-      const b64 = buf.toString('base64');
-      const segment = [{ type: 'record', data: { file: 'base64://' + b64 } }];
-      const gid = num(a.group_id), uid = num(a.user_id);
-      try {
-        if (gid) await ctx.onebot('send_group_msg', { group_id: gid, message: segment });
-        else if (uid) await ctx.onebot('send_private_msg', { user_id: uid, message: segment });
-        else return '语音已生成，但不知道发给谁：请带上 group_id 或 user_id。';
-      } catch (e) {
-        return `语音已生成（${Math.round(buf.length / 1024)}KB），但发送失败：${e.message}。检查 OneBot 是否在线、协议端是否支持语音格式。`;
-      }
-      return `🔊 语音已发出（${Math.round(buf.length / 1024)}KB，${text.length} 字，${provider === 'breeze' ? '本地 Breeze' : '云端'}）`;
+      return await sendRecord(ctx, buf, a, text, provider === 'breeze' ? '本地 Breeze' : '云端');
     },
   }],
 };
