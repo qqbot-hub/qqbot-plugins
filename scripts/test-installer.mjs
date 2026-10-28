@@ -83,6 +83,50 @@ async function main() {
   const hasHint = !!j6.steps[0].hint;
   hasHint ? ok('失败步骤带 hint（人话提示）') : bad('失败步骤带 hint（人话提示）', '空');
 
+  /* 13. DSH 端口是动态的：给一个只回 "dsh web" 401 的端口，running 步骤要能认出它 */
+  const http = await import('node:http');
+  const fake = http.createServer((req, res) => {
+    res.writeHead(401, { 'Content-Type': 'text/plain' });
+    res.end('dsh web authentication required; reopen the URL printed by dsh web');
+  });
+  await new Promise((r) => fake.listen(0, '127.0.0.1', r));
+  const fakePort = fake.address().port;
+  const saved = {};
+  const dshCtx = {
+    cfg: () => ({ dsh: { baseUrl: 'http://127.0.0.1:' + fakePort } }),
+    saveCfg: (patch) => Object.assign(saved, patch || {}),
+    portOpen: async () => false,
+    exec: async () => ({ code: 0, stdout: '', stderr: '' }),
+    isWin: false,
+    state: {},
+  };
+  const dshRecipe = await loadRecipe('dsh');
+  const runningStep = dshRecipe.steps.find((s) => s.key === 'running');
+  const dshRes = await runningStep.run(dshCtx);
+  fake.close();
+  (dshRes.status === 'ok' && /网页端/.test(dshRes.detail) && dshCtx.state.dsh && dshCtx.state.dsh.webPort === fakePort)
+    ? ok('DSH 动态端口能被指纹识别', `（${fakePort} → ${dshRes.detail}）`)
+    : bad('DSH 动态端口能被指纹识别', JSON.stringify(dshRes));
+
+  /* 14. 写回的 baseUrl 指向真实端口，而不是写死的 3080 */
+  (saved.dsh && saved.dsh.baseUrl === 'http://127.0.0.1:' + fakePort)
+    ? ok('探测到的端口写回配置', saved.dsh.baseUrl)
+    : bad('探测到的端口写回配置', JSON.stringify(saved.dsh || {}));
+
+  /* 15. httpJson 的返回契约：真实数据在 .data 里（NapCat 曾因直接取 .assets 而永远失败） */
+  const { httpJson } = await import('./lib/net.mjs');
+  const apiSrv = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ tag_name: 'v1.2.3', assets: [{ name: 'NapCat.Shell.zip', size: 1024 }] }));
+  });
+  await new Promise((r) => apiSrv.listen(0, '127.0.0.1', r));
+  const apiPort = apiSrv.address().port;
+  const got = await httpJson(`http://127.0.0.1:${apiPort}/releases/latest`);
+  apiSrv.close();
+  (got.ok && got.data && Array.isArray(got.data.assets) && got.data.assets[0].name === 'NapCat.Shell.zip')
+    ? ok('httpJson 返回包装对象（数据在 .data 里）')
+    : bad('httpJson 返回包装对象（数据在 .data 里）', JSON.stringify(got).slice(0, 160));
+
   console.log('\n──────────────────────────────');
   console.log(`通过 ${pass} · 失败 ${fail}`);
   process.exit(fail ? 1 : 0);

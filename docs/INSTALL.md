@@ -18,7 +18,7 @@ OneBot HTTP API
 本插件市场 mcp-server.mjs（stdio）
   │  ③ MCP 协议                     把插件工具暴露给 AI
   ▼
-DSH（DeepSeek Harness）              AI 大脑，决定调哪个工具      HTTP 3080
+DSH（DeepSeek Harness）              AI 大脑，决定调哪个工具      HTTP（端口动态，脚本自动探测）
   │  ④ 可选：qq-bridge               人格 / 记忆 / 多角色接到 QQ    HTTP 3100
   ▼
 群里的实际效果：发消息、禁言、记账、画图、语音……
@@ -34,8 +34,8 @@ DSH（DeepSeek Harness）              AI 大脑，决定调哪个工具      HT
 |---|---|---|---|---|---|
 | 0 | Node.js 运行时 | — | `recipes/node.mjs` | 只能检查 | 官方安装包要你点下一步 |
 | 1 | SnowLuma 协议端 | 3000 / 3001 | `recipes/snowluma.mjs` | 检测 + 启动 + 验登录 | **扫码/密码登录 QQ**（协议端设计如此） |
-| 1' | NapCat 协议端（替代） | 3000 / 3001 | `recipes/napcat.mjs` | 下载 + 解压全自动 | 在它面板里登录 QQ、开 HTTP/WS |
-| 2 | DSH（宿主） | 3080 | `recipes/dsh.mjs` | 检测 + 记录 profile | 桌面程序，装完要手动启动并登录 |
+| 1' | NapCat 协议端（替代） | 3000 / 3001 | `recipes/napcat.mjs` | 下载 + 解压全自动 | 在它面板里登录 QQ、开 HTTP/WS。**一键部署会自动跳过它**（SnowLuma 装成了就不重复装） |
+| 2 | DSH（宿主） | 动态（脚本自动探测） | `recipes/dsh.mjs` | 检测进程 → 自动拉起 → 按指纹找到真实端口并写回配置 | 首次仍要你在 DSH 窗口里登录账号；DSH 端口不固定，别写死 3080 |
 | 3 | qq-bridge 桥接（可选） | 3100 | `recipes/qqbridge.mjs` | 检测 + 启动 | 首次要填 QQ 号与协议端地址 |
 | 4 | 本插件市场 | 3210 | `recipes/market.mjs` | 写 MCP 注册全自动 | 装完要**完整退出 DSH 再打开**（配置只在启动时读） |
 | 5 | 调音台（可选） | 3120 | `recipes/voicelab.mjs` | 检测 + 启动 + 验接口 | 无 |
@@ -169,6 +169,6 @@ node scripts/installer.mjs run plugin --id=clock   # 装一个插件（含 MCP �
 ## 八、边界（写在明面上）
 
 - **不能替你登录 QQ**。扫码/密码这一步任何协议端都绕不过，市场只能检测「登没登」并告诉你差这一步。
-- **不能替你装桌面程序**。DSH 是安装器程序，市场做的是「检测 → 引导 → 装完自动注册 MCP」。
+- **桌面程序仍要登录**。DSH 的进程脚本能自动拉起（在常见安装位置找 exe → 后台启动 → 按响应指纹探测动态端口），首次登录账号还是要你来。
 - **外部生态的插件不能一键装**。Yunzai / NoneBot / Koishi 的插件依赖各自加载器，格式不通用；「全网插件源」里给的是目录 + 适配提示词，粘给 AI 改写成 `.mjs` 才能装（见 [HUB.md](HUB.md)）。
 - **下载依赖网络**。GitHub 在部分网络下需要代理；`scripts/lib/net.mjs` 会在 fetch 失败时退回系统 `curl`。

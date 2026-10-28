@@ -11,8 +11,14 @@
     "autoInstall": false,
     "manual": "官方安装包需要你手动点下一步（或交给 winget）",
     "links": [
-      { "label": "nodejs.org 下载", "url": "https://nodejs.org/zh-cn/download" },
-      { "label": "国内镜像", "url": "https://npmmirror.com/mirrors/node/" }
+      {
+        "label": "nodejs.org 下载",
+        "url": "https://nodejs.org/zh-cn/download"
+      },
+      {
+        "label": "国内镜像",
+        "url": "https://npmmirror.com/mirrors/node/"
+      }
     ]
   },
   {
@@ -24,11 +30,17 @@
     "opensource": false,
     "desc": "把 QQ 账号变成 OneBot v11 接口（HTTP 3000 / WS 3001）。装好、登录一次 QQ，后面的桥和插件才有「手」去操作群。",
     "recipe": "snowluma",
-    "ports": [3000, 3001],
+    "ports": [
+      3000,
+      3001
+    ],
     "autoInstall": true,
     "manual": "首次必须扫码或密码登录一次 QQ（协议端的设计如此，任何工具都绕不过）",
     "links": [
-      { "label": "项目主页", "url": "https://github.com/SnowLuma/SnowLuma" }
+      {
+        "label": "项目主页",
+        "url": "https://github.com/SnowLuma/SnowLuma"
+      }
     ]
   },
   {
@@ -44,9 +56,16 @@
     "autoInstall": true,
     "manual": "需要本机已装 QQ NT 客户端；装完在 NapCat 面板里登录并开启 HTTP/WS",
     "links": [
-      { "label": "NapCat 仓库", "url": "https://github.com/NapNeko/NapCatQQ" },
-      { "label": "Release 下载", "url": "https://github.com/NapNeko/NapCatQQ/releases" }
-    ]
+      {
+        "label": "NapCat 仓库",
+        "url": "https://github.com/NapNeko/NapCatQQ"
+      },
+      {
+        "label": "Release 下载",
+        "url": "https://github.com/NapNeko/NapCatQQ/releases"
+      }
+    ],
+    "alternativeTo": "snowluma"
   },
   {
     "id": "dsh",
@@ -55,14 +74,18 @@
     "order": 2,
     "required": true,
     "opensource": false,
-    "desc": "AI 大脑所在的地方，也是插件的宿主。插件通过 MCP 注册进 DSH，你在对话里说话，DSH 决定调哪个插件。",
+    "desc": "AI 大脑所在的地方，也是插件的宿主。插件通过 MCP 注册进 DSH，你在对话里说话，DSH 决定调哪个插件。端口是动态的，部署脚本会自动探测。",
     "recipe": "dsh",
-    "ports": [3080],
-    "autoInstall": false,
-    "manual": "DSH 是桌面程序，装完要手动启动并登录一次",
+    "ports": [],
+    "autoInstall": true,
+    "manual": "脚本会自动找到并启动它；首次仍需你在 DSH 窗口里登录账号（端口由脚本自动探测，不写死）",
     "links": [
-      { "label": "官方下载", "url": "https://www.deepseek.com/" }
-    ]
+      {
+        "label": "官方下载",
+        "url": "https://www.deepseek.com/"
+      }
+    ],
+    "dynamicPort": true
   },
   {
     "id": "qqbridge",
@@ -73,11 +96,16 @@
     "opensource": true,
     "desc": "可选的中间层（3100）：把 DSH 的人格、记忆、多角色接到 QQ 上。只装插件不装它也能用，装了体验更完整。",
     "recipe": "qqbridge",
-    "ports": [3100],
+    "ports": [
+      3100
+    ],
     "autoInstall": true,
     "manual": "首次启动要填 QQ 号与协议端地址（市场会自动写入它读得到的那份配置）",
     "links": [
-      { "label": "项目主页", "url": "https://github.com/qqbot-hub/qq-bridge" }
+      {
+        "label": "项目主页",
+        "url": "https://github.com/qqbot-hub/qq-bridge"
+      }
     ]
   },
   {
@@ -89,7 +117,9 @@
     "opensource": true,
     "desc": "你正在看的这个站。它自己也是链路上的一个节点：负责分发插件、注册 MCP、体检整条链路。",
     "recipe": "market",
-    "ports": [3210],
+    "ports": [
+      3210
+    ],
     "autoInstall": true,
     "manual": "",
     "links": []
@@ -103,7 +133,9 @@
     "opensource": false,
     "desc": "本地语音工作台（3120）：调音色、试听、一键写进 voice 插件。不装不影响主链路。",
     "recipe": "voicelab",
-    "ports": [3120],
+    "ports": [
+      3120
+    ],
     "autoInstall": true,
     "manual": "",
     "links": []

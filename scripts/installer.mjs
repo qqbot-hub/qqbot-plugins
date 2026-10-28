@@ -114,7 +114,10 @@ function makeCtx(job, params, emit) {
     log,
     portOpen,
     httpGet,
-    exec: (cmd, args, opts) => exec(cmd, args, Object.assign({ onLog: (l) => log(l, 'cmd') }, opts)),
+    exec: (cmd, args, opts) => exec(cmd, args, Object.assign({}, opts, {
+      /* quiet: 只取结果不刷屏（netstat/tasklist 这类输出几千行，刷进日志没法看） */
+      onLog: opts && opts.quiet ? null : (l) => log(l, 'cmd'),
+    })),
     /** 起一个常驻进程（协议端/桥/调音台），不等它结束，脱离父进程独立活 */
     spawnDetached: (cmd, args = [], opts = {}) => {
       try {

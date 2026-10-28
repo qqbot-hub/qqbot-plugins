@@ -1256,7 +1256,7 @@ async function loadHealth() {
     const appName = o.app ? esc(o.app) : 'OneBot v11';
     const verTitle = o.version ? `${appName} ${o.version} · ${o.httpUrl || ''}` : (o.httpUrl || '');
     box.innerHTML =
-      statRow(!!(r.dsh && r.dsh.ok), 'DSH 3080') +
+      statRow(!!(r.dsh && r.dsh.ok), 'DSH' + (r.dsh && r.dsh.url ? ' · 端口 ' + (String(r.dsh.url).match(/:(\d+)/) || [])[1] : '')) +
       statRow(obOk, '协议端 · ' + appName, obOk ? '在线' : '未连接', verTitle) +
       onebotSub(o) +
       statRow(!!(r.bridge && r.bridge.ok), '桥接 3100') +
@@ -1331,7 +1331,9 @@ function renderDeploy() {
   const box = $('#depList');
   if (!box) return;
   box.innerHTML = COMPS.map((c, i) => {
-    const ports = (c.ports || []).map((p) => `<span class="${c.portsOpen && c.portsOpen[p] ? 'on' : ''}">${p}</span>`).join(' · ');
+    const ports = c.dynamicPort
+      ? `<span class="${c.detectedPort ? 'on' : ''}">端口 ${c.detectedPort ? c.detectedPort + '（自动探测）' : '自动探测'}</span>`
+      : (c.ports || []).map((p) => `<span class="${c.portsOpen && c.portsOpen[p] ? 'on' : ''}">${p}</span>`).join(' · ');
     const st = c.running == null
       ? ''
       : (c.running ? '<span class="dep-state ok">● 运行中</span>' : '<span class="dep-state off">○ 未运行</span>');
@@ -1364,15 +1366,29 @@ async function deployAll() {
   const btn = $('#depAll');
   if (btn) btn.disabled = true;
   const list = COMPS.filter((c) => c.recipe);
-  let stopped = '';
+  const done = [];
+  const manual = [];
+  let failed = null;
   for (const c of list) {
+    /* 二选一的组件：前面已经装成同类，就不再装它（例如装好 SnowLuma 就不必装 NapCat） */
+    if (c.alternativeTo && done.some((n) => (COMPS.find((x) => x.name === n) || {}).id === c.alternativeTo)) {
+      continue;
+    }
     const status = await deployOne(c.recipe, c.name);
-    if (status !== 'done') { stopped = c.name; break; }
+    if (status === 'done') { done.push(c.name); continue; }
+    if (status === 'manual') { manual.push(c.name); continue; }   /* 需要人工的步骤不拦后面的，最后一起交代 */
+    failed = { name: c.name, status };
+    break;
   }
   if (btn) btn.disabled = false;
   loadComponents();
-  if (stopped) toast(`停在「${stopped}」：那一步需要你手动处理，做完再点一次即可`, 'warn');
-  else toast('整条链路已就绪', 'ok');
+  if (failed) {
+    toast(`停在「${failed.name}」：这一步真的失败了，点开它的日志看红色那几行`, 'err');
+  } else if (manual.length) {
+    toast(`已完成 ${done.length} 项；「${manual.join('、')}」需要你手动完成一步，做完再点一次部署即可`, 'warn');
+  } else {
+    toast(`整条链路已就绪（${done.length} 项全部完成）`, 'ok');
+  }
 }
 
 /* ============ 安装进度面板（SSE 实时日志） ============ */

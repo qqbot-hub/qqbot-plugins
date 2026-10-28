@@ -250,7 +250,9 @@ async function httpProbe(url, timeoutMs = 2000) {
   const t = setTimeout(() => ac.abort(), timeoutMs);
   try {
     const r = await fetch(url, { signal: ac.signal });
-    return r.ok || (r.status >= 300 && r.status < 400);
+    /* 401/403 也算「服务活着」：DSH 的网页端没带令牌时就回 401，
+       要判断的是链路通不通，不是有没有登录 */
+    return r.ok || (r.status >= 300 && r.status < 500);
   } catch { return false; } finally { clearTimeout(t); }
 }
 /* 识别协议端：**复用适配层**（plugins/_bridge.mjs），
@@ -569,6 +571,15 @@ async function startInstallJob(target, params) {
 /* 组件的实时状态：端口开没开，页面用来显示「已运行 / 未安装」 */
 async function componentsWithState() {
   return Promise.all(components().map(async (c) => {
+    /* 端口是动态的组件（DSH）：用它自己探测出来、记在配置里的端口来判断，
+       不然会一直拿写死的默认端口去试，永远显示「未运行」 */
+    if (c.dynamicPort) {
+      const base = String((cfg.dsh || {}).baseUrl || '');
+      const port = Number((base.match(/:(\d+)/) || [])[1] || 0);
+      if (!port) return Object.assign({}, c, { ports: [], portsOpen: {}, running: null, detectedPort: 0 });
+      const open = await tcpProbe('127.0.0.1', port, 700);
+      return Object.assign({}, c, { ports: [port], portsOpen: { [port]: open }, running: open, detectedPort: port });
+    }
     const ports = c.ports || [];
     const portsOpen = {};
     await Promise.all(ports.map(async (n) => { portsOpen[n] = await tcpProbe('127.0.0.1', n, 700); }));
