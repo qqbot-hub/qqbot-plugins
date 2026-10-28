@@ -245,7 +245,7 @@
         ],
         "recipe": "koishi",
         "verified": true,
-        "verifiedNote": "2026-10-28 22:08 本机实测：npm 装 koishi 4.18.11 + adapter-onebot 5.8.1 成功，控制台 5140 实测 HTTP 200（标题「Koishi 控制台」）。两个坑已写进脚本：① adapter-onebot@6 与 koishi 4.18 的 @satorijs/core 版本互相冲突，装 6.x 必报 Session2 is not a constructor，脚本固定装 5.x；② 控制台要监听 5140 必须启用 server 插件，配置里已带上。未跑通的部分：适配器连本机 SnowLuma 的 3001 被拒（401/1006，SnowLuma 的 WS 不收第三方接入），要用 Koishi 请配 NapCat 作协议端，本机没装 NapCat 故未实测这条。",
+        "verifiedNote": "2026-10-28 22:08 本机实测：npm 装 koishi 4.18.11 + adapter-onebot 5.8.1 成功，控制台 5140 实测 HTTP 200。2026-10-28 23:05 更正并补充：之前把「连不上 QQ」归因为 SnowLuma 拒绝第三方 WS，经查真正原因是 adapter-onebot 与 koishi 4.18 的 @satorijs/core 双版本冲突（2.7.4 vs 4.6.1），适配器在 prepare 阶段就抛 TypeError，连接请求根本没发出去；该适配器官方已宣布弃用。另：通过安装脚本装 Koishi 生态插件（koishi-plugin-dataview 2.7.8）已实测跑通——npm 安装、写 koishi.yml、重启、日志确认插件被加载；但机器人收发消息仍然不可用，原因同上。",
         "manualSteps": [
           "装 QQNT + NapCat 并扫码登录（SnowLuma 的 3001 实测不收第三方 WS，Koishi 要连 NapCat）",
           "在 Koishi 控制台 5140 的适配器设置里核对 selfId 与 NapCat token"

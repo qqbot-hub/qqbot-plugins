@@ -20,6 +20,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createBridge, createOneBot } from './plugins/_bridge.mjs';
+import { createProtocol } from './plugins/_protocol.mjs';
+import { decrypt } from './scripts/lib/secrets.mjs';
 import { dataPath } from './scripts/lib/paths.mjs';
 
 const HUB_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)));
@@ -41,17 +43,35 @@ function loadConfig() {
     return cfgCache.data || {};
   }
 }
-/* 协议端配置：优先读 onebot 段，兼容旧的 snowluma 段 */
+/* 协议端配置：优先读 onebot 段，兼容旧的 snowluma 段
+ *
+ * 注意 token：网页端把它加密存进 config.json 的 secrets 里，
+ * 这里必须解密才拿得到，否则会拿空 token 去连协议端（401）。
+ * 解密失败就退回旧字段，保证升级上来的部署不会直接不可用。 */
+function secretOf(c, slot) {
+  const enc = (c.secrets || {})[slot];
+  if (!enc) return '';
+  try { return decrypt(enc) || ''; } catch { return ''; }
+}
 function onebotCfg() {
   const c = loadConfig();
   const ob = c.onebot || {};
   const sl = c.snowluma || {};
+  const sa = c.satori || {};
+  const tok = secretOf(c, 'snowluma-dsh.onebotToken');
   return {
+    protocol: String(c.protocol || 'onebot').toLowerCase() === 'satori' ? 'satori' : 'onebot',
     impl: String(ob.impl || 'auto'),
     httpUrl: String(ob.httpUrl || sl.httpUrl || 'http://127.0.0.1:3000').replace(/\/+$/, ''),
-    accessToken: String(ob.accessToken != null && ob.accessToken !== '' ? ob.accessToken : (sl.accessToken || '')),
+    accessToken: String(tok || ob.accessToken || sl.accessToken || ''),
     authMode: String(ob.authMode || 'header'),
     pathPrefix: String(ob.pathPrefix || ''),
+    satori: {
+      baseUrl: String(sa.baseUrl || 'http://127.0.0.1:5142/satori').replace(/\/+$/, ''),
+      token: String(secretOf(c, 'satori.token') || sa.token || ''),
+      platform: String(sa.platform || 'onebot'),
+      selfId: String(sa.selfId || ''),
+    },
   };
 }
 function pluginCfg(id) {
@@ -64,8 +84,9 @@ function pluginCfg(id) {
 async function onebot(action, params = {}) {
   return createOneBot(onebotCfg()).onebot(action, params);
 }
+/* 插件统一走这一层：OneBot v11 还是 Satori 由配置决定，插件代码不变 */
 function bridge() {
-  return createBridge(onebotCfg());
+  return createProtocol(onebotCfg());
 }
 
 /* 每次工具调用构造独立 ctx：插件私有配置放在 ctx.cfg */

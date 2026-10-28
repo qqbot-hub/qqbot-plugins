@@ -31,6 +31,7 @@ const MAP = {
   hub: ['snapshots/hub.json', 'hub.json'],
   state: ['state/plugins.json', 'state.json'],
   jobs: ['state/jobs.json'],
+  koishiPlugins: ['state/koishi-plugins.json'],
 };
 
 /** 返回某个逻辑数据文件的真实路径（不存在时返回首选新路径，便于首次写入） */

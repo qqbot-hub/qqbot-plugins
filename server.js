@@ -81,6 +81,7 @@ const secretsLib = () => esm(path.join('scripts', 'lib', 'secrets.mjs'));
 const SECRET_CACHE = new Map();
 const secretSlot = (methodId, key) => String(methodId || 'global') + '.' + String(key || '');
 const slotOfOnebot = () => secretSlot('snowluma-dsh', 'onebotToken');
+const slotOfSatori = () => secretSlot('satori', 'token');
 
 async function initSecrets() {
   const { decrypt, encrypt } = await secretsLib();
@@ -267,7 +268,16 @@ function globalSettings() {
   const dsh = cfg.dsh || {};
   const bg = cfg.bridge || {};
   const ob = cfg.onebot || {};
+  const sa = cfg.satori || {};
   return {
+    protocol: String(cfg.protocol || 'onebot') === 'satori' ? 'satori' : 'onebot',
+    satori: {
+      baseUrl: (sa.baseUrl || 'http://127.0.0.1:5142/satori'),
+      platform: sa.platform || 'onebot',
+      selfId: sa.selfId || '',
+      token: '',                       // 不回传
+      hasToken: SECRET_CACHE.has(slotOfSatori()),
+    },
     onebot: {
       impl: ob.impl || 'auto',
       authMode: ob.authMode || 'header',
@@ -291,6 +301,20 @@ async function saveGlobal(input) {
   cfg.snowluma = Object.assign({}, cfg.snowluma);
   cfg.dsh = Object.assign({}, cfg.dsh);
   cfg.bridge = Object.assign({}, cfg.bridge);
+  /* 协议切换：onebot | satori。切错了会让插件说不上话，所以只接受这两个值 */
+  if (typeof src.protocol === 'string') {
+    const p = src.protocol.trim().toLowerCase();
+    if (p === 'onebot' || p === 'satori') cfg.protocol = p;
+  }
+  if (src.satori && typeof src.satori === 'object') {
+    cfg.satori = Object.assign({}, cfg.satori);
+    const s = src.satori;
+    if (typeof s.baseUrl === 'string' && s.baseUrl.trim()) cfg.satori.baseUrl = s.baseUrl.trim().replace(/\/+$/, '');
+    if (typeof s.platform === 'string' && s.platform.trim()) cfg.satori.platform = s.platform.trim();
+    if (typeof s.selfId === 'string' && s.selfId.trim()) cfg.satori.selfId = s.selfId.trim();
+    if (typeof s.token === 'string' && s.token.trim()) await setSecret('satori', 'token', s.token.trim());
+    if (s.clearToken === true) await setSecret('satori', 'token', '');
+  }
   if (src.onebot) {
     cfg.onebot = Object.assign({}, cfg.onebot);
     const o = src.onebot;
@@ -354,20 +378,36 @@ async function httpProbe(url, timeoutMs = 2000) {
    保证「网页显示的协议端」和「插件实际说话的协议端」是同一套判断，
    差异（动作名/鉴权/响应格式）只在适配层维护一份。 */
 let bridgeMod = null;
+let protocolMod = null;
 async function bridgeModule() {
   if (!bridgeMod) bridgeMod = await import(pathToFileURL(path.join(ROOT, 'plugins', '_bridge.mjs')).href);
   return bridgeMod;
 }
+/* 统一协议层：按配置在 OneBot v11 / Satori 之间切换，插件与页面都不用改 */
+async function protocolModule() {
+  if (!protocolMod) protocolMod = await import(pathToFileURL(path.join(ROOT, 'plugins', '_protocol.mjs')).href);
+  return protocolMod;
+}
 function onebotCfg() {
   const ob = cfg.onebot || {};
   const sl = cfg.snowluma || {};
+  const sa = cfg.satori || {};
   return {
+    /* 当前使用的协议：onebot（默认）| satori */
+    protocol: String(cfg.protocol || 'onebot').toLowerCase() === 'satori' ? 'satori' : 'onebot',
     impl: String(ob.impl || 'auto'),
     httpUrl: String(ob.httpUrl || sl.httpUrl || 'http://127.0.0.1:3000').replace(/\/+$/, ''),
     /* token 只在内存里：加密存盘，接口不回传 */
     accessToken: String(SECRET_CACHE.get(slotOfOnebot()) || ob.accessToken || sl.accessToken || ''),
     authMode: String(ob.authMode || 'header'),
     pathPrefix: String(ob.pathPrefix || ''),
+    satori: {
+      baseUrl: String(sa.baseUrl || 'http://127.0.0.1:5142/satori').replace(/\/+$/, ''),
+      token: String(SECRET_CACHE.get(slotOfSatori()) || sa.token || ''),
+      platform: String(sa.platform || 'onebot'),
+      selfId: String(sa.selfId || ''),
+      timeoutMs: 2500,
+    },
     timeoutMs: 2500,          // 体检要快，不能卡住页面
   };
 }
@@ -375,21 +415,166 @@ function onebotCfg() {
 let hbCache = { key: '', at: 0, value: null };
 async function probeOnebot(force = false) {
   const c = onebotCfg();
-  const key = JSON.stringify(c);
+  /* 缓存键只放"会影响结果"的字段，token 只记有没有，不落进键里 */
+  const key = JSON.stringify({
+    p: c.protocol,
+    u: c.protocol === 'satori' ? c.satori.baseUrl : c.httpUrl,
+    s: c.protocol === 'satori' ? (c.satori.platform + '|' + c.satori.selfId + '|' + (c.satori.token ? 1 : 0)) : '',
+    t: c.protocol === 'satori' ? 0 : (c.accessToken ? 1 : 0),
+  });
   if (!force && hbCache.value && hbCache.key === key && Date.now() - hbCache.at < 3000) return hbCache.value;
-  const { createOneBot } = await bridgeModule();
-  const hb = await createOneBot(c).heartbeat({ force: true, ttlMs: 0 });
-  hbCache = { key, at: Date.now(), value: hb };
-  return hb;
+  const { createProbe } = await protocolModule();
+  const hb = await createProbe(c).heartbeat({ force: true, ttlMs: 0 });
+  /* 补上协议名，页面据此显示"当前走 OneBot v11 还是 Satori" */
+  const value = Object.assign({ protocol: c.protocol }, hb);
+  hbCache = { key, at: Date.now(), value };
+  return value;
+}
+
+/* ---------- 运行监控 ----------
+ * 只报**探测到的事实**：端口通不通、协议端心跳活不活。
+ * 探测不到就明确说没在跑，不做"看起来像在跑"的推断。
+ * 一个服务可能有多个候选端口（比如 NoneBot 默认 8080，被占时用 20080），
+ * 所以每个服务给一个端口列表，全都不通才算没起来。
+ */
+const MONITOR_SERVICES = [
+  { id: 'market', label: '插件市场', role: '网页 + API + MCP 注册', ports: [3210], method: 'market' },
+  { id: 'snowluma', label: 'SnowLuma', role: '协议端（OneBot v11）', ports: [3000, 3001], method: 'snowluma-dsh' },
+  { id: 'dsh', label: 'DeepSeek Harness', role: 'AI 运行时', ports: [11762, 8326, 3080], method: 'snowluma-dsh' },
+  { id: 'qqbridge', label: 'qq-bridge', role: 'AI ⇄ QQ 桥', ports: [3100], method: 'snowluma-dsh' },
+  { id: 'nonebot', label: 'NoneBot2', role: '机器人框架', ports: [8080, 20080], method: 'napcat-nonebot' },
+  { id: 'koishi', label: 'Koishi', role: '机器人框架 + 控制台', ports: [5140], method: 'napcat-koishi' },
+  { id: 'satori', label: 'Satori Server', role: 'Satori 协议服务端', ports: [5142, 5141], method: 'napcat-koishi' },
+  { id: 'voicelab', label: '调音台', role: '语音音色', ports: [3120], method: 'voicelab' },
+];
+
+/* 光看端口通还不够：8080 很可能被本机别的程序占着。
+ * 这里对几个常见服务做"内容指纹"，认不出来就如实说"端口被占但不是它"，
+ * 免得用户看到绿灯以为机器人跑起来了。 */
+async function fetchText(url, timeoutMs = 1500, opts = {}) {
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), timeoutMs);
+  try {
+    const r = await fetch(url, { method: opts.method || 'GET', headers: { 'Content-Type': 'application/json' }, body: opts.body, signal: ac.signal });
+    return { ok: r.ok, status: r.status, text: await r.text() };
+  } catch {
+    return { ok: false, status: 0, text: '' };
+  } finally { clearTimeout(timer); }
+}
+
+const VERIFY = {
+  /* NoneBot2 用 FastAPI/uvicorn，必有 openapi.json */
+  nonebot: async (port) => {
+    const r = await fetchText(`http://127.0.0.1:${port}/openapi.json`, 1200);
+    if (!r.ok) return null;
+    try {
+      const j = JSON.parse(r.text);
+      return (j.openapi || j.swagger) ? { ok: true, note: 'FastAPI openapi 指纹通过' } : null;
+    } catch { return null; }
+  },
+  /* Koishi 控制台页面里带 koishi 字样 */
+  koishi: async (port) => {
+    const r = await fetchText(`http://127.0.0.1:${port}/`, 1500);
+    if (!r.ok) return null;
+    return /koishi/i.test(r.text) ? { ok: true, note: 'Koishi 控制台指纹通过' } : null;
+  },
+  /* Satori 服务端对任意方法都回固定几句文本，认这个比认端口可靠。
+   * 路径必须跟配置里的 path 一致（默认 /satori），漏了前缀会拿到 koa 的 404。
+   * 注意不能把泛化的 "Not Found" 算通过 —— koa 默认 404 也是这句话，会误判。 */
+  satori: async (port) => {
+    let prefix = '/satori';
+    try {
+      const u = new URL(String((cfg.satori || {}).baseUrl || ''));
+      prefix = u.pathname.replace(/\/+$/, '') || '';
+    } catch { /* 配置里没有 baseUrl 时用默认前缀 */ }
+    const r = await fetchText(`http://127.0.0.1:${port}${prefix}/v1/login.get`, 1500, { method: 'POST', body: '{}' });
+    if (!r.text) return null;
+    return /login not found|invalid token|method not found|Please use POST method/i.test(r.text)
+      ? { ok: true, note: `Satori 协议指纹通过（HTTP ${r.status}）` }
+      : null;
+  },
+};
+
+async function monitor() {
+  const services = await Promise.all(MONITOR_SERVICES.map(async (s) => {
+    const ports = await Promise.all(s.ports.map(async (port) => ({ port, open: await tcpProbe('127.0.0.1', port, 900) })));
+    const openPorts = ports.filter((p) => p.open).map((p) => p.port);
+    let verified = null;
+    let note = '';
+    const verify = VERIFY[s.id];
+    if (!openPorts.length) {
+      note = '端口都不通，没在跑';
+    } else if (!verify) {
+      note = `端口 ${openPorts.join('/')} 在监听（未做内容指纹，只确认端口）`;
+    } else {
+      for (const p of openPorts) {
+        const r = await verify(p);
+        if (r) { verified = true; note = r.note + ` @${p}`; break; }
+      }
+      if (verified === null) {
+        verified = false;
+        note = `端口 ${openPorts.join('/')} 被别的程序占着，指纹对不上，不是 ${s.label}`;
+      }
+    }
+    return {
+      id: s.id,
+      label: s.label,
+      role: s.role,
+      method: s.method,
+      ports,
+      openPorts,
+      /* running 只认"端口通 且 指纹对得上（或该服务未做指纹）" */
+      running: openPorts.length > 0 && verified !== false,
+      verified,
+      note,
+    };
+  }));
+  const hb = await probeOnebot();
+  let jobs = [];
+  try {
+    const mod = await installer();
+    jobs = (mod.recentJobs ? mod.recentJobs() : []).slice(0, 6).map((j) => ({
+      id: j.id, target: j.target, title: j.title, status: j.status,
+      startedAt: j.startedAt, endedAt: j.endedAt,
+      steps: j.steps ? j.steps.length : 0,
+      done: j.steps ? j.steps.filter((s) => s.status === 'ok' || s.status === 'skip').length : 0,
+      manual: j.steps ? j.steps.filter((s) => s.status === 'manual').length : 0,
+      failed: j.steps ? j.steps.filter((s) => s.status === 'fail').length : 0,
+    }));
+  } catch { jobs = []; }
+  return {
+    ok: true,
+    checkedAt: new Date().toISOString(),
+    services,
+    running: services.filter((s) => s.running).length,
+    total: services.length,
+    protocol: {
+      id: hb.protocol || 'onebot',
+      online: !!hb.online,
+      app: hb.app || '',
+      impl: hb.impl || '',
+      selfId: hb.selfId ?? null,
+      nickname: hb.nickname || '',
+      latencyMs: hb.latencyMs ?? null,
+      error: hb.error || '',
+      errorKind: hb.errorKind || '',
+      checkedAt: hb.checkedAt || '',
+    },
+    jobs,
+    uptime: uptime(),
+  };
 }
 
 async function doctor() {
   const ob = onebotCfg();
+  const isSatori = ob.protocol === 'satori';
   const sl = Object.assign({ wsPort: 3001 }, cfg.snowluma);
   const dsh = Object.assign({ baseUrl: 'http://127.0.0.1:3080' }, cfg.dsh);
   const bg = Object.assign({ consoleUrl: 'http://127.0.0.1:3100' }, cfg.bridge);
+  /* 走 Satori 时，"协议端地址"是 satori 的 baseUrl，不是 OneBot 的 3000 */
+  const targetUrl = isSatori ? ob.satori.baseUrl : ob.httpUrl;
   let httpHost;
-  try { httpHost = new URL(ob.httpUrl); } catch { httpHost = new URL('http://127.0.0.1:3000'); }
+  try { httpHost = new URL(targetUrl); } catch { httpHost = new URL('http://127.0.0.1:3000'); }
   const [snowlumaHttp, snowlumaWs, dshOk, bridgeOk] = await Promise.all([
     tcpProbe(httpHost.hostname, Number(httpHost.port) || 80),
     tcpProbe('127.0.0.1', Number(sl.wsPort) || 3001),
@@ -398,10 +583,17 @@ async function doctor() {
   ]);
   const tools = await installedTools();
   const hb = await probeOnebot();
+  const { PROTOCOLS } = await protocolModule();
+  const proto = PROTOCOLS[ob.protocol] || PROTOCOLS.onebot;
   return {
     onebot: hb,
+    protocol: { id: ob.protocol, label: proto.label, note: proto.note, capabilities: proto.capabilities },
+    protocols: Object.values(PROTOCOLS).map((x) => ({ id: x.id, label: x.label, note: x.note, capabilities: x.capabilities })),
     dsh: { ok: dshOk, url: dsh.baseUrl },
-    snowluma: { ok: snowlumaHttp && snowlumaWs, http: snowlumaHttp, ws: snowlumaWs, httpUrl: ob.httpUrl },
+    /* 走 Satori 时 SnowLuma 那一栏没有意义，如实标 null，不让页面显示假绿点 */
+    snowluma: isSatori
+      ? { ok: null, skipped: '当前协议是 Satori，不经 SnowLuma' }
+      : { ok: snowlumaHttp && snowlumaWs, http: snowlumaHttp, ws: snowlumaWs, httpUrl: ob.httpUrl },
     bridge: { ok: bridgeOk, url: bg.consoleUrl },
     mcp: { tools: tools.length },
     installed: currentPlugins().filter((p) => p.installed).length,
@@ -738,15 +930,49 @@ const server = http.createServer(async (req, res) => {
         }),
       });
     }
+    /* ---------- 运行监控：端口 + 进程 + 协议心跳 + 最近任务 ---------- */
+    if (method === 'GET' && p === '/api/monitor') {
+      return sendJson(res, 200, await monitor());
+    }
+    /* ---------- 协议选择：OneBot v11 / Satori ----------
+     * 列表带上每个协议的能力表，前端可以据此把不支持的动作置灰（而不是点了才报错） */
+    if (method === 'GET' && p === '/api/protocol') {
+      const { PROTOCOLS } = await protocolModule();
+      const cur = onebotCfg().protocol;
+      const hb = await probeOnebot();
+      return sendJson(res, 200, {
+        ok: true,
+        current: cur,
+        protocols: Object.values(PROTOCOLS).map((x) => ({
+          id: x.id, label: x.label, note: x.note, capabilities: x.capabilities,
+        })),
+        health: hb,
+        settings: globalSettings(),
+      });
+    }
+    if (method === 'POST' && p === '/api/protocol') {
+      const rawProto = await readBody(req);
+      const body = (() => { try { return JSON.parse(rawProto || '{}'); } catch { return {}; } })();
+      await saveGlobal(body);
+      /* 存完立刻实测一次：让用户马上知道这个配置到底通不通，而不是自己去猜 */
+      const hb = await probeOnebot(true);
+      return sendJson(res, 200, { ok: true, settings: globalSettings(), health: hb });
+    }
     if (method === 'GET' && p === '/api/health') {
       const d = await doctor();
       const o = d.onebot || {};
       return sendJson(res, 200, {
-        ok: true, bridge: d.bridge.ok, snowluma: d.snowluma.ok, dsh: d.dsh.ok,
+        ok: true, bridge: d.bridge.ok,
+        /* 走 Satori 时 snowluma 探测没有意义，原样回传 null 让页面区分"不可用"和"不适用" */
+        snowluma: d.snowluma.ok === null ? null : d.snowluma.ok,
+        dsh: d.dsh.ok,
+        protocol: d.protocol,
         onebot: {
-          ok: !!o.online, impl: o.impl || 'unknown', app: o.app || '', version: o.version || '',
+          ok: !!o.online, protocol: o.protocol || d.protocol.id,
+          impl: o.impl || 'unknown', app: o.app || '', version: o.version || '',
           selfId: o.selfId ?? null, nickname: o.nickname || '',
           latencyMs: o.latencyMs ?? null, checkedAt: o.checkedAt || '', error: o.error || '',
+          errorKind: o.errorKind || '',
         },
         installed: d.installed, tools: d.mcp.tools, uptime: d.uptime, node: d.node, port: d.port,
       });
