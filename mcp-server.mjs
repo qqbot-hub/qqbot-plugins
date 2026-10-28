@@ -20,6 +20,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createBridge, createOneBot } from './plugins/_bridge.mjs';
+import { dataPath } from './scripts/lib/paths.mjs';
 
 const HUB_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)));
 const DATA_DIR = path.join(HUB_ROOT, 'data');
@@ -70,12 +71,12 @@ function bridge() {
 /* 每次工具调用构造独立 ctx：插件私有配置放在 ctx.cfg */
 const ctxFor = (pluginId) => ({ onebot, bridge: bridge(), config: loadConfig(), cfg: pluginCfg(pluginId) });
 
-/* ---------- 插件加载：data/plugins.json + data/state.json ---------- */
+/* ---------- 插件加载：data/catalog/plugins.json + data/state/plugins.json ---------- */
 async function loadPlugins() {
   let catalog = [];
   let state = {};
-  try { catalog = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'plugins.json'), 'utf8')); } catch {}
-  try { state = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'state.json'), 'utf8')); } catch {}
+  try { catalog = JSON.parse(fs.readFileSync(dataPath('plugins'), 'utf8')); } catch {}
+  try { state = JSON.parse(fs.readFileSync(dataPath('state'), 'utf8')); } catch {}
 
   const tools = [];
   const fireDues = [];

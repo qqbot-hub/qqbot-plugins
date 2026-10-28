@@ -9,10 +9,13 @@
     "doctor": "node scripts/doctor.mjs",
     "register-dsh": "node scripts/register-dsh.mjs",
     "verify": "node scripts/verify-plugins.mjs",
-    "test": "node scripts/verify-plugins.mjs && node scripts/test-bridge.mjs && node scripts/test-hub.mjs",
+    "test": "node scripts/verify-plugins.mjs && node scripts/test-bridge.mjs && node scripts/test-hub.mjs && node scripts/test-installer.mjs",
     "test:bridge": "node scripts/test-bridge.mjs",
     "test:hub": "node scripts/test-hub.mjs",
-    "hub:sync": "node scripts/hub-sync.mjs"
+    "hub:sync": "node scripts/hub-sync.mjs",
+    "install:list": "node scripts/installer.mjs list",
+    "install": "node scripts/installer.mjs run",
+    "test:installer": "node scripts/test-installer.mjs"
   },
   "keywords": [
     "qq",

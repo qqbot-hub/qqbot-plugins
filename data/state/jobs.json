@@ -1,0 +1,1307 @@
+[
+  {
+    "id": "job-1793190177356-6",
+    "target": "plugin",
+    "title": "安装插件",
+    "status": "failed",
+    "startedAt": 1793190177356,
+    "endedAt": 1793190177356,
+    "params": {
+      "id": "no_such_plugin"
+    },
+    "steps": [
+      {
+        "key": "lookup",
+        "title": "查插件清单",
+        "status": "fail",
+        "detail": "清单里没有 no_such_plugin 这个插件",
+        "hint": "把插件 id 传对：node scripts/installer.mjs run plugin --id=clock",
+        "ms": 0
+      },
+      {
+        "key": "file",
+        "title": "校验插件文件",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "config",
+        "title": "检查必填配置",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "record",
+        "title": "写入安装状态",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "mcp",
+        "title": "确认已注册进 DSH",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "verify",
+        "title": "自检",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      }
+    ],
+    "logs": [
+      {
+        "t": 1793190177356,
+        "level": "info",
+        "msg": "开始安装：安装插件"
+      },
+      {
+        "t": 1793190177356,
+        "level": "err",
+        "msg": "[查插件清单] 清单里没有 no_such_plugin 这个插件"
+      },
+      {
+        "t": 1793190177356,
+        "level": "warn",
+        "msg": "下一步：把插件 id 传对：node scripts/installer.mjs run plugin --id=clock"
+      },
+      {
+        "t": 1793190177356,
+        "level": "warn",
+        "msg": "安装中断：这一步没过去，后面的步骤没有执行。"
+      }
+    ]
+  },
+  {
+    "id": "job-1793190177333-5",
+    "target": "plugin",
+    "title": "安装插件",
+    "status": "done",
+    "startedAt": 1793190177333,
+    "endedAt": 1793190177345,
+    "params": {
+      "id": "clock"
+    },
+    "steps": [
+      {
+        "key": "lookup",
+        "title": "查插件清单",
+        "status": "done",
+        "detail": "clock（工具）· 提供 1 个工具：qq_clock",
+        "hint": "把插件 id 传对：node scripts/installer.mjs run plugin --id=clock",
+        "ms": 1
+      },
+      {
+        "key": "file",
+        "title": "校验插件文件",
+        "status": "done",
+        "detail": "1 个工具可加载",
+        "hint": "仓库不完整：git pull 拉最新代码后再装",
+        "ms": 0
+      },
+      {
+        "key": "config",
+        "title": "检查必填配置",
+        "status": "done",
+        "detail": "不需要配置",
+        "hint": "在市场页面打开这个插件的「配置」把必填项填上，再点一次安装",
+        "ms": 1
+      },
+      {
+        "key": "record",
+        "title": "写入安装状态",
+        "status": "done",
+        "detail": "已记录到 data\\state\\plugins.json",
+        "hint": "",
+        "ms": 4
+      },
+      {
+        "key": "mcp",
+        "title": "确认已注册进 DSH",
+        "status": "done",
+        "detail": "MCP 已在 DSH 配置里",
+        "hint": "跑 node scripts/register-dsh.mjs desktop 手动注册，然后完全退出 DSH 再打开",
+        "ms": 2
+      },
+      {
+        "key": "verify",
+        "title": "自检",
+        "status": "done",
+        "detail": "clock 已安装，1 个工具可用",
+        "hint": "",
+        "ms": 4
+      }
+    ],
+    "logs": [
+      {
+        "t": 1793190177333,
+        "level": "info",
+        "msg": "开始安装：安装插件"
+      },
+      {
+        "t": 1793190177334,
+        "level": "info",
+        "msg": "[查插件清单] clock（工具）· 提供 1 个工具：qq_clock"
+      },
+      {
+        "t": 1793190177334,
+        "level": "info",
+        "msg": "[校验插件文件] 1 个工具可加载"
+      },
+      {
+        "t": 1793190177335,
+        "level": "info",
+        "msg": "[检查必填配置] 不需要配置"
+      },
+      {
+        "t": 1793190177339,
+        "level": "info",
+        "msg": "[写入安装状态] 已记录到 data\\state\\plugins.json"
+      },
+      {
+        "t": 1793190177341,
+        "level": "info",
+        "msg": "[确认已注册进 DSH] MCP 已在 DSH 配置里"
+      },
+      {
+        "t": 1793190177345,
+        "level": "info",
+        "msg": "[自检] clock 已安装，1 个工具可用"
+      },
+      {
+        "t": 1793190177345,
+        "level": "info",
+        "msg": "全部步骤完成 ✓"
+      }
+    ]
+  },
+  {
+    "id": "job-1793190177323-4",
+    "target": "plugin",
+    "title": "安装插件",
+    "status": "failed",
+    "startedAt": 1793190177323,
+    "endedAt": 1793190177323,
+    "params": {
+      "id": "not_a_real_plugin_xyz"
+    },
+    "steps": [
+      {
+        "key": "lookup",
+        "title": "查插件清单",
+        "status": "fail",
+        "detail": "清单里没有 not_a_real_plugin_xyz 这个插件",
+        "hint": "把插件 id 传对：node scripts/installer.mjs run plugin --id=clock",
+        "ms": 0
+      },
+      {
+        "key": "file",
+        "title": "校验插件文件",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "config",
+        "title": "检查必填配置",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "record",
+        "title": "写入安装状态",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "mcp",
+        "title": "确认已注册进 DSH",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "verify",
+        "title": "自检",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      }
+    ],
+    "logs": [
+      {
+        "t": 1793190177323,
+        "level": "info",
+        "msg": "开始安装：安装插件"
+      },
+      {
+        "t": 1793190177323,
+        "level": "err",
+        "msg": "[查插件清单] 清单里没有 not_a_real_plugin_xyz 这个插件"
+      },
+      {
+        "t": 1793190177323,
+        "level": "warn",
+        "msg": "下一步：把插件 id 传对：node scripts/installer.mjs run plugin --id=clock"
+      },
+      {
+        "t": 1793190177323,
+        "level": "warn",
+        "msg": "安装中断：这一步没过去，后面的步骤没有执行。"
+      }
+    ]
+  },
+  {
+    "id": "job-1793190177311-3",
+    "target": "plugin",
+    "title": "安装插件",
+    "status": "failed",
+    "startedAt": 1793190177311,
+    "endedAt": 1793190177311,
+    "params": {},
+    "steps": [
+      {
+        "key": "lookup",
+        "title": "查插件清单",
+        "status": "fail",
+        "detail": "没给插件 id",
+        "hint": "把插件 id 传对：node scripts/installer.mjs run plugin --id=clock",
+        "ms": 0
+      },
+      {
+        "key": "file",
+        "title": "校验插件文件",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "config",
+        "title": "检查必填配置",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "record",
+        "title": "写入安装状态",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "mcp",
+        "title": "确认已注册进 DSH",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "verify",
+        "title": "自检",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      }
+    ],
+    "logs": [
+      {
+        "t": 1793190177311,
+        "level": "info",
+        "msg": "开始安装：安装插件"
+      },
+      {
+        "t": 1793190177311,
+        "level": "err",
+        "msg": "[查插件清单] 没给插件 id"
+      },
+      {
+        "t": 1793190177311,
+        "level": "warn",
+        "msg": "下一步：把插件 id 传对：node scripts/installer.mjs run plugin --id=clock"
+      },
+      {
+        "t": 1793190177311,
+        "level": "warn",
+        "msg": "安装中断：这一步没过去，后面的步骤没有执行。"
+      }
+    ]
+  },
+  {
+    "id": "job-1793190177290-1",
+    "target": "node",
+    "title": "Node.js 运行时",
+    "status": "done",
+    "startedAt": 1793190177290,
+    "endedAt": 1793190177308,
+    "params": {},
+    "steps": [
+      {
+        "key": "version",
+        "title": "检查 Node 版本",
+        "status": "done",
+        "detail": "已安装 v22.22.2（C:\\Users\\xj200\\.workbuddy\\binaries\\node\\versions\\22.22.2-6\\node.exe）",
+        "hint": "去 https://nodejs.org/zh-cn/download 装 LTS（20 以上），装完关掉所有终端重开",
+        "ms": 0
+      },
+      {
+        "key": "core",
+        "title": "检查内置模块可用",
+        "status": "done",
+        "detail": "4 个内置模块正常",
+        "hint": "",
+        "ms": 18
+      }
+    ],
+    "logs": [
+      {
+        "t": 1793190177290,
+        "level": "info",
+        "msg": "开始安装：Node.js 运行时"
+      },
+      {
+        "t": 1793190177290,
+        "level": "info",
+        "msg": "[检查 Node 版本] 已安装 v22.22.2（C:\\Users\\xj200\\.workbuddy\\binaries\\node\\versions\\22.22.2-6\\node.exe）"
+      },
+      {
+        "t": 1793190177308,
+        "level": "info",
+        "msg": "[检查内置模块可用] 4 个内置模块正常"
+      },
+      {
+        "t": 1793190177308,
+        "level": "info",
+        "msg": "全部步骤完成 ✓"
+      }
+    ]
+  },
+  {
+    "id": "job-1793190054255-6",
+    "target": "plugin",
+    "title": "安装插件",
+    "status": "failed",
+    "startedAt": 1793190054255,
+    "endedAt": 1793190054256,
+    "params": {
+      "id": "no_such_plugin"
+    },
+    "steps": [
+      {
+        "key": "lookup",
+        "title": "查插件清单",
+        "status": "fail",
+        "detail": "清单里没有 no_such_plugin 这个插件",
+        "hint": "把插件 id 传对：node scripts/installer.mjs run plugin --id=clock",
+        "ms": 1
+      },
+      {
+        "key": "file",
+        "title": "校验插件文件",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "config",
+        "title": "检查必填配置",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "record",
+        "title": "写入安装状态",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "mcp",
+        "title": "确认已注册进 DSH",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "verify",
+        "title": "自检",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      }
+    ],
+    "logs": [
+      {
+        "t": 1793190054255,
+        "level": "info",
+        "msg": "开始安装：安装插件"
+      },
+      {
+        "t": 1793190054256,
+        "level": "err",
+        "msg": "[查插件清单] 清单里没有 no_such_plugin 这个插件"
+      },
+      {
+        "t": 1793190054256,
+        "level": "warn",
+        "msg": "下一步：把插件 id 传对：node scripts/installer.mjs run plugin --id=clock"
+      },
+      {
+        "t": 1793190054256,
+        "level": "warn",
+        "msg": "安装中断：这一步没过去，后面的步骤没有执行。"
+      }
+    ]
+  },
+  {
+    "id": "job-1793190054224-5",
+    "target": "plugin",
+    "title": "安装插件",
+    "status": "done",
+    "startedAt": 1793190054224,
+    "endedAt": 1793190054241,
+    "params": {
+      "id": "clock"
+    },
+    "steps": [
+      {
+        "key": "lookup",
+        "title": "查插件清单",
+        "status": "done",
+        "detail": "clock（工具）· 提供 1 个工具：qq_clock",
+        "hint": "把插件 id 传对：node scripts/installer.mjs run plugin --id=clock",
+        "ms": 1
+      },
+      {
+        "key": "file",
+        "title": "校验插件文件",
+        "status": "done",
+        "detail": "1 个工具可加载",
+        "hint": "仓库不完整：git pull 拉最新代码后再装",
+        "ms": 1
+      },
+      {
+        "key": "config",
+        "title": "检查必填配置",
+        "status": "done",
+        "detail": "不需要配置",
+        "hint": "在市场页面打开这个插件的「配置」把必填项填上，再点一次安装",
+        "ms": 1
+      },
+      {
+        "key": "record",
+        "title": "写入安装状态",
+        "status": "done",
+        "detail": "已记录到 data\\state\\plugins.json",
+        "hint": "",
+        "ms": 7
+      },
+      {
+        "key": "mcp",
+        "title": "确认已注册进 DSH",
+        "status": "done",
+        "detail": "MCP 已在 DSH 配置里",
+        "hint": "跑 node scripts/register-dsh.mjs desktop 手动注册，然后完全退出 DSH 再打开",
+        "ms": 2
+      },
+      {
+        "key": "verify",
+        "title": "自检",
+        "status": "done",
+        "detail": "clock 已安装，1 个工具可用",
+        "hint": "",
+        "ms": 5
+      }
+    ],
+    "logs": [
+      {
+        "t": 1793190054224,
+        "level": "info",
+        "msg": "开始安装：安装插件"
+      },
+      {
+        "t": 1793190054225,
+        "level": "info",
+        "msg": "[查插件清单] clock（工具）· 提供 1 个工具：qq_clock"
+      },
+      {
+        "t": 1793190054226,
+        "level": "info",
+        "msg": "[校验插件文件] 1 个工具可加载"
+      },
+      {
+        "t": 1793190054227,
+        "level": "info",
+        "msg": "[检查必填配置] 不需要配置"
+      },
+      {
+        "t": 1793190054234,
+        "level": "info",
+        "msg": "[写入安装状态] 已记录到 data\\state\\plugins.json"
+      },
+      {
+        "t": 1793190054236,
+        "level": "info",
+        "msg": "[确认已注册进 DSH] MCP 已在 DSH 配置里"
+      },
+      {
+        "t": 1793190054241,
+        "level": "info",
+        "msg": "[自检] clock 已安装，1 个工具可用"
+      },
+      {
+        "t": 1793190054241,
+        "level": "info",
+        "msg": "全部步骤完成 ✓"
+      }
+    ]
+  },
+  {
+    "id": "job-1793190054210-4",
+    "target": "plugin",
+    "title": "安装插件",
+    "status": "failed",
+    "startedAt": 1793190054210,
+    "endedAt": 1793190054211,
+    "params": {
+      "id": "not_a_real_plugin_xyz"
+    },
+    "steps": [
+      {
+        "key": "lookup",
+        "title": "查插件清单",
+        "status": "fail",
+        "detail": "清单里没有 not_a_real_plugin_xyz 这个插件",
+        "hint": "把插件 id 传对：node scripts/installer.mjs run plugin --id=clock",
+        "ms": 1
+      },
+      {
+        "key": "file",
+        "title": "校验插件文件",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "config",
+        "title": "检查必填配置",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "record",
+        "title": "写入安装状态",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "mcp",
+        "title": "确认已注册进 DSH",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "verify",
+        "title": "自检",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      }
+    ],
+    "logs": [
+      {
+        "t": 1793190054210,
+        "level": "info",
+        "msg": "开始安装：安装插件"
+      },
+      {
+        "t": 1793190054211,
+        "level": "err",
+        "msg": "[查插件清单] 清单里没有 not_a_real_plugin_xyz 这个插件"
+      },
+      {
+        "t": 1793190054211,
+        "level": "warn",
+        "msg": "下一步：把插件 id 传对：node scripts/installer.mjs run plugin --id=clock"
+      },
+      {
+        "t": 1793190054211,
+        "level": "warn",
+        "msg": "安装中断：这一步没过去，后面的步骤没有执行。"
+      }
+    ]
+  },
+  {
+    "id": "job-1793190054194-3",
+    "target": "plugin",
+    "title": "安装插件",
+    "status": "failed",
+    "startedAt": 1793190054194,
+    "endedAt": 1793190054194,
+    "params": {},
+    "steps": [
+      {
+        "key": "lookup",
+        "title": "查插件清单",
+        "status": "fail",
+        "detail": "没给插件 id",
+        "hint": "把插件 id 传对：node scripts/installer.mjs run plugin --id=clock",
+        "ms": 0
+      },
+      {
+        "key": "file",
+        "title": "校验插件文件",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "config",
+        "title": "检查必填配置",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "record",
+        "title": "写入安装状态",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "mcp",
+        "title": "确认已注册进 DSH",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "verify",
+        "title": "自检",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      }
+    ],
+    "logs": [
+      {
+        "t": 1793190054194,
+        "level": "info",
+        "msg": "开始安装：安装插件"
+      },
+      {
+        "t": 1793190054194,
+        "level": "err",
+        "msg": "[查插件清单] 没给插件 id"
+      },
+      {
+        "t": 1793190054194,
+        "level": "warn",
+        "msg": "下一步：把插件 id 传对：node scripts/installer.mjs run plugin --id=clock"
+      },
+      {
+        "t": 1793190054194,
+        "level": "warn",
+        "msg": "安装中断：这一步没过去，后面的步骤没有执行。"
+      }
+    ]
+  },
+  {
+    "id": "job-1793190054155-1",
+    "target": "node",
+    "title": "Node.js 运行时",
+    "status": "done",
+    "startedAt": 1793190054155,
+    "endedAt": 1793190054189,
+    "params": {},
+    "steps": [
+      {
+        "key": "version",
+        "title": "检查 Node 版本",
+        "status": "done",
+        "detail": "已安装 v22.22.2（C:\\Users\\xj200\\.workbuddy\\binaries\\node\\versions\\22.22.2-6\\node.exe）",
+        "hint": "去 https://nodejs.org/zh-cn/download 装 LTS（20 以上），装完关掉所有终端重开",
+        "ms": 0
+      },
+      {
+        "key": "core",
+        "title": "检查内置模块可用",
+        "status": "done",
+        "detail": "4 个内置模块正常",
+        "hint": "",
+        "ms": 34
+      }
+    ],
+    "logs": [
+      {
+        "t": 1793190054155,
+        "level": "info",
+        "msg": "开始安装：Node.js 运行时"
+      },
+      {
+        "t": 1793190054155,
+        "level": "info",
+        "msg": "[检查 Node 版本] 已安装 v22.22.2（C:\\Users\\xj200\\.workbuddy\\binaries\\node\\versions\\22.22.2-6\\node.exe）"
+      },
+      {
+        "t": 1793190054189,
+        "level": "info",
+        "msg": "[检查内置模块可用] 4 个内置模块正常"
+      },
+      {
+        "t": 1793190054189,
+        "level": "info",
+        "msg": "全部步骤完成 ✓"
+      }
+    ]
+  },
+  {
+    "id": "job-1793190030354-9rwaz",
+    "target": "node",
+    "title": "Node.js 运行时",
+    "status": "done",
+    "startedAt": 1793190030354,
+    "endedAt": 1793190030377,
+    "params": {},
+    "steps": [
+      {
+        "key": "version",
+        "title": "检查 Node 版本",
+        "status": "done",
+        "detail": "已安装 v22.22.2（C:\\Users\\xj200\\.workbuddy\\binaries\\node\\versions\\22.22.2-6\\node.exe）",
+        "hint": "去 https://nodejs.org/zh-cn/download 装 LTS（20 以上），装完关掉所有终端重开",
+        "ms": 1
+      },
+      {
+        "key": "core",
+        "title": "检查内置模块可用",
+        "status": "done",
+        "detail": "4 个内置模块正常",
+        "hint": "",
+        "ms": 22
+      }
+    ],
+    "logs": [
+      {
+        "t": 1793190030354,
+        "level": "info",
+        "msg": "开始安装：Node.js 运行时"
+      },
+      {
+        "t": 1793190030355,
+        "level": "info",
+        "msg": "[检查 Node 版本] 已安装 v22.22.2（C:\\Users\\xj200\\.workbuddy\\binaries\\node\\versions\\22.22.2-6\\node.exe）"
+      },
+      {
+        "t": 1793190030377,
+        "level": "info",
+        "msg": "[检查内置模块可用] 4 个内置模块正常"
+      },
+      {
+        "t": 1793190030377,
+        "level": "info",
+        "msg": "全部步骤完成 ✓"
+      }
+    ]
+  },
+  {
+    "id": "job-1793190012571-8uprz",
+    "target": "market",
+    "title": "本插件市场",
+    "status": "done",
+    "startedAt": 1793190012571,
+    "endedAt": 1793190012703,
+    "params": {},
+    "steps": [
+      {
+        "key": "self",
+        "title": "确认市场本体完整",
+        "status": "done",
+        "detail": "4 个核心文件就位",
+        "hint": "",
+        "ms": 1
+      },
+      {
+        "key": "register",
+        "title": "把 MCP 注册进 DSH",
+        "status": "done",
+        "detail": "已写入 desktop 的 cordis.patch.yml",
+        "hint": "手动在终端跑：node scripts/register-dsh.mjs desktop，然后完全退出 DSH 再打开",
+        "ms": 131
+      },
+      {
+        "key": "verify",
+        "title": "确认 DSH 侧配置无重复",
+        "status": "done",
+        "detail": "只有 1 份注册，干净",
+        "hint": "完全退出 DSH（不是关窗口，是退出进程）再启动，新会话里搜 mcp__qqbot__ 才能看到工具",
+        "ms": 0
+      },
+      {
+        "key": "restart",
+        "title": "记录生效条件",
+        "status": "done",
+        "detail": "注册已写好；DSH 只在启动时读这份配置，所以最后一步是：完整退出 DSH 再打开",
+        "hint": "",
+        "ms": 0
+      }
+    ],
+    "logs": [
+      {
+        "t": 1793190012571,
+        "level": "info",
+        "msg": "开始安装：本插件市场"
+      },
+      {
+        "t": 1793190012572,
+        "level": "info",
+        "msg": "[确认市场本体完整] 4 个核心文件就位"
+      },
+      {
+        "t": 1793190012684,
+        "level": "cmd",
+        "msg": "已备份原文件 → C:\\Users\\xj200\\.dsh\\profiles\\desktop\\cordis.patch.yml.2026-10-28T12-20-12-677Z.bak"
+      },
+      {
+        "t": 1793190012690,
+        "level": "cmd",
+        "msg": "✅ 已把 qqbot-plugins 注册进 DSH（serverName: qqbot）"
+      },
+      {
+        "t": 1793190012690,
+        "level": "cmd",
+        "msg": "配置文件：C:\\Users\\xj200\\.dsh\\profiles\\desktop\\cordis.patch.yml"
+      },
+      {
+        "t": 1793190012690,
+        "level": "cmd",
+        "msg": "⚠️  preset 和 MCP 只在 DSH 启动时加载——现在请【完整退出 DSH 并重新打开】，"
+      },
+      {
+        "t": 1793190012690,
+        "level": "cmd",
+        "msg": "   然后在 DSH 里搜索 mcp__qqbot__ 验证工具已挂上。"
+      },
+      {
+        "t": 1793190012703,
+        "level": "info",
+        "msg": "[把 MCP 注册进 DSH] 已写入 desktop 的 cordis.patch.yml"
+      },
+      {
+        "t": 1793190012703,
+        "level": "info",
+        "msg": "[确认 DSH 侧配置无重复] 只有 1 份注册，干净"
+      },
+      {
+        "t": 1793190012703,
+        "level": "info",
+        "msg": "[记录生效条件] 注册已写好；DSH 只在启动时读这份配置，所以最后一步是：完整退出 DSH 再打开"
+      },
+      {
+        "t": 1793190012703,
+        "level": "info",
+        "msg": "全部步骤完成 ✓"
+      }
+    ]
+  },
+  {
+    "id": "job-1793189854102-1",
+    "target": "snowluma",
+    "title": "SnowLuma 协议端",
+    "status": "done",
+    "startedAt": 1793189854102,
+    "endedAt": 1793189854168,
+    "params": {},
+    "steps": [
+      {
+        "key": "detect",
+        "title": "找安装位置",
+        "status": "done",
+        "detail": "C:\\SnowLuma",
+        "hint": "去 https://github.com/SnowLuma/SnowLuma 下载发行包，解压到 C:\\SnowLuma 后再点一次安装",
+        "ms": 2
+      },
+      {
+        "key": "running",
+        "title": "检查是否已在运行",
+        "status": "done",
+        "detail": "HTTP 3000 已在监听，不用重启",
+        "hint": "",
+        "ms": 3
+      },
+      {
+        "key": "start",
+        "title": "启动协议端",
+        "status": "skip",
+        "detail": "已在运行",
+        "hint": "双击 C:\\SnowLuma\\launcher.bat 手动启动，看它窗口里报什么错",
+        "ms": 1
+      },
+      {
+        "key": "login",
+        "title": "确认 QQ 登录状态",
+        "status": "done",
+        "detail": "已登录：「白渡」QQ 3996086451",
+        "hint": "在 SnowLuma 的窗口/面板里扫码登录 QQ，登录成功后回来点一次安装（这一步一定需要人工）",
+        "ms": 52
+      },
+      {
+        "key": "verify",
+        "title": "验证 OneBot 接口",
+        "status": "done",
+        "detail": "HTTP 3000 通 · WS 3001 通",
+        "hint": "",
+        "ms": 5
+      }
+    ],
+    "logs": [
+      {
+        "t": 1793189854102,
+        "level": "info",
+        "msg": "开始安装：SnowLuma 协议端"
+      },
+      {
+        "t": 1793189854104,
+        "level": "info",
+        "msg": "安装目录：C:\\SnowLuma"
+      },
+      {
+        "t": 1793189854106,
+        "level": "info",
+        "msg": "[找安装位置] C:\\SnowLuma"
+      },
+      {
+        "t": 1793189854109,
+        "level": "info",
+        "msg": "[检查是否已在运行] HTTP 3000 已在监听，不用重启"
+      },
+      {
+        "t": 1793189854110,
+        "level": "info",
+        "msg": "[启动协议端] 已在运行"
+      },
+      {
+        "t": 1793189854162,
+        "level": "info",
+        "msg": "[确认 QQ 登录状态] 已登录：「白渡」QQ 3996086451"
+      },
+      {
+        "t": 1793189854167,
+        "level": "info",
+        "msg": "[验证 OneBot 接口] HTTP 3000 通 · WS 3001 通"
+      },
+      {
+        "t": 1793189854168,
+        "level": "info",
+        "msg": "全部步骤完成 ✓"
+      }
+    ]
+  },
+  {
+    "id": "job-1793189835441-1",
+    "target": "snowluma",
+    "title": "SnowLuma 协议端",
+    "status": "manual",
+    "startedAt": 1793189835441,
+    "endedAt": 1793189835504,
+    "params": {},
+    "steps": [
+      {
+        "key": "detect",
+        "title": "找安装位置",
+        "status": "done",
+        "detail": "C:\\SnowLuma",
+        "hint": "",
+        "ms": 9
+      },
+      {
+        "key": "running",
+        "title": "检查是否已在运行",
+        "status": "done",
+        "detail": "HTTP 3000 已在监听，不用重启",
+        "hint": "",
+        "ms": 4
+      },
+      {
+        "key": "start",
+        "title": "启动协议端",
+        "status": "skip",
+        "detail": "已在运行",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "login",
+        "title": "确认 QQ 登录状态",
+        "status": "manual",
+        "detail": "协议端在跑，但 QQ 没登录（这是唯一必须你动手的一步）",
+        "hint": "",
+        "ms": 48
+      },
+      {
+        "key": "verify",
+        "title": "验证 OneBot 接口",
+        "status": "blocked",
+        "detail": "",
+        "hint": "",
+        "ms": 0
+      }
+    ],
+    "logs": [
+      {
+        "t": 1793189835441,
+        "level": "info",
+        "msg": "开始安装：SnowLuma 协议端"
+      },
+      {
+        "t": 1793189835445,
+        "level": "info",
+        "msg": "安装目录：C:\\SnowLuma"
+      },
+      {
+        "t": 1793189835451,
+        "level": "info",
+        "msg": "[找安装位置] C:\\SnowLuma"
+      },
+      {
+        "t": 1793189835455,
+        "level": "info",
+        "msg": "[检查是否已在运行] HTTP 3000 已在监听，不用重启"
+      },
+      {
+        "t": 1793189835456,
+        "level": "info",
+        "msg": "[启动协议端] 已在运行"
+      },
+      {
+        "t": 1793189835504,
+        "level": "info",
+        "msg": "[确认 QQ 登录状态] 协议端在跑，但 QQ 没登录（这是唯一必须你动手的一步）"
+      },
+      {
+        "t": 1793189835504,
+        "level": "warn",
+        "msg": "需要你手动做一件事，做完再点一次安装即可继续。"
+      }
+    ]
+  },
+  {
+    "id": "job-1793189826013-1",
+    "target": "plugin",
+    "title": "安装插件",
+    "status": "done",
+    "startedAt": 1793189826013,
+    "endedAt": 1793189826141,
+    "params": {
+      "id": "clock"
+    },
+    "steps": [
+      {
+        "key": "lookup",
+        "title": "查插件清单",
+        "status": "done",
+        "detail": "clock（工具）· 提供 1 个工具：qq_clock",
+        "hint": "",
+        "ms": 1
+      },
+      {
+        "key": "file",
+        "title": "校验插件文件",
+        "status": "done",
+        "detail": "1 个工具可加载",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "config",
+        "title": "检查必填配置",
+        "status": "done",
+        "detail": "不需要配置",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "record",
+        "title": "写入安装状态",
+        "status": "done",
+        "detail": "已记录到 data\\state\\plugins.json",
+        "hint": "",
+        "ms": 4
+      },
+      {
+        "key": "mcp",
+        "title": "确认已注册进 DSH",
+        "status": "done",
+        "detail": "已自动注册到 profile desktop",
+        "hint": "",
+        "ms": 119
+      },
+      {
+        "key": "verify",
+        "title": "自检",
+        "status": "done",
+        "detail": "clock 已安装，1 个工具可用（刚注册了 MCP，需要重启 DSH 才生效）",
+        "hint": "",
+        "ms": 1
+      }
+    ],
+    "logs": [
+      {
+        "t": 1793189826013,
+        "level": "info",
+        "msg": "开始安装：安装插件"
+      },
+      {
+        "t": 1793189826016,
+        "level": "info",
+        "msg": "[查插件清单] clock（工具）· 提供 1 个工具：qq_clock"
+      },
+      {
+        "t": 1793189826016,
+        "level": "info",
+        "msg": "[校验插件文件] 1 个工具可加载"
+      },
+      {
+        "t": 1793189826017,
+        "level": "info",
+        "msg": "[检查必填配置] 不需要配置"
+      },
+      {
+        "t": 1793189826021,
+        "level": "info",
+        "msg": "[写入安装状态] 已记录到 data\\state\\plugins.json"
+      },
+      {
+        "t": 1793189826121,
+        "level": "cmd",
+        "msg": "已备份原文件 → C:\\Users\\xj200\\.dsh\\profiles\\desktop\\cordis.patch.yml.2026-10-28T12-17-06-116Z.bak"
+      },
+      {
+        "t": 1793189826128,
+        "level": "cmd",
+        "msg": "✅ 已把 qqbot-plugins 注册进 DSH（serverName: qqbot）"
+      },
+      {
+        "t": 1793189826128,
+        "level": "cmd",
+        "msg": "配置文件：C:\\Users\\xj200\\.dsh\\profiles\\desktop\\cordis.patch.yml"
+      },
+      {
+        "t": 1793189826129,
+        "level": "cmd",
+        "msg": "⚠️  preset 和 MCP 只在 DSH 启动时加载——现在请【完整退出 DSH 并重新打开】，"
+      },
+      {
+        "t": 1793189826129,
+        "level": "cmd",
+        "msg": "   然后在 DSH 里搜索 mcp__qqbot__ 验证工具已挂上。"
+      },
+      {
+        "t": 1793189826140,
+        "level": "info",
+        "msg": "[确认已注册进 DSH] 已自动注册到 profile desktop"
+      },
+      {
+        "t": 1793189826141,
+        "level": "info",
+        "msg": "[自检] clock 已安装，1 个工具可用（刚注册了 MCP，需要重启 DSH 才生效）"
+      },
+      {
+        "t": 1793189826141,
+        "level": "info",
+        "msg": "全部步骤完成 ✓"
+      }
+    ]
+  },
+  {
+    "id": "job-1793189820572-1",
+    "target": "node",
+    "title": "Node.js 运行时",
+    "status": "done",
+    "startedAt": 1793189820572,
+    "endedAt": 1793189820597,
+    "params": {},
+    "steps": [
+      {
+        "key": "version",
+        "title": "检查 Node 版本",
+        "status": "done",
+        "detail": "已安装 v22.22.2（C:\\Users\\xj200\\.workbuddy\\binaries\\node\\versions\\22.22.2-6\\node.exe）",
+        "hint": "",
+        "ms": 0
+      },
+      {
+        "key": "core",
+        "title": "检查内置模块可用",
+        "status": "done",
+        "detail": "4 个内置模块正常",
+        "hint": "",
+        "ms": 23
+      }
+    ],
+    "logs": [
+      {
+        "t": 1793189820572,
+        "level": "info",
+        "msg": "开始安装：Node.js 运行时"
+      },
+      {
+        "t": 1793189820574,
+        "level": "info",
+        "msg": "[检查 Node 版本] 已安装 v22.22.2（C:\\Users\\xj200\\.workbuddy\\binaries\\node\\versions\\22.22.2-6\\node.exe）"
+      },
+      {
+        "t": 1793189820597,
+        "level": "info",
+        "msg": "[检查内置模块可用] 4 个内置模块正常"
+      },
+      {
+        "t": 1793189820597,
+        "level": "info",
+        "msg": "全部步骤完成 ✓"
+      }
+    ]
+  }
+]

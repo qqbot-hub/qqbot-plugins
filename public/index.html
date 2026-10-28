@@ -428,6 +428,73 @@
   .hub-more { display: flex; justify-content: center; margin-top: 14px; }
   .hub-empty { text-align: center; padding: 34px 10px; color: var(--dim-2); font-size: 12.5px; }
 
+  /* ---------- 部署整条链路 ---------- */
+  .dep-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 16px 0 14px; }
+  .dep-all {
+    border: 0; border-radius: 10px; padding: 10px 20px; font-size: 13px; font-weight: 600; color: #fff; cursor: pointer;
+    background: linear-gradient(150deg, #3f7dff, #2554c7);
+    box-shadow: 0 10px 24px -14px rgba(80,130,255,1), inset 0 1px 0 rgba(255,255,255,.2);
+    transition: .16s;
+  }
+  .dep-all:hover { transform: translateY(-1px); box-shadow: 0 14px 28px -14px rgba(80,130,255,1); }
+  .dep-all[disabled] { opacity: .6; pointer-events: none; }
+  .dep-hint { font-size: 11.5px; color: var(--dim-2); }
+  .dep-list { display: flex; flex-direction: column; gap: 8px; }
+  .dep-row {
+    display: grid; grid-template-columns: 30px 1fr auto auto; gap: 12px; align-items: center;
+    padding: 11px 14px; border-radius: 11px; border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(24,31,45,.72), rgba(15,20,30,.6));
+    transition: border-color .16s;
+  }
+  .dep-row:hover { border-color: rgba(91,140,255,.35); }
+  .dep-idx { font-size: 11px; color: var(--dim-2); font-variant-numeric: tabular-nums; text-align: center; }
+  .dep-main { min-width: 0; }
+  .dep-name { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .dep-name b { font-size: 13px; font-weight: 600; }
+  .dep-role { font-size: 10px; padding: 1px 6px; border-radius: 5px; border: 1px solid var(--line-2); color: var(--dim-2); }
+  .dep-role.req { color: #ffcf7a; border-color: rgba(255,200,90,.35); }
+  .dep-desc { font-size: 11.5px; color: var(--dim); line-height: 1.55; margin-top: 3px; }
+  .dep-ports { display: flex; gap: 5px; font-size: 10.5px; color: var(--dim-2); white-space: nowrap; }
+  .dep-ports span.on { color: #4ade80; }
+  .dep-btn {
+    border: 1px solid rgba(126,155,214,.36); background: rgba(30,42,66,.6); color: #cfe0ff;
+    border-radius: 8px; padding: 7px 13px; font-size: 12px; cursor: pointer; transition: .16s; white-space: nowrap;
+  }
+  .dep-btn:hover { color: #fff; border-color: rgba(120,160,255,.75); background: rgba(91,140,255,.18); }
+  .dep-btn[disabled] { opacity: .5; pointer-events: none; }
+  .dep-state { font-size: 11px; white-space: nowrap; }
+  .dep-state.ok { color: #4ade80; }
+  .dep-state.off { color: var(--dim-2); }
+
+  /* ---------- 安装进度面板 ---------- */
+  .inst-body { padding: 14px 18px; overflow: auto; display: flex; flex-direction: column; gap: 12px; }
+  .inst-steps { display: flex; flex-direction: column; gap: 6px; }
+  .inst-step { display: grid; grid-template-columns: 15px 1fr; gap: 9px; align-items: start; font-size: 12.5px; }
+  .inst-step .dot-s { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; background: #3a4557; }
+  .inst-step.run .dot-s { background: #4d8dff; box-shadow: 0 0 0 3px rgba(77,141,255,.18); animation: pulse 1.2s infinite; }
+  .inst-step.done .dot-s { background: #22c55e; }
+  .inst-step.skip .dot-s { background: #64748b; }
+  .inst-step.manual .dot-s { background: #f59e0b; }
+  .inst-step.fail .dot-s { background: #ef4444; }
+  .inst-step.blocked .dot-s { background: #2a3140; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+  .inst-step .st { font-weight: 600; color: var(--text); }
+  .inst-step .sd { color: var(--dim); font-size: 11.5px; line-height: 1.55; margin-top: 2px; word-break: break-all; }
+  .inst-step .sh { color: #fbbf24; font-size: 11.5px; line-height: 1.55; margin-top: 3px; }
+  .inst-log {
+    margin: 0; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--line);
+    background: rgba(8,12,19,.9); color: #9fb3cc; font: 11.5px/1.65 ui-monospace, Consolas, monospace;
+    max-height: 190px; overflow: auto; white-space: pre-wrap; word-break: break-all;
+  }
+  .inst-log .err { color: #ff8f8f; }
+  .inst-log .warn { color: #ffcc66; }
+  .inst-log .cmd { color: #7f8fa6; }
+  .inst-foot { padding: 0 18px 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .inst-badge { font-size: 11.5px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--dim); }
+  .inst-badge.ok { color: #4ade80; border-color: rgba(74,222,128,.4); background: rgba(74,222,128,.08); }
+  .inst-badge.manual { color: #fbbf24; border-color: rgba(251,191,36,.4); background: rgba(251,191,36,.08); }
+  .inst-badge.fail { color: #ff8f8f; border-color: rgba(255,143,143,.4); background: rgba(255,143,143,.08); }
+
   /* 卡片 */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(286px, 1fr)); gap: 13px; }
   .card {
@@ -722,6 +789,7 @@
     <div class="side-label">导航</div>
     <nav class="nav">
       <a href="#market" data-nav="market"><span class="ic">▦</span>插件市场</a>
+      <a href="#deploy" data-nav="deploy"><span class="ic">⤓</span>部署链路</a>
       <a href="#hub" data-nav="hub"><span class="ic">⊞</span>全网插件源</a>
       <a href="#stack" data-nav="stack"><span class="ic">⇢</span>链路位置</a>
       <a href="#prov" data-nav="prov"><span class="ic">✓</span>来源与实测</a>
@@ -808,6 +876,23 @@
           插件跑在本市场的进程里，不需要往 qq-bridge 目录塞任何文件；
           DSH 启动时通过标准 MCP 协议加载，与官方 <code>mcp__snowluma__</code> 并列共存、互不干扰。
         </p>
+      </section>
+
+      <section class="sec" id="deploy">
+        <div class="sec-head">
+          <h2>部署整条链路</h2>
+          <span class="hub-badge">点一下就装到本机</span>
+          <span class="ln"></span>
+        </div>
+        <p class="sec-sub">
+          这是这个站真正值钱的地方：<b>你只需要部署这一个网站</b>，剩下每一环（协议端、桥接、DSH 注册、插件）都从这里点。
+          每一步都会<b>真的检查、下载、启动、自检</b>；能自动的全自动，只有「登录 QQ」「装桌面程序」这种必须你本人动手的会停下来说明原因。
+        </p>
+        <div class="dep-top">
+          <button class="dep-all" id="depAll" onclick="deployAll()">一键部署整条链路</button>
+          <span class="dep-hint" id="depHint">按依赖顺序逐个装；遇到需要人工的那一步会停下并告诉你做什么</span>
+        </div>
+        <div class="dep-list" id="depList"></div>
       </section>
 
       <section class="sec" id="market">
@@ -1219,6 +1304,236 @@ function render() {
 }
 
 /* 配套桌面程序（非 MCP 插件，点按钮直接下载） */
+/* ============ 部署整条链路 ============ */
+let COMPS = [];
+const DEP_ROLE = { prereq: '前置', protocol: '协议端', host: '宿主', bridge: '桥接', market: '市场', companion: '配套' };
+
+async function loadComponents() {
+  try {
+    const r = await (await fetch('/api/components')).json();
+    COMPS = (r.components || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+    renderDeploy();
+  } catch (e) {
+    const box = $('#depList');
+    if (box) box.innerHTML = `<div class="hub-empty">读不到组件清单：${esc(e.message)}</div>`;
+  }
+}
+
+function renderDeploy() {
+  const box = $('#depList');
+  if (!box) return;
+  box.innerHTML = COMPS.map((c, i) => {
+    const ports = (c.ports || []).map((p) => `<span class="${c.portsOpen && c.portsOpen[p] ? 'on' : ''}">${p}</span>`).join(' · ');
+    const st = c.running == null
+      ? ''
+      : (c.running ? '<span class="dep-state ok">● 运行中</span>' : '<span class="dep-state off">○ 未运行</span>');
+    return `<div class="dep-row">
+      <div class="dep-idx">${i + 1}</div>
+      <div class="dep-main">
+        <div class="dep-name"><b>${esc(c.name)}</b>
+          <span class="dep-role ${c.required ? 'req' : ''}">${esc(DEP_ROLE[c.role] || c.role)}${c.required ? ' · 必需' : ''}</span>
+          ${st}
+        </div>
+        <div class="dep-desc">${esc(c.desc || '')}</div>
+      </div>
+      <div class="dep-ports">${ports}</div>
+      <button class="dep-btn" data-recipe="${esc(c.recipe || c.id)}" data-name="${esc(c.name)}">部署</button>
+    </div>`;
+  }).join('');
+}
+
+/* 事件委托：组件名里有引号/& 也不会把 onclick 撑破 */
+document.addEventListener('click', (e) => {
+  const b = e.target.closest && e.target.closest('.dep-btn[data-recipe]');
+  if (b) deployOne(b.dataset.recipe, b.dataset.name);
+});
+
+function deployOne(recipe, name) {
+  return startInstall(recipe, {}, name);
+}
+
+async function deployAll() {
+  const btn = $('#depAll');
+  if (btn) btn.disabled = true;
+  const list = COMPS.filter((c) => c.recipe);
+  let stopped = '';
+  for (const c of list) {
+    const status = await deployOne(c.recipe, c.name);
+    if (status !== 'done') { stopped = c.name; break; }
+  }
+  if (btn) btn.disabled = false;
+  loadComponents();
+  if (stopped) toast(`停在「${stopped}」：那一步需要你手动处理，做完再点一次即可`, 'warn');
+  else toast('整条链路已就绪', 'ok');
+}
+
+/* ============ 安装进度面板（SSE 实时日志） ============ */
+const INST = { es: null, cur: null, resolve: null, logCount: 0 };
+
+function instStatusText(status) {
+  return { running: '进行中…', done: '已完成', failed: '失败', manual: '需要你动手', blocked: '' }[status] || status;
+}
+
+function openInstallPanel(title) {
+  let d = document.getElementById('instModal');
+  if (!d) {
+    d = document.createElement('div');
+    d.className = 'modal';
+    d.id = 'instModal';
+    d.innerHTML = `<div class="modal-in" style="width:min(760px,94vw);max-height:88vh">
+      <div class="modal-head">
+        <b id="instTitle">安装</b>
+        <span class="inst-badge" id="instState">准备中</span>
+        <button class="x" style="margin-left:auto;background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer;padding:2px 8px" title="关闭" onclick="document.getElementById('instModal').remove()">×</button>
+      </div>
+      <div class="inst-body">
+        <div class="inst-steps" id="instSteps"></div>
+        <pre class="inst-log" id="instLog"></pre>
+      </div>
+      <div class="inst-foot" id="instFoot"></div>
+    </div>`;
+    d.addEventListener('click', (e) => { if (e.target === d) d.remove(); });
+    document.body.appendChild(d);
+  }
+  $('#instTitle').textContent = '安装 · ' + title;
+  $('#instState').className = 'inst-badge';
+  $('#instState').textContent = '准备中';
+  $('#instSteps').innerHTML = '<div class="inst-step run"><span class="dot-s"></span><div><div class="st">准备…</div></div></div>';
+  $('#instLog').textContent = '';
+  $('#instFoot').innerHTML = '';
+  return d;
+}
+
+function ensureInstallStream() {
+  if (INST.es) return INST.es;
+  INST.es = new EventSource('/api/install/events');
+  INST.es.onmessage = (e) => {
+    let ev;
+    try { ev = JSON.parse(e.data); } catch { return; }
+    if (!INST.cur || ev.jobId !== INST.cur.id) return;
+    applyInstallEvent(ev.type, ev.payload);
+  };
+  return INST.es;
+}
+
+function applyInstallEvent(type, p) {
+  if (type === 'step') {
+    const row = document.querySelector(`#instSteps [data-k="${p.key}"]`);
+    if (row) {
+      row.className = 'inst-step ' + (p.status === 'running' ? 'run' : p.status);
+      const sd = row.querySelector('.sd');
+      if (sd && p.detail) sd.textContent = p.detail;
+      const sh = row.querySelector('.sh');
+      if (sh) {
+        const show = !!p.hint && p.status !== 'done' && p.status !== 'skip' && p.status !== 'running';
+        sh.textContent = show ? '→ ' + p.hint : '';
+        sh.style.display = show ? 'block' : 'none';
+      }
+    }
+  } else if (type === 'log') {
+    const box = $('#instLog');
+    if (!box) return;
+    const div = document.createElement('div');
+    if (p.level === 'err') div.className = 'err';
+    else if (p.level === 'warn') div.className = 'warn';
+    else if (p.level === 'cmd') div.className = 'cmd';
+    div.textContent = p.msg;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  } else if (type === 'done' || type === 'fail' || type === 'manual') {
+    finishInstall(type === 'done' ? 'done' : type);
+  }
+}
+
+function renderInstallSteps(steps) {
+  const box = $('#instSteps');
+  if (!box) return;
+  box.innerHTML = steps.map((s) => {
+    const showHint = !!s.hint && s.status !== 'done' && s.status !== 'skip';
+    return `<div class="inst-step ${s.status === 'pending' ? '' : s.status === 'running' ? 'run' : s.status}" data-k="${esc(s.key)}">
+      <span class="dot-s"></span>
+      <div><div class="st">${esc(s.title || s.key)}</div>
+        <div class="sd">${esc(s.detail || '')}</div>
+        <div class="sh" style="${showHint ? '' : 'display:none'}">${showHint ? '→ ' + esc(s.hint) : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function finishInstall(status) {
+  const cur = INST.cur;
+  if (!cur || cur.finished) return;
+  cur.finished = true;
+  const badge = $('#instState');
+  if (badge) {
+    badge.className = 'inst-badge ' + (status === 'done' ? 'ok' : status === 'failed' ? 'fail' : 'manual');
+    badge.textContent = instStatusText(status);
+  }
+  const foot = $('#instFoot');
+  if (foot) {
+    const tip = status === 'done'
+      ? '这一步真正装上了，可以继续下一步。'
+      : status === 'manual'
+        ? '按上面黄色提示做完，再点一次安装就能接着往下走。'
+        : '这一步没过去，后面的步骤没有执行；把红色日志发出来我帮你看。';
+    foot.innerHTML = `<span class="dep-hint" style="flex:1">${esc(tip)}</span>
+      <button class="dep-btn" onclick="document.getElementById('instModal').remove()">关闭</button>`;
+  }
+  const r = INST.resolve;
+  INST.resolve = null;
+  if (r) r(status);
+  loadComponents();
+  load();
+}
+
+async function startInstall(target, params, title) {
+  openInstallPanel(title || target);
+  ensureInstallStream();
+  let res;
+  try {
+    res = await (await fetch('/api/install', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ target, params: params || {} }),
+    })).json();
+  } catch (e) {
+    finishInstall('failed');
+    return 'failed';
+  }
+  if (!res.ok) {
+    $('#instSteps').innerHTML = `<div class="inst-step fail"><span class="dot-s"></span><div><div class="st">起不来任务</div><div class="sd">${esc(res.error || '')}</div></div></div>`;
+    finishInstall('failed');
+    return 'failed';
+  }
+  const cur = { id: res.jobId, finished: false };
+  INST.cur = cur;
+  /* 拉一次骨架（步骤标题），SSE 之后只负责增量更新 */
+  try {
+    const jr = await (await fetch('/api/install/job?id=' + encodeURIComponent(res.jobId))).json();
+    if (jr.job) {
+      renderInstallSteps(jr.job.steps || []);
+      if (['done', 'failed', 'manual'].includes(jr.job.status)) finishInstall(jr.job.status === 'done' ? 'done' : jr.job.status);
+    }
+  } catch { /* 骨架没拿到也不影响，SSE 会补 */ }
+  return new Promise((resolve) => {
+    INST.resolve = resolve;
+    /* 兜底轮询：SSE 丢事件时不至于卡在「进行中」 */
+    let ticks = 0;
+    const timer = setInterval(async () => {
+      ticks++;
+      if (cur.finished || ticks > 300) { clearInterval(timer); return; }
+      try {
+        const jr = await (await fetch('/api/install/job?id=' + encodeURIComponent(res.jobId))).json();
+        if (!jr.job) return;
+        renderInstallSteps(jr.job.steps || []);
+        if (['done', 'failed', 'manual'].includes(jr.job.status)) {
+          clearInterval(timer);
+          finishInstall(jr.job.status === 'done' ? 'done' : jr.job.status);
+        }
+      } catch { /* 网络抖动，下一轮再说 */ }
+    }, 1000);
+  });
+}
+
 /* 调音台：在当前页内嵌打开（不用另开标签，预览面板/iframe 环境也能用） */
 function openLab(ev) {
   if (ev) ev.preventDefault();
@@ -1299,7 +1614,7 @@ function card(p, i) {
   const btns = p.installed
     ? `<button onclick="op('toggle','${p.id}',{enabled:${!p.enabled}})">${p.enabled ? '停用' : '启用'}</button>
        <button class="ghost" onclick="op('uninstall','${p.id}')">卸载</button>`
-    : `<button class="pri" onclick="op('install','${p.id}')">安装</button>`;
+    : `<button class="pri" onclick="startInstall('plugin',{id:'${p.id}'},'${esc(p.name)}')">安装</button>`;
   const gear = p.hasSettings
     ? `<button class="gear" onclick="openPluginCfg('${p.id}')" title="配置这个插件">⚙ 配置</button>` : '';
   return `<article class="card" style="--cat:${color};animation-delay:${Math.min(i, 16) * 16}ms">
@@ -1585,11 +1900,12 @@ if (new URLSearchParams(location.search).has('noreveal')) {
   document.querySelectorAll('.reveal').forEach((el) => el.classList.add('in'));
 }
 const __only = new URLSearchParams(location.search).get('only');
-if (__only) document.querySelectorAll('section.sec').forEach((s) => { if (s.id !== __only) s.style.display = 'none'; });
+if (__only) document.querySelectorAll('section.sec, section.hero, .topbar').forEach((s) => { if (s.id !== __only) s.style.display = 'none'; });
 countUp();
 load().then(() => { spy(); });
 loadStars();
 loadHub(false);
+loadComponents();
 /* 心跳：每 20 秒刷新一次侧栏状态；页面切回前台时立刻补一次 */
 setInterval(() => { if (!document.hidden) loadHealth(); }, 20000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) loadHealth(); });

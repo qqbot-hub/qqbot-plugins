@@ -14,6 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createOneBot, classifyError } from '../plugins/_bridge.mjs';
+import { dataPath } from './lib/paths.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let cfg = {};
@@ -50,8 +51,8 @@ const [dsh, http3000, ws3001, bridge3100, hb] = await Promise.all([
 
 let installed = 0, tools = 0;
 try {
-  const cat = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'plugins.json'), 'utf8'));
-  const st = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'state.json'), 'utf8'));
+  const cat = JSON.parse(fs.readFileSync(dataPath('plugins'), 'utf8'));
+  const st = JSON.parse(fs.readFileSync(dataPath('state'), 'utf8'));
   for (const p of cat) if (st[p.id]?.installed) { installed++; tools += (p.tools || []).length; }
 } catch {}
 

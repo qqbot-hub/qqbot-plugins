@@ -17,10 +17,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { httpJson, rateHint } from './lib/net.mjs';
+import { dataPath, ROOT as DATA_ROOT } from './lib/paths.mjs';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const SOURCES_FILE = path.join(ROOT, 'data', 'sources.json');
-const OUT_FILE = path.join(ROOT, 'data', 'hub.json');
+const ROOT = DATA_ROOT;
+const SOURCES_FILE = dataPath('sources');
+const OUT_FILE = dataPath('hub');
 
 const ARG = process.argv.slice(2);
 const JSON_OUT = ARG.includes('--json');

@@ -64,6 +64,10 @@ QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
 
 ## 快速开始
 
+**推荐方式（一键部署）**：启动本站后，打开侧栏「部署链路」——协议端、桥接、DSH 注册、插件，
+每一环都能在那里点「部署」，真的检查、下载、启动、自检；能自动的全自动，只有「登录 QQ」
+这种必须你动手的会停下来告诉你做什么。详见 [docs/INSTALL.md](docs/INSTALL.md)。
+
 ```bash
 # 0. 前置：已按教程跑通 SnowLuma + qq-bridge + DSH（DSH 里发一句话有回复）
 
@@ -71,7 +75,7 @@ QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
 git clone https://github.com/qqbot-hub/qqbot-plugins.git
 cd qqbot-plugins
 node server.js
-# 浏览器打开 http://127.0.0.1:3210
+# 浏览器打开 http://127.0.0.1:3210 → 侧栏「部署链路」点一键部署
 
 # 2. 填连接渠道（推荐在网页里点「连接设置」；也可以复制配置文件手改）
 copy config.example.json config.json
@@ -231,15 +235,22 @@ export default {
 
 ```
 qqbot-plugins/
-├─ server.js            市场服务端（登录/API/体检/搭桥，零依赖）
+├─ server.js            市场服务端（登录/API/体检/搭桥/安装任务，零依赖）
 ├─ mcp-server.mjs       MCP stdio 服务器（暴露插件工具给 DSH）
-├─ plugins/             43 个插件（每个 .mjs 自包含）
-├─ data/plugins.json    插件目录数据
+├─ plugins/             46 个插件（每个 .mjs 自包含）
+├─ recipes/             每个可安装对象一份安装脚本（协议端/桥/DSH/插件…）
+├─ data/
+│  ├─ catalog/          清单：plugins（插件）/ companions（配套）/ components（链路组件）
+│  ├─ sources/          外部插件源定义
+│  ├─ snapshots/        外部源抓取快照
+│  └─ state/            安装状态 + 安装任务记录
 ├─ scripts/
+│  ├─ installer.mjs     一键安装引擎（分步执行 + SSE 实时日志）
+│  ├─ lib/paths.mjs     所有数据文件的唯一路径出口
 │  ├─ register-dsh.mjs  写 cordis.patch.yml 搭桥（自动备份/幂等/--remove）
-│  └─ doctor.mjs        四关体检（DSH/SnowLuma/bridge/工具数）
+│  └─ doctor.mjs        链路体检（DSH/SnowLuma/bridge/工具数）
 ├─ public/              市场前端（原生 HTML/JS，暗色主题）
-└─ docs/                搭桥原理 & 插件开发规范
+└─ docs/                部署/搭桥/插件规范/全网源 文档
 ```
 
 ## 常见问题

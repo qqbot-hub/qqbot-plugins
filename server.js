@@ -34,7 +34,22 @@ let cfg = { password: '', port: 3210, snowluma: {}, dsh: {}, bridge: {}, plugins
 try { cfg = Object.assign(cfg, JSON.parse(read('config.json'))); } catch (e) { /* 首次运行用默认值 */ }
 const PORT = Number(process.env.PORT || cfg.port || 3210);
 const PASSWORD = String(cfg.password || '');
-const STATE_FILE = path.join(ROOT, 'data', 'state.json');
+
+/* ---------- 数据文件定位 ----------
+ * 目录结构见 scripts/lib/paths.mjs：catalog/ 放清单、sources/ 放源、snapshots/ 放抓取快照、
+ * state/ 放安装状态。老的扁平位置作为回退，保证升级上来的部署不会读空。
+ */
+function pickData(...rels) {
+  for (const rel of rels) {
+    const p = path.join(ROOT, rel);
+    if (fs.existsSync(p)) return p;
+  }
+  return path.join(ROOT, rels[0]);
+}
+const PLUGINS_FILE = pickData(path.join('data', 'catalog', 'plugins.json'), path.join('data', 'plugins.json'));
+const COMPANIONS_FILE = pickData(path.join('data', 'catalog', 'companions.json'));
+const COMPONENTS_FILE = pickData(path.join('data', 'catalog', 'components.json'));
+const STATE_FILE = pickData(path.join('data', 'state', 'plugins.json'), path.join('data', 'state.json'));
 
 function saveCfg() {
   try {
@@ -61,9 +76,20 @@ function authed(req) {
   return !!(m && m[1] === QM_TOKEN);
 }
 
-/* ---------- 插件数据 ---------- */
+/* ---------- 插件数据 ----------
+ * 两个清单合并给页面用：
+ *   catalog/plugins.json     能装进机器人、走 MCP 暴露工具的插件
+ *   catalog/companions.json  独立运行的配套程序（桌面宠物 / TTS 引擎 / 调音台）
+ * 前端靠 external:true 区分，渲染成「配套工具与桌面程序」。
+ */
+function readJsonFile(file) {
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return []; }
+}
 function catalog() {
-  try { return JSON.parse(read(path.join('data', 'plugins.json'))); } catch { return []; }
+  return readJsonFile(PLUGINS_FILE).concat(readJsonFile(COMPANIONS_FILE));
+}
+function components() {
+  return readJsonFile(COMPONENTS_FILE);
 }
 function currentPlugins() {
   return catalog().map((p) => {
@@ -345,7 +371,7 @@ function proxyTo(target, req, res, stripPrefix = '') {
 }
 
 /* ---------- 全网插件源（聚合目录） ---------- */
-const HUB_FILE = path.join(ROOT, 'data', 'hub.json');
+const HUB_FILE = pickData(path.join('data', 'snapshots', 'hub.json'), path.join('data', 'hub.json'));
 const HUB_STATE = { syncing: false, startedAt: 0, lastError: '', lastResult: null };
 
 function hubSnapshot() {
@@ -489,6 +515,50 @@ function performOp(action, id, extra) {
   return { ok: false, error: '未知操作' };
 }
 
+/* ---------- 一键安装：把 installer.mjs 的步骤实时推给页面 ---------- */
+let installerPromise = null;
+function installer() {
+  if (!installerPromise) {
+    installerPromise = import(pathToFileURL(path.join(ROOT, 'scripts', 'installer.mjs')).href);
+  }
+  return installerPromise;
+}
+
+/* SSE 订阅者：所有安装任务的日志都从这里流出去，页面按 jobId 过滤 */
+const INSTALL_SUBS = new Set();
+function broadcastInstall(ev) {
+  const line = 'data: ' + JSON.stringify(ev) + '\n\n';
+  for (const r of INSTALL_SUBS) { try { r.write(line); } catch { INSTALL_SUBS.delete(r); } }
+}
+
+/* done/fail 事件里的 job 很大（带全部步骤和日志），只留页面需要的字段 */
+function slimEvent(type, p) {
+  if (type === 'log' || type === 'step' || type === 'start') return p;
+  return p ? { id: p.id, status: p.status, title: p.title } : {};
+}
+
+async function startInstallJob(target, params) {
+  const mod = await installer();
+  const jobId = 'job-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+  mod.runInstall(target, {
+    params: params || {},
+    jobId,
+    onEvent: (type, payload) => broadcastInstall({ jobId, type, payload: slimEvent(type, payload) }),
+  }).catch((e) => broadcastInstall({ jobId, type: 'fail', payload: { id: jobId, status: 'failed', error: e.message } }));
+  return jobId;
+}
+
+/* 组件的实时状态：端口开没开，页面用来显示「已运行 / 未安装」 */
+async function componentsWithState() {
+  return Promise.all(components().map(async (c) => {
+    const ports = c.ports || [];
+    const portsOpen = {};
+    await Promise.all(ports.map(async (n) => { portsOpen[n] = await tcpProbe('127.0.0.1', n, 700); }));
+    const running = ports.length ? Object.values(portsOpen).some(Boolean) : null;
+    return Object.assign({}, c, { portsOpen, running });
+  }));
+}
+
 /* ---------- 静态文件 ---------- */
 const STATIC = { '/': 'public/index.html', '/login': 'public/login.html' };
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml', '.ico': 'image/x-icon' };
@@ -555,6 +625,53 @@ const server = http.createServer(async (req, res) => {
     }
     if (method === 'GET' && p === '/api/doctor') return sendJson(res, 200, { ok: true, ...(await doctor()) });
     if (method === 'GET' && p === '/api/tools') return sendJson(res, 200, { ok: true, tools: await installedTools() });
+
+    /* ---------- 链路组件与一键安装 ---------- */
+    if (method === 'GET' && p === '/api/components') {
+      return sendJson(res, 200, { ok: true, components: await componentsWithState() });
+    }
+    if (method === 'GET' && p === '/api/install/recipes') {
+      const mod = await installer();
+      const ids = mod.recipeIds();
+      const list = [];
+      for (const id of ids) {
+        const r = await mod.loadRecipe(id).catch(() => null);
+        if (r) list.push({ id: r.id || id, title: r.title || id, kind: r.kind || '', steps: r.steps.length });
+      }
+      return sendJson(res, 200, { ok: true, recipes: list });
+    }
+    if (method === 'GET' && p === '/api/install/jobs') {
+      const mod = await installer();
+      return sendJson(res, 200, { ok: true, jobs: mod.recentJobs() });
+    }
+    if (method === 'GET' && p === '/api/install/job') {
+      const id = new URL(req.url, 'http://x').searchParams.get('id') || '';
+      const mod = await installer();
+      const job = mod.getJob(id);
+      return job ? sendJson(res, 200, { ok: true, job }) : sendJson(res, 404, { ok: false, error: '没有这个任务' });
+    }
+    /* SSE：安装日志实时流（页面 EventSource 连这个） */
+    if (method === 'GET' && p === '/api/install/events') {
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream; charset=utf-8',
+        'Cache-Control': 'no-cache, no-transform',
+        Connection: 'keep-alive',
+        'X-Accel-Buffering': 'no',
+      });
+      res.write(': connected\n\n');
+      INSTALL_SUBS.add(res);
+      const ping = setInterval(() => { try { res.write(': ping\n\n'); } catch { /* 连接已断 */ } }, 20000);
+      req.on('close', () => { clearInterval(ping); INSTALL_SUBS.delete(res); });
+      return;
+    }
+    if (method === 'POST' && p === '/api/install') {
+      const rawInstall = await readBody(req);
+      const body = (() => { try { return JSON.parse(rawInstall || '{}'); } catch { return {}; } })();
+      const target = String(body.target || '').trim();
+      if (!target) return sendJson(res, 400, { ok: false, error: '缺少 target（要装什么）' });
+      const jobId = await startInstallJob(target, body.params || {});
+      return sendJson(res, 200, { ok: true, jobId, target });
+    }
 
     /* 全网插件源：读快照 + 过滤/分页；POST 触发一次重新抓取（后台跑，带冷却） */
     if (method === 'GET' && p === '/api/hub') {

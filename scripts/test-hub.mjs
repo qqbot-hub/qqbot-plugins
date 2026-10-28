@@ -13,6 +13,7 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { dataPath } from './lib/paths.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = 3222;
@@ -41,8 +42,8 @@ async function waitForServer(child, seconds = 15) {
 }
 
 async function main() {
-  if (!fs.existsSync(path.join(ROOT, 'data', 'hub.json'))) {
-    console.log('❌ data/hub.json 不存在：先跑一次 node scripts/hub-sync.mjs');
+  if (!fs.existsSync(dataPath('hub'))) {
+    console.log('❌ 没有抓取快照（data/snapshots/hub.json）：先跑一次 node scripts/hub-sync.mjs');
     process.exit(1);
   }
 

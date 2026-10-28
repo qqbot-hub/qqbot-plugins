@@ -21,6 +21,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { wrapOnebot } from '../plugins/_bridge.mjs';
+import { dataPath } from './lib/paths.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const JSON_OUT = process.argv.includes('--json');
@@ -127,7 +128,7 @@ async function main() {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'qqbot-verify-'));
   process.env.QQBOT_STORE = tmp;
 
-  const catalog = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'plugins.json'), 'utf8'));
+  const catalog = JSON.parse(fs.readFileSync(dataPath('plugins'), 'utf8'));
   let config = {};
   try { config = JSON.parse(fs.readFileSync(path.join(ROOT, 'config.json'), 'utf8')); } catch {}
 

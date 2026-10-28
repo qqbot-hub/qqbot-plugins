@@ -1,0 +1,174 @@
+# 部署整条链路
+
+> 一句话：**你只需要部署这一个网站**，剩下每一环（协议端 → 桥接 → DSH 注册 → 插件）都在市场页面里点一下就装。
+
+这份文档讲三件事：这条链路有哪些环、每一环由哪份脚本负责、哪些步骤必须你本人动手。
+
+---
+
+## 一、链路全景
+
+```
+QQ 账号
+  │  ① 协议端（SnowLuma / NapCat）  把 QQ 变成 OneBot v11 接口   HTTP 3000 · WS 3001
+  ▼
+OneBot HTTP API
+  │  ② 适配层 plugins/_bridge.mjs    吃掉各家实现差异，统一动作名与错误分类
+  ▼
+本插件市场 mcp-server.mjs（stdio）
+  │  ③ MCP 协议                     把插件工具暴露给 AI
+  ▼
+DSH（DeepSeek Harness）              AI 大脑，决定调哪个工具      HTTP 3080
+  │  ④ 可选：qq-bridge               人格 / 记忆 / 多角色接到 QQ    HTTP 3100
+  ▼
+群里的实际效果：发消息、禁言、记账、画图、语音……
+```
+
+市场自己（3210）不属于数据流，它是**分发与控制台**：装什么、装到哪、装没装成，都从这里管。
+
+---
+
+## 二、每一环是谁、谁负责装
+
+| # | 组件 | 端口 | 安装脚本 | 能全自动吗 | 必须人工的部分 |
+|---|---|---|---|---|---|
+| 0 | Node.js 运行时 | — | `recipes/node.mjs` | 只能检查 | 官方安装包要你点下一步 |
+| 1 | SnowLuma 协议端 | 3000 / 3001 | `recipes/snowluma.mjs` | 检测 + 启动 + 验登录 | **扫码/密码登录 QQ**（协议端设计如此） |
+| 1' | NapCat 协议端（替代） | 3000 / 3001 | `recipes/napcat.mjs` | 下载 + 解压全自动 | 在它面板里登录 QQ、开 HTTP/WS |
+| 2 | DSH（宿主） | 3080 | `recipes/dsh.mjs` | 检测 + 记录 profile | 桌面程序，装完要手动启动并登录 |
+| 3 | qq-bridge 桥接（可选） | 3100 | `recipes/qqbridge.mjs` | 检测 + 启动 | 首次要填 QQ 号与协议端地址 |
+| 4 | 本插件市场 | 3210 | `recipes/market.mjs` | 写 MCP 注册全自动 | 装完要**完整退出 DSH 再打开**（配置只在启动时读） |
+| 5 | 调音台（可选） | 3120 | `recipes/voicelab.mjs` | 检测 + 启动 + 验接口 | 无 |
+| — | 任意插件 | — | `recipes/plugin.mjs` | 校验 + 落盘 + 注册 MCP 全自动 | 插件声明了必填配置时，要你去表单里填 |
+
+「必需」判定见 `data/catalog/components.json` 的 `required` 字段；协议端只要装一个（SnowLuma 或 NapCat）。
+
+---
+
+## 三、点「部署」之后到底发生了什么
+
+引擎是 `scripts/installer.mjs`，每份 recipe 是一串步骤，每步返回四种结果之一：
+
+| 结果 | 含义 | 引擎动作 |
+|---|---|---|
+| `ok` | 这步过了 | 继续下一步 |
+| `skip` | 不需要做（已经满足） | 继续下一步 |
+| `manual` | **必须你动手** | 停下，把 hint 显示出来；你做完再点一次，已完成的步骤会自己 skip |
+| `fail` | 这步没过去 | 停下，后续步骤标 `blocked`（不会带着半成品继续装） |
+
+真实例子（`node scripts/installer.mjs run plugin --id=clock`）：
+
+```
+[detect]  查插件清单 → 时钟（工具）· 提供 1 个工具：qq_clock
+[file]    校验 plugins/clock.mjs → 1 个工具可加载
+[config]  检查必填配置 → 不需要配置
+[record]  写入安装状态 → data/state/plugins.json
+[mcp]     确认已注册进 DSH → 已自动注册到 profile desktop
+[verify]  自检 → clock 已安装，1 个工具可用
+```
+
+---
+
+## 四、页面上的三个入口
+
+1. **部署整条链路**（侧栏「部署链路」）
+   列出全部组件与实时端口状态；顶部「一键部署整条链路」按 `order` 顺序串起来跑，遇到 `manual` 就停在那一环并告诉你做什么。
+2. **插件卡片的「安装」**
+   走 `recipes/plugin.mjs`：校验 → 查配置 → 落盘 → 注册 MCP → 自检。装完 DSH 会多出 `mcp__qqbot__*` 工具。
+3. **安装面板**
+   弹窗里逐步显示状态、detail 与日志（`/api/install/events` 的 SSE 实时流）；失败时红色日志 + 黄色 hint，可整段复制。
+
+---
+
+## 五、数据与代码的目录约定
+
+```
+data/
+  catalog/
+    plugins.json      46 个自有插件（能装进机器人、走 MCP 暴露工具）
+    companions.json   3 个配套程序（桌面宠物 / TTS 引擎 / 调音台，独立运行）
+    components.json   链路上的运行时组件（协议端 / 桥 / DSH / 市场本体），带 recipe 映射
+  sources/
+    external.json     外部插件源定义（GitHub 查询式，加源只加一行）
+  snapshots/
+    hub.json          外部源抓取快照（离线可看，带 fetchedAt）
+  state/
+    plugins.json      插件安装状态（installed / enabled / installedAt）
+    jobs.json         最近 20 次安装任务（含步骤与尾部日志）
+
+recipes/              每个可安装对象一份脚本，一份 = 一个组件的全部安装知识
+scripts/
+  installer.mjs       安装引擎（CLI + 库 + SSE 事件源）
+  lib/paths.mjs       所有数据文件的唯一路径出口（新结构优先、旧位置回退）
+```
+
+所有路径都从 `scripts/lib/paths.mjs` 取，不再各处拼字符串。
+
+---
+
+## 六、写一份新 recipe
+
+```js
+// recipes/xxx.mjs
+export default {
+  id: 'xxx',
+  title: '显示名',
+  kind: 'protocol',           // prereq | protocol | host | bridge | market | companion | plugin
+  steps: [
+    {
+      key: 'detect',           // 唯一、稳定（前端按 key 定位这一行）
+      title: '给人看的步骤名',
+      hint: '这步失败或需要人工时，告诉用户具体做什么（带命令/路径/链接）',
+      async run(ctx) {
+        // ctx.log('...')           写一行日志（页面实时看到）
+        // ctx.exec(cmd, args)      跑命令，输出自动进日志，永不抛错
+        // ctx.spawnDetached(...)   起常驻进程（协议端/桥/调音台），不等它结束
+        // ctx.portOpen(host, port) 探端口
+        // ctx.httpGet(url)         发 GET，返回 { status, ok, text, json }
+        // ctx.cfg() / ctx.saveCfg(patch)   读写 config.json
+        // ctx.state.xxx            跨步骤传值
+        // ctx.params               页面传进来的参数（插件安装用 { id }）
+        return { status: 'ok', detail: '这步做了什么（一句话，具体数字）' };
+      },
+    },
+  ],
+};
+```
+
+硬性要求：
+
+1. **幂等**：已经装好的再跑一次要 `skip`，不能重装、不能重复写配置。
+2. **有 detail**：写清「查到了什么」，不要只说“成功”。
+3. **有 hint**：可能失败或需要人工的步骤，hint 必须是可执行的下一步（命令 / 路径 / 链接）。
+4. **不静默改系统**：下载只落到 `runtimes/<id>/`，配置只写 `config.json`；卸载/删除这类破坏性动作不要放在 recipe 里。
+
+---
+
+## 七、命令行用法
+
+```bash
+node scripts/installer.mjs list                    # 看有哪些脚本
+node scripts/installer.mjs run node                # 检查运行时
+node scripts/installer.mjs run snowluma            # 检查/启动协议端并读 QQ 身份
+node scripts/installer.mjs run plugin --id=clock   # 装一个插件（含 MCP 注册）
+```
+
+接口（市场运行时）：
+
+| 方法 | 路径 | 用途 |
+|---|---|---|
+| GET | `/api/components` | 组件清单 + 端口实时状态 |
+| GET | `/api/install/recipes` | 可用脚本与步骤数 |
+| POST | `/api/install` | 起一个任务 `{ target, params }` → `{ jobId }` |
+| GET | `/api/install/events` | SSE：`start` / `step` / `log` / `done` / `fail` / `manual` |
+| GET | `/api/install/job?id=` | 单任务详情（轮询兜底） |
+| GET | `/api/install/jobs` | 最近任务列表 |
+
+---
+
+## 八、边界（写在明面上）
+
+- **不能替你登录 QQ**。扫码/密码这一步任何协议端都绕不过，市场只能检测「登没登」并告诉你差这一步。
+- **不能替你装桌面程序**。DSH 是安装器程序，市场做的是「检测 → 引导 → 装完自动注册 MCP」。
+- **外部生态的插件不能一键装**。Yunzai / NoneBot / Koishi 的插件依赖各自加载器，格式不通用；「全网插件源」里给的是目录 + 适配提示词，粘给 AI 改写成 `.mjs` 才能装（见 [HUB.md](HUB.md)）。
+- **下载依赖网络**。GitHub 在部分网络下需要代理；`scripts/lib/net.mjs` 会在 fetch 失败时退回系统 `curl`。
