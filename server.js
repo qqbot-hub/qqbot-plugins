@@ -64,6 +64,90 @@ let STATE = {};
 try { STATE = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8')); } catch (e) { STATE = {}; }
 const saveState = () => { try { fs.mkdirSync(path.dirname(STATE_FILE), { recursive: true }); } catch {} fs.writeFileSync(STATE_FILE, JSON.stringify(STATE, null, 2)); };
 
+/* ---------- ESM 模块（本仓库的 lib/recipe 都是 ESM，按需加载并缓存） ---------- */
+const esmCache = new Map();
+function esm(rel) {
+  if (!esmCache.has(rel)) {
+    esmCache.set(rel, import(pathToFileURL(path.join(ROOT, rel)).href));
+  }
+  return esmCache.get(rel);
+}
+const methodsLib = () => esm(path.join('scripts', 'lib', 'methods.mjs'));
+const secretsLib = () => esm(path.join('scripts', 'lib', 'secrets.mjs'));
+
+/* ---------- 密钥：只存密文，只回"有没有配" ---------- */
+/* cfg.secrets 形如 { "napcat-astrbot.modelApiKey": "enc:v1:..." }，永远不出现在 API 明文里。
+ * 解密结果只留在本进程内存（SECRET_CACHE），启动时一次性解出来，之后同步读取。 */
+const SECRET_CACHE = new Map();
+const secretSlot = (methodId, key) => String(methodId || 'global') + '.' + String(key || '');
+const slotOfOnebot = () => secretSlot('snowluma-dsh', 'onebotToken');
+
+async function initSecrets() {
+  const { decrypt, encrypt } = await secretsLib();
+  for (const [slot, enc] of Object.entries(cfg.secrets || {})) {
+    const v = decrypt(enc);
+    if (v) SECRET_CACHE.set(slot, v);
+  }
+  /* 历史明文迁移：老版本把 AccessToken 直接写在 onebot.accessToken 里，搬进加密存储 */
+  const legacy = String((cfg.onebot || {}).accessToken || '');
+  if (!legacy) return;
+  if (!SECRET_CACHE.has(slotOfOnebot())) {
+    SECRET_CACHE.set(slotOfOnebot(), legacy);
+    try {
+      const backup = path.join(ROOT, 'config.backup-' + Date.now() + '.json');
+      fs.copyFileSync(CFG_FILE, backup);
+      cfg.secrets = Object.assign({}, cfg.secrets, { [slotOfOnebot()]: encrypt(legacy) });
+      if (cfg.onebot) delete cfg.onebot.accessToken;
+      if (cfg.snowluma) delete cfg.snowluma.accessToken;
+      saveCfg();
+      console.log('[secrets] 明文 AccessToken 已迁入加密存储，原文件备份为 ' + path.basename(backup));
+    } catch (e) {
+      console.log('[secrets] 迁移失败（不影响运行）：' + e.message);
+    }
+  }
+}
+
+async function setSecret(methodId, key, value) {
+  const { encrypt } = await secretsLib();
+  cfg.secrets = Object.assign({}, cfg.secrets);
+  const slot = secretSlot(methodId, key);
+  const v = String(value == null ? '' : value);
+  if (!v) {
+    delete cfg.secrets[slot];
+    SECRET_CACHE.delete(slot);
+    saveCfg();
+    return { cleared: true };
+  }
+  cfg.secrets[slot] = encrypt(v);
+  SECRET_CACHE.set(slot, v);
+  saveCfg();
+  return { saved: true };
+}
+
+function secretStatus(methodId, keys) {
+  const out = {};
+  for (const k of keys || []) {
+    out[k.key] = { has: SECRET_CACHE.has(secretSlot(methodId, k.key)) };
+  }
+  return out;
+}
+
+/* 把某条方法已存的密钥交给安装脚本用（只在本进程内存里，不回前端） */
+async function secretsForMethod(methodId) {
+  const out = {};
+  const prefix = String(methodId || '') + '.';
+  for (const [slot, v] of SECRET_CACHE.entries()) {
+    if (!slot.startsWith(prefix)) continue;
+    out[slot.slice(prefix.length)] = v;
+  }
+  /* 兼容：没按方法存过 token 时，用老的全局 token */
+  if (!out.onebotToken) {
+    const legacy = SECRET_CACHE.get(slotOfOnebot()) || String((cfg.onebot || {}).accessToken || '');
+    if (legacy) out.onebotToken = legacy;
+  }
+  return out;
+}
+
 let UPTIME_START = Date.now();
 const uptime = () => Math.floor((Date.now() - UPTIME_START) / 1000);
 
@@ -90,6 +174,19 @@ function catalog() {
 }
 function components() {
   return readJsonFile(COMPONENTS_FILE);
+}
+/* 权限清单：由 scripts/build-permissions.mjs 扫真实代码生成，按 mtime 缓存 */
+const PERMS_FILE = path.join(ROOT, 'data', 'catalog', 'permissions.json');
+let permsCache = { at: 0, data: {} };
+function permissionsMap() {
+  try {
+    const st = fs.statSync(PERMS_FILE);
+    if (permsCache.at !== st.mtimeMs) {
+      const doc = JSON.parse(fs.readFileSync(PERMS_FILE, 'utf8'));
+      permsCache = { at: st.mtimeMs, data: doc.plugins || {} };
+    }
+    return permsCache.data;
+  } catch { return {}; }
 }
 function currentPlugins() {
   return catalog().map((p) => {
@@ -179,7 +276,7 @@ function globalSettings() {
     snowluma: {
       httpUrl: ob.httpUrl || sl.httpUrl || 'http://127.0.0.1:3000',
       accessToken: '',                 // 不回传
-      hasToken: !!(ob.accessToken || sl.accessToken),
+      hasToken: SECRET_CACHE.has(slotOfOnebot()),
       wsPort: Number(sl.wsPort || 3001),
     },
     dsh: { baseUrl: dsh.baseUrl || 'http://127.0.0.1:3080', profile: dsh.profile || 'desktop' },
@@ -189,7 +286,7 @@ function globalSettings() {
   };
 }
 
-function saveGlobal(input) {
+async function saveGlobal(input) {
   const src = input && typeof input === 'object' ? input : {};
   cfg.snowluma = Object.assign({}, cfg.snowluma);
   cfg.dsh = Object.assign({}, cfg.dsh);
@@ -207,14 +304,12 @@ function saveGlobal(input) {
       cfg.snowluma.httpUrl = s.httpUrl.trim().replace(/\/+$/, '');
       cfg.onebot = Object.assign({}, cfg.onebot, { httpUrl: cfg.snowluma.httpUrl });
     }
-    /* 空字符串=保持原样；只有明确填了新值才覆盖 */
+    /* 空字符串=保持原样；只有明确填了新值才覆盖。token 走加密存储，不进 config.json 明文 */
     if (typeof s.accessToken === 'string' && s.accessToken.trim()) {
-      cfg.snowluma.accessToken = s.accessToken.trim();
-      cfg.onebot = Object.assign({}, cfg.onebot, { accessToken: cfg.snowluma.accessToken });
+      await setSecret('snowluma-dsh', 'onebotToken', s.accessToken.trim());
     }
     if (s.clearToken === true) {
-      cfg.snowluma.accessToken = '';
-      cfg.onebot = Object.assign({}, cfg.onebot, { accessToken: '' });
+      await setSecret('snowluma-dsh', 'onebotToken', '');
     }
     const ws = Number(s.wsPort);
     if (Number.isFinite(ws) && ws > 0 && ws < 65536) cfg.snowluma.wsPort = ws;
@@ -269,7 +364,8 @@ function onebotCfg() {
   return {
     impl: String(ob.impl || 'auto'),
     httpUrl: String(ob.httpUrl || sl.httpUrl || 'http://127.0.0.1:3000').replace(/\/+$/, ''),
-    accessToken: String(ob.accessToken != null && ob.accessToken !== '' ? ob.accessToken : (sl.accessToken || '')),
+    /* token 只在内存里：加密存盘，接口不回传 */
+    accessToken: String(SECRET_CACHE.get(slotOfOnebot()) || ob.accessToken || sl.accessToken || ''),
     authMode: String(ob.authMode || 'header'),
     pathPrefix: String(ob.pathPrefix || ''),
     timeoutMs: 2500,          // 体检要快，不能卡住页面
@@ -619,7 +715,28 @@ const server = http.createServer(async (req, res) => {
       /* 标出哪些插件有可配置项（schema 由插件自己声明），前端据此显示「配置」按钮 */
       const flags = {};
       await Promise.all(plugins.map(async (pl) => { flags[pl.id] = !!(await pluginSchema(pl.id)); }));
-      return sendJson(res, 200, { ok: true, plugins: plugins.map((pl) => Object.assign({}, pl, { hasSettings: !!flags[pl.id] })) });
+      /* 权限来自真实代码扫描；兼容方法来自 methods.json，两边都不手写 */
+      const pmap = permissionsMap();
+      const lib = await methodsLib();
+      const methods = lib.loadMethods();
+      return sendJson(res, 200, {
+        ok: true,
+        plugins: plugins.map((pl) => {
+          const pm = pmap[pl.id] || {};
+          const compat = lib.pluginCompatMethods({ needsBridge: pm.needsBridge !== false }, methods);
+          return Object.assign({}, pl, {
+            hasSettings: !!flags[pl.id],
+            framework: pm.framework || 'mcp',
+            language: pm.language || 'JavaScript (ESM)',
+            author: pl.author || '本项目（零依赖重写）',
+            upstream: (pl.source && pl.source.label) || '',
+            permissions: pm.permissions || [],
+            confirmRequired: !!pm.confirmRequired,
+            needsBridge: pm.needsBridge !== false,
+            compat: { methods: compat.methods, needsBridge: compat.needsBridge },
+          });
+        }),
+      });
     }
     if (method === 'GET' && p === '/api/health') {
       const d = await doctor();
@@ -698,8 +815,76 @@ const server = http.createServer(async (req, res) => {
       const body = (() => { try { return JSON.parse(rawInstall || '{}'); } catch { return {}; } })();
       const target = String(body.target || '').trim();
       if (!target) return sendJson(res, 400, { ok: false, error: '缺少 target（要装什么）' });
-      const jobId = await startInstallJob(target, body.params || {});
-      return sendJson(res, 200, { ok: true, jobId, target });
+      /* 方法已存过密钥就在服务端合并进来：前端从头到尾拿不到 token 明文 */
+      let params = body.params && typeof body.params === 'object' ? body.params : {};
+      if (body.method) {
+        const stored = await secretsForMethod(String(body.method));
+        params = Object.assign({}, stored, params);
+      }
+      const jobId = await startInstallJob(target, params);
+      return sendJson(res, 200, { ok: true, jobId, target, method: body.method || '' });
+    }
+    /* 回滚：撤销某次部署造出来的目录/进程/compose 项目 */
+    if (method === 'POST' && p === '/api/install/rollback') {
+      const raw = await readBody(req);
+      const obj = (() => { try { return JSON.parse(raw || '{}'); } catch { return {}; } })();
+      const mod = await installer();
+      return sendJson(res, 200, await mod.rollbackJob(String(obj.jobId || '')));
+    }
+
+    /* ---------- 部署方法清单 / 兼容性矩阵 ---------- */
+    if (method === 'GET' && p === '/api/methods') {
+      const c = await (await methodsLib()).buildCompat();
+      for (const m of c.methods) {
+        const st = secretStatus(m.id, m.keyConfig);
+        m.keyConfig = m.keyConfig.map((k) => Object.assign({}, k, { hasValue: !!(st[k.key] && st[k.key].has) }));
+      }
+      return sendJson(res, 200, c);
+    }
+    if (method === 'GET' && p === '/api/methods/one') {
+      const id = new URL(req.url, 'http://x').searchParams.get('id') || '';
+      const c = await (await methodsLib()).buildCompat();
+      const m = c.methods.find((x) => x.id === id);
+      if (!m) return sendJson(res, 404, { ok: false, error: '没有这条部署方法' });
+      const st = secretStatus(m.id, m.keyConfig);
+      m.keyConfig = m.keyConfig.map((k) => Object.assign({}, k, { hasValue: !!(st[k.key] && st[k.key].has) }));
+      return sendJson(res, 200, { ok: true, method: m, runtime: c.runtime });
+    }
+    if (method === 'GET' && p === '/api/compat') {
+      const lib = await methodsLib();
+      const c = await lib.buildCompat();
+      const pmap = permissionsMap();
+      const perPlugin = {};
+      for (const pl of currentPlugins()) {
+        const needsBridge = (pmap[pl.id] || {}).needsBridge !== false;
+        perPlugin[pl.id] = lib.pluginCompatMethods({ needsBridge }, c.methods);
+      }
+      return sendJson(res, 200, {
+        ok: true, generatedAt: c.generatedAt, runtime: c.runtime,
+        pluginApis: c.pluginApis, matrix: c.matrix,
+        methods: c.methods.map((m) => ({
+          id: m.id, name: m.name, account: m.account, protocols: m.protocols,
+          pluginApi: m.pluginApi, level: m.deploy.level, levelLabel: m.deploy.levelLabel,
+          ready: m.ready, missing: m.missing, verified: m.deploy.verified,
+        })),
+        plugins: perPlugin,
+      });
+    }
+    /* 密钥：写入/清除；只回"有没有配"，不回值 */
+    if (method === 'POST' && p === '/api/secrets') {
+      const raw = await readBody(req);
+      const obj = (() => { try { return JSON.parse(raw || '{}'); } catch { return {}; } })();
+      const mid = String(obj.method || '').trim();
+      const key = String(obj.key || '').trim();
+      if (!key) return sendJson(res, 400, { ok: false, error: '缺少 key' });
+      const lib = await methodsLib();
+      if (mid) {
+        const m = lib.getMethod(mid);
+        if (!m) return sendJson(res, 404, { ok: false, error: '没有这条部署方法' });
+        if (key === '__any__') return sendJson(res, 400, { ok: false, error: 'key 不合法' });
+      }
+      const r = await setSecret(mid || 'global', key, obj.value);
+      return sendJson(res, 200, Object.assign({ ok: true }, r));
     }
 
     /* 全网插件源：读快照 + 过滤/分页；POST 触发一次重新抓取（后台跑，带冷却） */
@@ -736,7 +921,7 @@ const server = http.createServer(async (req, res) => {
     if (method === 'POST' && p === '/api/settings') {
       const raw = await readBody(req);
       const obj = (() => { try { return JSON.parse(raw || '{}'); } catch { return {}; } })();
-      return sendJson(res, 200, { ok: true, global: saveGlobal(obj) });
+      return sendJson(res, 200, { ok: true, global: await saveGlobal(obj) });
     }
 
     /* 设置：插件配置 */
@@ -793,7 +978,10 @@ const server = http.createServer(async (req, res) => {
   return sendHtml(res, 404, '<!doctype html><meta charset="utf-8"><h1>404</h1>');
 });
 
-server.listen(PORT, '127.0.0.1', () => {
-  console.log('qqbot-plugins 插件市场已启动');
-  console.log('地址: http://127.0.0.1:' + PORT + (PASSWORD ? '' : '（未设口令，本机开放访问）'));
+/* 先把密钥初始化完再开始监听：避免第一个 /api/health 因为 token 还没解出来而显示未配置 */
+initSecrets().catch((e) => console.log('[secrets] 初始化失败（不影响启动）：' + e.message)).finally(() => {
+  server.listen(PORT, '127.0.0.1', () => {
+    console.log('qqbot-plugins 插件市场已启动');
+    console.log('地址: http://127.0.0.1:' + PORT + (PASSWORD ? '' : '（未设口令，本机开放访问）'));
+  });
 });

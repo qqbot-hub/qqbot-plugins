@@ -1,0 +1,866 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-10-28",
+  "note": "每条部署方法的字段都要求可核对：端口/版本取各自官方文档的默认值，拿不准的写 note 让人去官方看，不编数字。deploy.level 决定前端给什么按钮：oneclick=真跑脚本，compose=真跑 docker compose，assisted=能自动的部分自动、剩下给步骤，guide=只给可执行的步骤清单，不放假按钮。",
+  "methods": [
+    {
+      "id": "snowluma-dsh",
+      "name": "SnowLuma + qq-bridge + DeepSeek Harness",
+      "tagline": "本市场原生链路：协议端登录一次，后面插件即插即用",
+      "account": "personal",
+      "accountNote": "SnowLuma 走个人号协议，务必用小号",
+      "os": [
+        "windows"
+      ],
+      "needsDesktopQQ": false,
+      "qqnt": {
+        "required": false,
+        "note": "SnowLuma 不需要安装桌面 QQ"
+      },
+      "runtime": {
+        "node": ">=18",
+        "python": null,
+        "docker": false
+      },
+      "stack": [
+        "SnowLuma",
+        "qq-bridge",
+        "DeepSeek Harness",
+        "DeepSeek API"
+      ],
+      "protocols": [
+        "onebot11"
+      ],
+      "host": "dsh",
+      "pluginApi": "mcp-dsh",
+      "ports": [
+        {
+          "port": 3000,
+          "role": "OneBot v11 HTTP"
+        },
+        {
+          "port": 3001,
+          "role": "OneBot v11 WebSocket"
+        },
+        {
+          "port": 3100,
+          "role": "qq-bridge 控制台"
+        },
+        {
+          "port": 0,
+          "role": "DeepSeek Harness（端口动态，自动探测）"
+        }
+      ],
+      "keyConfig": [
+        {
+          "key": "onebotToken",
+          "label": "OneBot AccessToken",
+          "secret": true,
+          "required": false,
+          "help": "SnowLuma 面板里设的 token；填了市场才能调它的接口"
+        },
+        {
+          "key": "dshToken",
+          "label": "DSH API Key",
+          "secret": true,
+          "required": false,
+          "help": "可选，接 DSH 的 OpenAI 兼容口时才需要"
+        }
+      ],
+      "deploy": {
+        "level": "oneclick",
+        "kind": "script",
+        "chain": [
+          "node",
+          "snowluma",
+          "qqbridge",
+          "dsh"
+        ],
+        "recipe": "snowluma",
+        "verified": true,
+        "verifiedNote": "2026-10-28 16:20 本机实测：node/snowluma/qqbridge/dsh 四步全 done，QQ 3996086451 在线，DSH 自动识别端口 11762",
+        "manualSteps": [
+          "SnowLuma 安装包需手动下载解压到 C:\\SnowLuma（它没有自动安装器）",
+          "首次扫码登录 QQ"
+        ],
+        "requirements": [
+          "Node.js 18+"
+        ]
+      },
+      "risks": [
+        "个人号协议，腾讯风控会封号：只用小号，不要用主号",
+        "同 IP 多开、频繁加群/发消息会显著提高风控概率"
+      ],
+      "links": [
+        {
+          "label": "SnowLuma",
+          "url": "https://github.com/SnowLuma/SnowLuma"
+        },
+        {
+          "label": "DeepSeek Harness 生态",
+          "url": "https://github.com/deepseek-ai"
+        }
+      ]
+    },
+    {
+      "id": "napcat-nonebot",
+      "name": "NapCatQQ + NoneBot2 + 插件",
+      "tagline": "Python 生态最省事的一条：venv + pip 装完就能连",
+      "account": "personal",
+      "accountNote": "NapCat 走 QQNT 注入，属于个人号协议，务必用小号",
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "needsDesktopQQ": true,
+      "qqnt": {
+        "required": true,
+        "note": "NapCat 需要本机已登录的 QQNT 客户端；QQ 升级后 NapCat 要先更新，版本对应关系看 NapCat Releases 的说明，不要照抄网上旧版本号"
+      },
+      "runtime": {
+        "node": null,
+        "python": ">=3.10",
+        "docker": false
+      },
+      "stack": [
+        "NapCatQQ",
+        "NoneBot2",
+        "nonebot-adapter-onebot"
+      ],
+      "protocols": [
+        "onebot11"
+      ],
+      "host": "nonebot",
+      "pluginApi": "nonebot",
+      "ports": [
+        {
+          "port": 3000,
+          "role": "NapCat OneBot HTTP"
+        },
+        {
+          "port": 3001,
+          "role": "NapCat OneBot WebSocket"
+        },
+        {
+          "port": 8080,
+          "role": "NoneBot2 反向 WS（默认，被占时自动改用 20080）"
+        }
+      ],
+      "keyConfig": [
+        {
+          "key": "onebotToken",
+          "label": "OneBot AccessToken",
+          "secret": true,
+          "required": false,
+          "help": "NapCat 网络配置里的 token；填了 NoneBot 侧会校验它"
+        }
+      ],
+      "deploy": {
+        "level": "oneclick",
+        "kind": "script",
+        "chain": [
+          "python-venv",
+          "nonebot"
+        ],
+        "recipe": "nonebot",
+        "verified": true,
+        "verifiedNote": "2026-10-28 21:50 本机实测：Python 3.13 venv 内安装 nonebot2[fastapi] 2.5.0 + nonebot-adapter-onebot 2.4.6 成功；本机 8080 被其他程序（ApplicationWebServer.exe）占用，脚本自动改用 20080，uvicorn 正常监听（响应头 Server: uvicorn 已核对）。第一次只装了 nonebot2 没带 [fastapi] 会启动报错，脚本已改为装 nonebot2[fastapi]。",
+        "manualSteps": [
+          "NapCat 需先在 QQNT 里注入并登录（本市场会检测 3000/3001 是否已通）"
+        ],
+        "requirements": [
+          "Python 3.10+",
+          "已安装并登录 QQNT + NapCat（协议端）"
+        ]
+      },
+      "risks": [
+        "个人号协议，务必用小号",
+        "NapCat 注入依赖 QQNT 版本，QQ 自动升级后可能失效"
+      ],
+      "links": [
+        {
+          "label": "NapCatQQ",
+          "url": "https://github.com/NapNeko/NapCatQQ"
+        },
+        {
+          "label": "NoneBot2 文档",
+          "url": "https://nonebot.dev"
+        }
+      ]
+    },
+    {
+      "id": "napcat-koishi",
+      "name": "NapCatQQ + Koishi + 插件",
+      "tagline": "Node 生态，插件市场最丰富；一条 npm 命令拉起",
+      "account": "personal",
+      "accountNote": "个人号协议，务必用小号",
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "needsDesktopQQ": true,
+      "qqnt": {
+        "required": true,
+        "note": "同样依赖 QQNT + NapCat；NapCat 的版本要跟当前 QQNT 匹配"
+      },
+      "runtime": {
+        "node": ">=18",
+        "python": null,
+        "docker": false
+      },
+      "stack": [
+        "NapCatQQ",
+        "Koishi",
+        "@koishijs/plugin-adapter-onebot"
+      ],
+      "protocols": [
+        "onebot11"
+      ],
+      "host": "koishi",
+      "pluginApi": "koishi",
+      "ports": [
+        {
+          "port": 3000,
+          "role": "NapCat OneBot HTTP"
+        },
+        {
+          "port": 5140,
+          "role": "Koishi 控制台（官方默认）"
+        }
+      ],
+      "keyConfig": [
+        {
+          "key": "onebotToken",
+          "label": "OneBot AccessToken",
+          "secret": true,
+          "required": false,
+          "help": "NapCat 侧 token，配适配器时要用"
+        }
+      ],
+      "deploy": {
+        "level": "oneclick",
+        "kind": "script",
+        "chain": [
+          "koishi"
+        ],
+        "recipe": "koishi",
+        "verified": true,
+        "verifiedNote": "2026-10-28 22:08 本机实测：npm 装 koishi 4.18.11 + adapter-onebot 5.8.1 成功，控制台 5140 实测 HTTP 200（标题「Koishi 控制台」）。两个坑已写进脚本：① adapter-onebot@6 与 koishi 4.18 的 @satorijs/core 版本互相冲突，装 6.x 必报 Session2 is not a constructor，脚本固定装 5.x；② 控制台要监听 5140 必须启用 server 插件，配置里已带上。未跑通的部分：适配器连本机 SnowLuma 的 3001 被拒（401/1006，SnowLuma 的 WS 不收第三方接入），要用 Koishi 请配 NapCat 作协议端，本机没装 NapCat 故未实测这条。",
+        "manualSteps": [
+          "装 QQNT + NapCat 并扫码登录（SnowLuma 的 3001 实测不收第三方 WS，Koishi 要连 NapCat）",
+          "在 Koishi 控制台 5140 的适配器设置里核对 selfId 与 NapCat token"
+        ],
+        "requirements": [
+          "Node.js 18+",
+          "已安装并登录 QQNT + NapCat"
+        ]
+      },
+      "risks": [
+        "个人号协议，务必用小号",
+        "Koishi 插件生态质量参差，装之前看清权限"
+      ],
+      "links": [
+        {
+          "label": "Koishi",
+          "url": "https://github.com/koishijs/koishi"
+        },
+        {
+          "label": "Koishi 插件市场",
+          "url": "https://koishi.chat/zh-CN/market/"
+        }
+      ]
+    },
+    {
+      "id": "napcat-astrbot",
+      "name": "NapCatQQ + AstrBot + 多模型",
+      "tagline": "Docker Compose 一条命令：NapCat 和 AstrBot 一起起来",
+      "account": "personal",
+      "accountNote": "个人号协议，务必用小号",
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "needsDesktopQQ": false,
+      "qqnt": {
+        "required": false,
+        "note": "用 Docker 版 NapCat 时不需要本机装 QQNT（镜像里自带），但首次要在 NapCat WebUI 扫码"
+      },
+      "runtime": {
+        "node": null,
+        "python": null,
+        "docker": true
+      },
+      "stack": [
+        "NapCatQQ",
+        "AstrBot",
+        "DeepSeek / 通义 / Kimi / GLM（OpenAI 兼容）"
+      ],
+      "protocols": [
+        "onebot11"
+      ],
+      "host": "astrbot",
+      "pluginApi": "astrbot",
+      "ports": [
+        {
+          "port": 3000,
+          "role": "NapCat OneBot HTTP"
+        },
+        {
+          "port": 6099,
+          "role": "NapCat WebUI（扫码登录用）"
+        },
+        {
+          "port": 6185,
+          "role": "AstrBot WebUI"
+        }
+      ],
+      "keyConfig": [
+        {
+          "key": "modelApiKey",
+          "label": "模型 API Key",
+          "secret": true,
+          "required": true,
+          "help": "DeepSeek / 通义 / Kimi / GLM 任一家，在 AstrBot WebUI 里选对应供应商填入"
+        }
+      ],
+      "deploy": {
+        "level": "compose",
+        "kind": "compose",
+        "compose": "docker/napcat-astrbot/docker-compose.yml",
+        "recipe": "compose",
+        "verified": false,
+        "verifiedNote": "Compose 文件按两家官方镜像的默认端口编写；本机未安装 Docker，无法在这里跑通，因此标记为未验证——装了 Docker 的机器上会真跑 docker compose up -d 并探测端口",
+        "manualSteps": [
+          "装 Docker Desktop（Windows 需开启 WSL2 后端）",
+          "NapCat WebUI 6099 扫码登录 QQ",
+          "AstrBot WebUI 6185 填模型 API Key 并加 OneBot 适配器指向 napcat:3000"
+        ],
+        "requirements": [
+          "Docker Desktop / Docker Engine + Compose v2"
+        ]
+      },
+      "risks": [
+        "个人号协议，务必用小号",
+        "容器里跑协议端同样受风控，且封号后容器里的登录态要重扫"
+      ],
+      "links": [
+        {
+          "label": "NapCatQQ",
+          "url": "https://github.com/NapNeko/NapCatQQ"
+        },
+        {
+          "label": "AstrBot",
+          "url": "https://github.com/AstrBotDevs/AstrBot"
+        }
+      ]
+    },
+    {
+      "id": "llonebot-astrbot",
+      "name": "LLOneBot + AstrBot + 多模型",
+      "tagline": "LiteLoaderQQNT 插件路线，NapCat 之外的另一个选择",
+      "account": "personal",
+      "accountNote": "个人号协议，务必用小号",
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "needsDesktopQQ": true,
+      "qqnt": {
+        "required": true,
+        "note": "LLOneBot 是 LiteLoaderQQNT 的插件，LiteLoader 与 QQNT 版本强绑定；QQ 一升级就可能要等 LiteLoader 跟进"
+      },
+      "runtime": {
+        "node": null,
+        "python": ">=3.10",
+        "docker": false
+      },
+      "stack": [
+        "LLOneBot",
+        "LiteLoaderQQNT",
+        "AstrBot"
+      ],
+      "protocols": [
+        "onebot11"
+      ],
+      "host": "astrbot",
+      "pluginApi": "astrbot",
+      "ports": [
+        {
+          "port": 3000,
+          "role": "LLOneBot OneBot HTTP（默认）"
+        },
+        {
+          "port": 3001,
+          "role": "LLOneBot OneBot WebSocket（默认）"
+        },
+        {
+          "port": 6185,
+          "role": "AstrBot WebUI"
+        }
+      ],
+      "keyConfig": [
+        {
+          "key": "modelApiKey",
+          "label": "模型 API Key",
+          "secret": true,
+          "required": true,
+          "help": "AstrBot 里配置的模型供应商 Key"
+        }
+      ],
+      "deploy": {
+        "level": "guide",
+        "kind": "guide",
+        "verified": false,
+        "verifiedNote": "LiteLoaderQQNT 需要手动装进 QQNT 目录并随 QQ 启动加载，脚本无法替用户完成注入，因此不提供一键按钮",
+        "manualSteps": [
+          "安装 LiteLoaderQQNT 到 QQNT 资源目录，启动 QQ 确认加载成功",
+          "在 LiteLoader 插件市场装 LLOneBot，开启 HTTP 3000 / WS 3001",
+          "装 AstrBot（pip install astrbot 或 Docker），WebUI 6185 里加 OneBot 适配器指向 127.0.0.1:3000",
+          "填模型 API Key，群里 @ 机器人测试"
+        ],
+        "requirements": [
+          "QQNT 客户端",
+          "Python 3.10+ 或 Docker"
+        ]
+      },
+      "risks": [
+        "个人号协议，务必用小号",
+        "LiteLoader 与 QQNT 版本强绑定，升级即失效"
+      ],
+      "links": [
+        {
+          "label": "LLOneBot",
+          "url": "https://github.com/LLOneBot/LLOneBot"
+        },
+        {
+          "label": "AstrBot",
+          "url": "https://github.com/AstrBotDevs/AstrBot"
+        }
+      ]
+    },
+    {
+      "id": "napcat-yunzai",
+      "name": "NapCatQQ + Yunzai 系 + 聊天插件",
+      "tagline": "云崽生态，插件多、玩法杂；需要 Redis 支撑部分功能",
+      "account": "personal",
+      "accountNote": "个人号协议，务必用小号",
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "needsDesktopQQ": true,
+      "qqnt": {
+        "required": true,
+        "note": "依赖 QQNT + NapCat 提供 OneBot 接口"
+      },
+      "runtime": {
+        "node": ">=18",
+        "python": null,
+        "docker": false,
+        "redis": true
+      },
+      "stack": [
+        "NapCatQQ",
+        "Yunzai-Bot（OneBot 连接）",
+        "Redis"
+      ],
+      "protocols": [
+        "onebot11"
+      ],
+      "host": "yunzai",
+      "pluginApi": "yunzai",
+      "ports": [
+        {
+          "port": 3000,
+          "role": "NapCat OneBot HTTP"
+        },
+        {
+          "port": 2536,
+          "role": "Yunzai 默认 HTTP 端口（可在 config 改）"
+        }
+      ],
+      "keyConfig": [
+        {
+          "key": "onebotToken",
+          "label": "OneBot AccessToken",
+          "secret": true,
+          "required": false,
+          "help": "NapCat 网络配置里的 token"
+        }
+      ],
+      "deploy": {
+        "level": "guide",
+        "kind": "guide",
+        "verified": false,
+        "verifiedNote": "Yunzai 各分支（Miao-Yunzai / TRSS-Yunzai）启动方式不同，且部分插件需要 Redis 与 Chromium，脚本化的收益低于维护成本，这里只给步骤",
+        "manualSteps": [
+          "装 Redis 并启动（部分插件依赖）",
+          "git clone Miao-Yunzai 或 TRSS-Yunzai，pnpm install",
+          "config 里把 OneBot 地址指向 NapCat 的 3000/3001，填 token",
+          "node app 启动，群里发 #帮助 验证"
+        ],
+        "requirements": [
+          "Node.js 18/20 LTS",
+          "Redis",
+          "NapCat 已登录"
+        ]
+      },
+      "risks": [
+        "个人号协议，务必用小号",
+        "云崽插件普遍要求高权限（读写文件、执行命令），装之前看清代码"
+      ],
+      "links": [
+        {
+          "label": "Miao-Yunzai",
+          "url": "https://github.com/yoimiya-kokomi/Miao-Yunzai"
+        },
+        {
+          "label": "NapCatQQ",
+          "url": "https://github.com/NapNeko/NapCatQQ"
+        }
+      ]
+    },
+    {
+      "id": "snowluma-maibot",
+      "name": "SnowLuma + MaiBot + 模型 API",
+      "tagline": "偏「像人一样聊天」的路线，依赖 MongoDB 存记忆",
+      "account": "personal",
+      "accountNote": "个人号协议，务必用小号",
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "needsDesktopQQ": false,
+      "qqnt": {
+        "required": false,
+        "note": "MaiBot 本身不需要桌面 QQ，但需要 OneBot 协议端（本项目用 SnowLuma）"
+      },
+      "runtime": {
+        "node": ">=18",
+        "python": ">=3.10",
+        "mongo": true
+      },
+      "stack": [
+        "SnowLuma",
+        "MaiBot",
+        "MongoDB",
+        "模型 API"
+      ],
+      "protocols": [
+        "onebot11"
+      ],
+      "host": "maibot",
+      "pluginApi": "maibot",
+      "ports": [
+        {
+          "port": 3000,
+          "role": "SnowLuma OneBot HTTP"
+        },
+        {
+          "port": 27017,
+          "role": "MongoDB（默认）"
+        }
+      ],
+      "keyConfig": [
+        {
+          "key": "modelApiKey",
+          "label": "模型 API Key",
+          "secret": true,
+          "required": true,
+          "help": "MaiBot 的模型配置里填"
+        }
+      ],
+      "deploy": {
+        "level": "guide",
+        "kind": "guide",
+        "verified": false,
+        "verifiedNote": "MaiBot 需要 MongoDB 与自己的配置文件结构，且版本迭代快；没有在本机验证过，所以不给一键按钮，避免装到一半留下半成品",
+        "manualSteps": [
+          "装 MongoDB（或用 Docker 起一个）",
+          "按 MaiBot 官方文档准备 Python 环境与配置文件，填模型 Key",
+          "把 OneBot 地址指向 SnowLuma 的 3000",
+          "启动后私聊机器人测试回复"
+        ],
+        "requirements": [
+          "Python 3.10+",
+          "MongoDB",
+          "SnowLuma 已登录"
+        ]
+      },
+      "risks": [
+        "个人号协议，务必用小号",
+        "长期记忆会存聊天内容，注意隐私与本地存储位置"
+      ],
+      "links": [
+        {
+          "label": "MaiBot",
+          "url": "https://github.com/MaiM-with-u/MaiBot"
+        },
+        {
+          "label": "SnowLuma",
+          "url": "https://github.com/SnowLuma/SnowLuma"
+        }
+      ]
+    },
+    {
+      "id": "napcat-ncatbot",
+      "name": "NapCatQQ + NcatBot + 模型 API",
+      "tagline": "Python 轻量框架，pip 装完直接写业务",
+      "account": "personal",
+      "accountNote": "个人号协议，务必用小号",
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "needsDesktopQQ": true,
+      "qqnt": {
+        "required": true,
+        "note": "依赖 QQNT + NapCat"
+      },
+      "runtime": {
+        "node": null,
+        "python": ">=3.10",
+        "docker": false
+      },
+      "stack": [
+        "NapCatQQ",
+        "NcatBot"
+      ],
+      "protocols": [
+        "onebot11"
+      ],
+      "host": "ncatbot",
+      "pluginApi": "ncatbot",
+      "ports": [
+        {
+          "port": 3000,
+          "role": "NapCat OneBot HTTP"
+        },
+        {
+          "port": 3001,
+          "role": "NapCat OneBot WebSocket"
+        }
+      ],
+      "keyConfig": [
+        {
+          "key": "onebotToken",
+          "label": "OneBot AccessToken",
+          "secret": true,
+          "required": false,
+          "help": "NapCat token"
+        }
+      ],
+      "deploy": {
+        "level": "guide",
+        "kind": "guide",
+        "verified": false,
+        "verifiedNote": "NcatBot 目前没有稳定独立的安装入口，README 的步骤随版本变化；未在本机验证，因此只给步骤",
+        "manualSteps": [
+          "NapCat 登录并开好 HTTP/WS",
+          "python -m venv .venv && pip install ncatbot",
+          "按官方示例写 config（OneBot 地址、QQ 号）后启动",
+          "私聊/群里测试指令"
+        ],
+        "requirements": [
+          "Python 3.10+",
+          "NapCat 已登录"
+        ]
+      },
+      "risks": [
+        "个人号协议，务必用小号"
+      ],
+      "links": [
+        {
+          "label": "NcatBot",
+          "url": "https://github.com/OneDragon-Anything/NcatBot"
+        }
+      ]
+    },
+    {
+      "id": "dsh-official",
+      "name": "DeepSeek Harness + dsh-qqbot（QQ 官方机器人）",
+      "tagline": "官方通道，不碰个人号协议，但要 AppID/Secret 和公网回调",
+      "account": "official",
+      "accountNote": "QQ 开放平台官方机器人：合规、不会因协议被风控，但功能受平台限制",
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "needsDesktopQQ": false,
+      "qqnt": {
+        "required": false,
+        "note": "官方通道完全不需要 QQ 客户端"
+      },
+      "runtime": {
+        "node": ">=18",
+        "python": null,
+        "docker": false
+      },
+      "stack": [
+        "DeepSeek Harness",
+        "dsh-qqbot",
+        "QQ 开放平台 API"
+      ],
+      "protocols": [
+        "qq-official"
+      ],
+      "host": "dsh",
+      "pluginApi": "mcp-dsh",
+      "ports": [
+        {
+          "port": 0,
+          "role": "DSH 端口动态；官方通道走 WebSocket 出站，无本地回调端口"
+        }
+      ],
+      "keyConfig": [
+        {
+          "key": "qqAppId",
+          "label": "AppID",
+          "secret": false,
+          "required": true,
+          "help": "QQ 开放平台机器人后台的 AppID"
+        },
+        {
+          "key": "qqAppSecret",
+          "label": "AppSecret",
+          "secret": true,
+          "required": true,
+          "help": "只存加密后的值，不回显明文"
+        },
+        {
+          "key": "qqBotToken",
+          "label": "Bot Token",
+          "secret": true,
+          "required": false,
+          "help": "部分接入方式需要，按开放平台文档填"
+        }
+      ],
+      "deploy": {
+        "level": "assisted",
+        "kind": "script",
+        "chain": [
+          "node",
+          "dsh"
+        ],
+        "recipe": "dsh",
+        "verified": true,
+        "verifiedNote": "DSH 部分本机实测可拉起并自动识端口（11762）；dsh-qqbot 侧需要你自己的 AppID/Secret 才能验证，本市场只负责把 DSH 准备好并给出接入步骤",
+        "manualSteps": [
+          "去 QQ 开放平台创建机器人，拿 AppID / AppSecret",
+          "在 DSH 里装 dsh-qqbot 并填凭据（本市场不代填）",
+          "配置沙箱/正式环境的回调与 IP 白名单"
+        ],
+        "requirements": [
+          "Node.js 18+",
+          "QQ 开放平台机器人账号"
+        ]
+      },
+      "risks": [
+        "官方通道限制：群里默认只有被 @ 才回复，私聊要白名单，主动消息有月限额",
+        "服务器出口 IP 需要加白名单，家用宽带 IP 会变，断了要重配"
+      ],
+      "links": [
+        {
+          "label": "QQ 开放平台",
+          "url": "https://q.qq.com/"
+        },
+        {
+          "label": "官方机器人文档",
+          "url": "https://bot.q.qq.com/wiki/"
+        }
+      ]
+    },
+    {
+      "id": "astrbot-official",
+      "name": "AstrBot + QQ 官方适配器 + 多模型",
+      "tagline": "官方通道 + AstrBot 的模型编排，两边的长处都要",
+      "account": "official",
+      "accountNote": "官方机器人，不需要小号，也不会因协议风控封号",
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "needsDesktopQQ": false,
+      "qqnt": {
+        "required": false,
+        "note": "不需要 QQ 客户端"
+      },
+      "runtime": {
+        "node": null,
+        "python": ">=3.10",
+        "docker": true
+      },
+      "stack": [
+        "AstrBot",
+        "QQ 官方适配器",
+        "模型 API"
+      ],
+      "protocols": [
+        "qq-official"
+      ],
+      "host": "astrbot",
+      "pluginApi": "astrbot",
+      "ports": [
+        {
+          "port": 6185,
+          "role": "AstrBot WebUI"
+        }
+      ],
+      "keyConfig": [
+        {
+          "key": "qqAppId",
+          "label": "AppID",
+          "secret": false,
+          "required": true,
+          "help": "QQ 开放平台后台"
+        },
+        {
+          "key": "qqAppSecret",
+          "label": "AppSecret",
+          "secret": true,
+          "required": true,
+          "help": "加密存储，不回显"
+        },
+        {
+          "key": "modelApiKey",
+          "label": "模型 API Key",
+          "secret": true,
+          "required": true,
+          "help": "AstrBot 里的模型供应商 Key"
+        }
+      ],
+      "deploy": {
+        "level": "compose",
+        "kind": "compose",
+        "compose": "docker/astrbot-official/docker-compose.yml",
+        "recipe": "compose",
+        "verified": false,
+        "verifiedNote": "Compose 只起 AstrBot；官方适配器要在 WebUI 里装并填 AppID/Secret，因此即使 Docker 就绪也只能做到「半自动」，这里如实标未验证",
+        "manualSteps": [
+          "装 Docker",
+          "AstrBot WebUI 6185 里安装 QQ 官方适配器，填 AppID/AppSecret",
+          "QQ 开放平台配置沙箱成员与指令权限",
+          "群里 @ 机器人验证"
+        ],
+        "requirements": [
+          "Docker Desktop / Docker Engine + Compose v2",
+          "QQ 开放平台机器人"
+        ]
+      },
+      "risks": [
+        "官方通道限制：群里默认只有被 @ 才回复，私聊要白名单，主动消息有月限额",
+        "出口 IP 白名单：IP 变了要重新配置"
+      ],
+      "links": [
+        {
+          "label": "AstrBot",
+          "url": "https://github.com/AstrBotDevs/AstrBot"
+        },
+        {
+          "label": "QQ 开放平台",
+          "url": "https://q.qq.com/"
+        }
+      ]
+    }
+  ]
+}

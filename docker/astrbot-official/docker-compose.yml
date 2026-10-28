@@ -1,0 +1,25 @@
+# ============================================================
+# AstrBot + QQ 官方机器人适配器（官方通道，不碰个人号协议）
+#
+# 只起 AstrBot 一个容器：官方适配器是 AstrBot 里的插件，
+# AppID / AppSecret 必须你自己在 WebUI 里填（本市场不代填、不落盘明文）。
+#
+# 首次启动后：
+#   1. http://127.0.0.1:6185 打开 WebUI
+#   2. 平台适配器里装「QQ 官方机器人」，填 AppID / AppSecret / Token
+#   3. 到 https://q.qq.com 配置沙箱成员、指令权限、出口 IP 白名单
+#
+# 官方通道的限制（别指望它能像个人号那样随便说话）：
+#   群里默认只有被 @ 才回复、私聊要白名单、主动消息有月限额。
+# ============================================================
+name: qqbot-astrbot-official
+
+services:
+  astrbot:
+    image: soulter/astrbot:latest
+    container_name: qqbot-astrbot-official
+    restart: unless-stopped
+    ports:
+      - "6185:6185"
+    volumes:
+      - ./astrbot/data:/AstrBot/data

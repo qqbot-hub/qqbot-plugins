@@ -25,6 +25,20 @@ import { spawn } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import { fileURLToPath } from 'node:url';
 import { ROOT, RUNTIMES, dataPath, readCfg, writeCfg, readJson, writeJson } from './lib/paths.mjs';
+import { redact } from './lib/secrets.mjs';
+
+/* 参数名里带这些词的，一律按密钥处理：不进 jobs.json、不进日志 */
+const SECRET_KEY_RE = /(key|token|secret|passwd|password|appsecret)/i;
+const scrubParams = (params = {}) => {
+  const out = {};
+  for (const [k, v] of Object.entries(params)) {
+    out[k] = SECRET_KEY_RE.test(k) && String(v || '') ? '***' : v;
+  }
+  return out;
+};
+const secretValues = (params = {}) => Object.entries(params)
+  .filter(([k, v]) => SECRET_KEY_RE.test(k) && String(v || '').length >= 6)
+  .map(([, v]) => String(v));
 
 const RECIPE_DIR = path.join(ROOT, 'recipes');
 const JOB_KEEP = 20;              // jobs.json 里保留最近多少次任务
@@ -75,7 +89,13 @@ export async function httpGet(url, timeoutMs = 4000) {
 /** 跑一个命令，边跑边把输出喂给日志；永不抛错，让 recipe 自己判断 */
 export function exec(cmd, args = [], opts = {}) {
   return new Promise((resolve) => {
-    const child = spawn(cmd, args, {
+    /* Windows 的 .cmd/.bat 必须经 cmd.exe 中转：直接 spawn 会 EINVAL（Node 的安全限制） */
+    let file = cmd, argv = args;
+    if (process.platform === 'win32' && /\.(cmd|bat)$/i.test(String(cmd))) {
+      file = process.env.ComSpec || 'cmd.exe';
+      argv = ['/d', '/s', '/c', cmd, ...args];
+    }
+    const child = spawn(file, argv, {
       cwd: opts.cwd || ROOT,
       shell: false,
       windowsHide: true,
@@ -95,10 +115,10 @@ export function exec(cmd, args = [], opts = {}) {
 }
 
 /* ---------- ctx：recipe 能用的全部能力 ---------- */
-function makeCtx(job, params, emit) {
+function makeCtx(job, params, emit, secrets = []) {
   const shared = {};
   const log = (msg, level = 'info') => {
-    const line = { t: Date.now(), level, msg: String(msg) };
+    const line = { t: Date.now(), level, msg: redact(String(msg), secrets) };
     job.logs.push(line);
     if (job.logs.length > LOG_LINES_KEEP) job.logs.splice(0, job.logs.length - LOG_LINES_KEEP);
     emit('log', line);
@@ -106,6 +126,11 @@ function makeCtx(job, params, emit) {
   return {
     params: params || {},
     state: shared,
+    /** 登记"这次部署造出来的东西"，失败时可回滚（进程 / 目录 / compose 项目） */
+    record: (artifact) => {
+      if (!artifact || !artifact.kind) return;
+      job.artifacts.push(Object.assign({ at: Date.now() }, artifact));
+    },
     paths: {
       root: ROOT,
       runtimes: RUNTIMES,
@@ -124,12 +149,13 @@ function makeCtx(job, params, emit) {
         const child = spawn(cmd, args, {
           cwd: opts.cwd || ROOT,
           detached: true,
-          stdio: 'ignore',
+          stdio: opts.stdio || 'ignore',
           windowsHide: true,
           env: Object.assign({}, process.env, opts.env || {}),
         });
         child.unref();
         log(`已在后台启动：${path.basename(cmd)} ${args.join(' ')}`, 'info');
+        if (child.pid) job.artifacts.push({ at: Date.now(), kind: 'pid', value: child.pid, why: path.basename(cmd) });
         return { ok: true, pid: child.pid };
       } catch (e) {
         log(`启动失败：${e.message}`, 'err');
@@ -173,6 +199,7 @@ const stripJob = (j) => ({
   startedAt: j.startedAt, endedAt: j.endedAt, params: j.params,
   steps: j.steps.map((s) => ({ key: s.key, title: s.title, status: s.status, detail: s.detail, hint: s.hint, ms: s.ms })),
   logs: (j.logs || []).slice(-80),
+  artifacts: (j.artifacts || []).map((a) => ({ kind: a.kind, value: a.value, why: a.why || '' })),
 });
 
 export function getJob(id) {
@@ -198,7 +225,7 @@ export async function runInstall(target, opts = {}) {
   try {
     recipe = await loadRecipe(target);
   } catch (e) {
-    const job = { id: newId(), target, title: target, status: 'failed', startedAt: Date.now(), endedAt: Date.now(), steps: [], logs: [{ t: Date.now(), level: 'err', msg: e.message }], params: opts.params || {} };
+    const job = { id: newId(), target, title: target, status: 'failed', startedAt: Date.now(), endedAt: Date.now(), steps: [], logs: [{ t: Date.now(), level: 'err', msg: e.message }], params: scrubParams(opts.params), artifacts: [] };
     jobs.set(job.id, job);
     emit('fail', job);
     return job;
@@ -211,12 +238,14 @@ export async function runInstall(target, opts = {}) {
     status: 'running',
     startedAt: Date.now(),
     endedAt: null,
-    params: opts.params || {},
+    /* 密钥类参数进任务记录前先打码：jobs.json 是明文文件 */
+    params: scrubParams(opts.params),
+    artifacts: [],
     steps: recipe.steps.map((s) => ({ key: s.key, title: s.title, status: 'pending', detail: '', hint: '', ms: 0 })),
     logs: [],
   };
   jobs.set(job.id, job);
-  const ctx = makeCtx(job, opts.params, emit);
+  const ctx = makeCtx(job, opts.params, emit, secretValues(opts.params));
   emit('start', { id: job.id, title: job.title, steps: job.steps.map((s) => ({ key: s.key, title: s.title })) });
   ctx.log(`开始安装：${job.title}`);
 
@@ -259,6 +288,64 @@ export async function runInstall(target, opts = {}) {
   return job;
 }
 
+/* ---------- 回滚 ----------
+ * 只撤"这次任务自己造出来的东西"，靠 recipe 里 ctx.record() 与 spawnDetached 自动登记的
+ * artifacts 来定位。三条安全边界：
+ *   1. 目录/文件只在 runtimes/ 里面才删（防止 recipe 写错路径把用户目录清了）
+ *   2. 进程按 pid 杀，杀之前先看进程还在不在
+ *   3. compose 用 `down`（保留卷），不用 down -v —— 数据卷里可能是登录态，删了要重扫码
+ */
+const inRuntimes = (p) => {
+  try {
+    const abs = path.resolve(String(p || ''));
+    const base = path.resolve(RUNTIMES);
+    return abs === base || abs.startsWith(base + path.sep);
+  } catch { return false; }
+};
+
+async function killPid(pid) {
+  const n = Number(pid);
+  if (!Number.isFinite(n) || n <= 0) return { ok: false, why: 'pid 不合法' };
+  if (process.platform === 'win32') {
+    const r = await exec('taskkill', ['/PID', String(n), '/T', '/F'], { timeoutMs: 15000 });
+    return { ok: r.code === 0, why: String(r.stdout || r.stderr).trim().slice(0, 120) };
+  }
+  try { process.kill(n, 'SIGTERM'); return { ok: true, why: 'SIGTERM' }; }
+  catch (e) { return { ok: false, why: e.message }; }
+}
+
+export async function rollbackJob(jobId) {
+  const job = jobs.get(jobId) || loadJobHistory().find((j) => j.id === jobId);
+  if (!job) return { ok: false, error: '没有这个任务记录' };
+  const arts = [...(job.artifacts || [])];
+  if (!arts.length) return { ok: false, error: '这次部署没有登记可回滚的东西（可能一步都没执行成功）' };
+
+  const order = { pid: 0, compose: 1, file: 2, dir: 3 };
+  arts.sort((a, b) => (order[a.kind] ?? 9) - (order[b.kind] ?? 9));
+
+  const done = [], failed = [], skipped = [];
+  for (const a of arts) {
+    if (a.kind === 'pid') {
+      const r = await killPid(a.value);
+      (r.ok ? done : skipped).push(`结束进程 ${a.value}${a.why ? `（${a.why}）` : ''}${r.ok ? '' : '：' + r.why}`);
+    } else if (a.kind === 'compose') {
+      const r = await exec('docker', ['compose', '-f', a.value, 'down'], { timeoutMs: 180000 });
+      (r.code === 0 ? done : failed).push(`docker compose down ${path.basename(path.dirname(a.value))}`);
+    } else if (a.kind === 'dir' || a.kind === 'file') {
+      if (!inRuntimes(a.value)) { skipped.push(`跳过 ${a.value}（不在 runtimes/ 内，不删）`); continue; }
+      try { fs.rmSync(a.value, { recursive: true, force: true }); done.push(`删除 ${a.value}`); }
+      catch (e) { failed.push(`删除 ${a.value} 失败：${e.message}`); }
+    } else {
+      skipped.push(`不认识的回滚类型 ${a.kind}`);
+    }
+  }
+  try {
+    const list = loadJobHistory().map((j) => (j.id === jobId ? Object.assign({}, j, { rolledBackAt: new Date().toISOString() }) : j));
+    writeJson('jobs', list);
+  } catch { /* 记录写不进去不影响回滚本身 */ }
+  return { ok: failed.length === 0, done, failed, skipped };
+}
+
 /* ---------- CLI ---------- */
 const __isCli = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (__isCli) {
@@ -290,6 +377,12 @@ if (__isCli) {
       },
     });
     process.exit(job.status === 'done' ? 0 : 1);
+  }
+  if (cmd === 'rollback') {
+    if (!target) { console.error('用法：node scripts/installer.mjs rollback <jobId>'); process.exit(1); }
+    const r = await rollbackJob(target);
+    console.log(JSON.stringify(r, null, 2));
+    process.exit(r.ok ? 0 : 1);
   }
   console.error('未知命令：' + cmd);
   process.exit(1);

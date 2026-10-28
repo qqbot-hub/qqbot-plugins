@@ -6,7 +6,6 @@
   "tunnelUrl": "",
   "snowluma": {
     "httpUrl": "http://127.0.0.1:3000",
-    "accessToken": "",
     "wsPort": 3001
   },
   "dsh": {
@@ -20,6 +19,7 @@
   "onebot": {
     "impl": "auto",
     "authMode": "header",
-    "pathPrefix": ""
+    "pathPrefix": "",
+    "accessToken": ""
   }
 }

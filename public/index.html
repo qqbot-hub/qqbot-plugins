@@ -778,6 +778,85 @@
     .arw { display: none; }
     h1 { letter-spacing: -.8px; }
   }
+  /* ============ 部署方法（Phase 1） ============ */
+  .method-bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:14px 0 16px; }
+  .method-bar .seg { margin:0; }
+  .mgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:14px; }
+  .mcard {
+    position:relative; display:flex; flex-direction:column; gap:10px;
+    padding:16px 16px 14px; border:1px solid var(--line); border-radius:var(--r-md);
+    background:linear-gradient(180deg, rgba(22,29,42,.72), rgba(14,19,28,.55));
+    transition:transform .22s var(--ease), border-color .22s, box-shadow .22s;
+  }
+  .mcard:hover { transform:translateY(-2px); border-color:var(--line-2); box-shadow:var(--shadow-2); }
+  .mcard.miss { border-color:rgba(255,180,84,.22); }
+  .mc-top { display:flex; flex-wrap:wrap; gap:6px; }
+  .tag {
+    font-size:10.5px; line-height:1.6; padding:1px 7px; border-radius:999px;
+    border:1px solid var(--line-2); color:var(--dim); white-space:nowrap;
+  }
+  .tag.personal { color:#ffd08a; border-color:rgba(255,180,84,.32); background:rgba(255,180,84,.09); }
+  .tag.official { color:#8ee8c8; border-color:rgba(47,220,166,.32); background:rgba(47,220,166,.09); }
+  .tag.lv-oneclick { color:#a8c4ff; border-color:rgba(91,140,255,.45); background:rgba(91,140,255,.14); }
+  .tag.lv-compose { color:#c9b6ff; border-color:rgba(168,116,255,.4); background:rgba(168,116,255,.12); }
+  .tag.lv-assisted { color:#ffd6a8; border-color:rgba(255,180,84,.3); background:rgba(255,180,84,.08); }
+  .tag.lv-guide { color:var(--dim-2); }
+  .tag.ver-ok { color:#8ee8c8; border-color:rgba(47,220,166,.3); }
+  .tag.ver-no { color:#ffc2cf; border-color:rgba(255,112,137,.3); }
+  .mc-name { font-size:15px; font-weight:650; letter-spacing:.2px; margin:0; line-height:1.45; }
+  .mc-tag { color:var(--dim); font-size:12.5px; margin:0; }
+  .mc-stack { display:flex; flex-wrap:wrap; gap:5px; }
+  .mc-stack code { font-size:11px; padding:1px 6px; border-radius:5px; background:rgba(255,255,255,.045); color:#c4d2e8; }
+  .mc-rows { display:grid; grid-template-columns:auto 1fr; gap:3px 10px; font-size:12px; color:var(--dim); }
+  .mc-rows b { color:#c8d5e8; font-weight:500; }
+  .mc-miss { font-size:11.5px; color:#ffc98a; background:rgba(255,180,84,.08); border:1px solid rgba(255,180,84,.18); border-radius:7px; padding:5px 8px; }
+  .mc-btns { display:flex; gap:8px; margin-top:auto; padding-top:4px; }
+  .mc-btns button { flex:1; }
+  .mc-btns .pri { background:linear-gradient(180deg,#5b8cff,#3f6fe8); border-color:transparent; color:#fff; }
+  .mc-btns .pri:disabled { opacity:.45; cursor:not-allowed; }
+  .mc-note { font-size:11px; color:var(--dim-2); line-height:1.5; }
+
+  /* 兼容性矩阵 */
+  .mx-wrap { overflow:auto; border:1px solid var(--line); border-radius:var(--r-md); background:rgba(10,14,22,.5); }
+  table.mx { width:100%; border-collapse:collapse; font-size:12px; min-width:760px; }
+  table.mx th, table.mx td { padding:8px 10px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap; }
+  table.mx thead th { position:sticky; top:0; background:#0d1219; z-index:1; font-weight:600; color:#c8d5e8; font-size:11.5px; }
+  table.mx tbody tr:hover td { background:rgba(255,255,255,.025); }
+  table.mx td.mname { white-space:normal; min-width:190px; }
+  table.mx .yes { color:var(--ok); }
+  table.mx .no { color:var(--dim-2); }
+  table.mx .part { color:var(--warn); }
+  .mx-legend { display:flex; flex-wrap:wrap; gap:14px; margin-top:10px; font-size:11.5px; color:var(--dim-2); }
+  .mx-legend i { font-style:normal; margin-right:4px; }
+
+  /* 方法详情弹窗里的配置表单 */
+  .mth-hero { display:flex; flex-direction:column; gap:8px; }
+  .mth-hero p { margin:0; color:var(--dim); font-size:13px; }
+  .mth-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin:14px 0; }
+  .mth-cell { border:1px solid var(--line); border-radius:9px; padding:9px 11px; background:rgba(255,255,255,.022); }
+  .mth-cell span { display:block; font-size:10.5px; color:var(--dim-2); margin-bottom:3px; }
+  .mth-cell b { font-size:12.5px; font-weight:550; color:#dbe6f6; }
+  .mth-sec { margin:16px 0 6px; font-size:12px; color:var(--dim); letter-spacing:.4px; text-transform:uppercase; }
+  .risk-list, .step-list { margin:0; padding-left:18px; font-size:12.5px; color:#ffc2cf; }
+  .step-list { color:#c8d5e8; }
+  .risk-list li, .step-list li { margin:4px 0; line-height:1.6; }
+  .kv-secret { display:flex; gap:8px; align-items:center; }
+  .kv-secret input[type=password], .kv-secret input[type=text] { flex:1; }
+  .kv-has { font-size:11px; color:var(--ok); white-space:nowrap; }
+
+  /* 插件卡片上的权限 / 兼容信息 */
+  .c-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:2px; }
+  .c-meta span { font-size:10.5px; color:var(--dim-2); }
+  .perm-chip { font-size:10px; padding:1px 6px; border-radius:999px; border:1px solid var(--line-2); color:var(--dim); }
+  .perm-chip.danger { color:#ff9db0; border-color:rgba(255,112,137,.35); background:rgba(255,112,137,.08); }
+  .perm-chip.warn { color:#ffd08a; border-color:rgba(255,180,84,.3); background:rgba(255,180,84,.07); }
+  .perm-chip.info { color:#9fc0ff; border-color:rgba(91,140,255,.28); }
+  .compat-chip { font-size:10px; padding:1px 6px; border-radius:999px; border:1px dashed rgba(91,140,255,.35); color:#a8c4ff; }
+  .confirm-box { border:1px solid rgba(255,180,84,.3); background:rgba(255,180,84,.06); border-radius:9px; padding:11px 13px; margin:12px 0; }
+  .confirm-box h4 { margin:0 0 6px; font-size:13px; color:#ffd08a; }
+  .confirm-box ul { margin:6px 0 0; padding-left:18px; font-size:12.5px; color:#e8d9c4; }
+  .confirm-box li { margin:3px 0; }
+  .confirm-ok { display:flex; gap:8px; align-items:flex-start; margin-top:10px; font-size:12.5px; color:var(--text); }
 </style>
 </head>
 <body>
@@ -796,14 +875,16 @@
 
     <div class="side-label">导航</div>
     <nav class="nav">
+      <a href="#methods" data-nav="methods"><span class="ic">▤</span>部署方法</a>
       <a href="#market" data-nav="market"><span class="ic">▦</span>插件市场</a>
-      <a href="#deploy" data-nav="deploy"><span class="ic">⤓</span>部署链路</a>
-      <a href="#hub" data-nav="hub"><span class="ic">⊞</span>全网插件源</a>
+      <a href="#compat" data-nav="compat"><span class="ic">⊞</span>兼容性矩阵</a>
+      <a href="#deploy" data-nav="deploy"><span class="ic">⤓</span>链路组件</a>
+      <a href="#hub" data-nav="hub"><span class="ic">◇</span>全网插件源</a>
       <a href="#stack" data-nav="stack"><span class="ic">⇢</span>链路位置</a>
       <a href="#prov" data-nav="prov"><span class="ic">✓</span>来源与实测</a>
       <a href="#bridge" data-nav="bridge"><span class="ic">⇄</span>接入 DSH</a>
       <a href="javascript:void 0" onclick="openGlobalCfg()"><span class="ic">⚙</span>连接设置</a>
-      <a href="https://github.com/qqbot-hub/qqbot-plugins#readme" target="_blank" rel="noopener"><span class="ic">▤</span>使用文档</a>
+      <a href="https://github.com/qqbot-hub/qqbot-plugins#readme" target="_blank" rel="noopener"><span class="ic">▥</span>使用文档</a>
     </nav>
 
     <div class="side-label">运行状态</div>
@@ -866,6 +947,24 @@
         </div>
       </section>
 
+      <section class="sec" id="methods">
+        <div class="sec-head">
+          <h2>选一种部署方法</h2>
+          <span class="hub-badge">10 条路线 · 本机可用性实时判断</span>
+          <span class="ln"></span>
+        </div>
+        <p class="sec-sub">
+          像点外卖一样：先挑「店」（部署方法），再挑「菜」（插件）。
+          <b>只有标着「可一键部署」的才真有脚本在跑</b>——它会真的建环境、装包、起进程、探端口；
+          只给步骤的路线，按钮就叫「查看步骤」，不假装能装。
+        </p>
+        <div class="method-bar">
+          <div class="seg" id="mChips"></div>
+          <span class="dep-hint" id="mHint">正在读取方法清单…</span>
+        </div>
+        <div class="mgrid" id="mList"></div>
+      </section>
+
       <section class="sec reveal" id="stack">
         <div class="sec-head"><h2>它在整条链路里的位置</h2><span class="ln"></span></div>
         <p class="sec-sub">教程做到「会聊天」，这里补上记忆、声音、画笔，和一双能干活的手。</p>
@@ -917,6 +1016,27 @@
         <div class="seg" id="chips"></div>
         <div class="grid" id="grid"></div>
         <div id="companion"></div>
+      </section>
+
+      <section class="sec" id="compat">
+        <div class="sec-head">
+          <h2>兼容性矩阵</h2>
+          <span class="hub-badge">按真实能力标注 · 不写「全兼容」</span>
+          <span class="ln"></span>
+        </div>
+        <p class="sec-sub">
+          同一个插件能不能装，取决于两件事：<b>它跑在哪个宿主里</b>、<b>它要不要调用协议端动作</b>。
+          本市场的插件是零依赖 <code>.mjs</code>，跑在市场自己的 MCP 进程里，所以只对 DSH 宿主有效；
+          纯本地工具（报时、抽签）不碰协议端，官方通道也能用；要发消息、禁言的则必须 OneBot v11。
+          AstrBot / Koishi / NoneBot / Yunzai 的原生插件只在各自框架内可用，跨框架现在是 <b>不支持</b>，矩阵里就这么写。
+        </p>
+        <div class="mx-wrap"><table class="mx" id="mxTable"><tbody><tr><td class="dim">加载中…</td></tr></tbody></table></div>
+        <div class="mx-legend">
+          <span><i class="yes">●</i>原生支持</span>
+          <span><i class="no">○</i>不支持（要换框架或写适配）</span>
+          <span><i class="part">◐</i>有条件（见方法详情）</span>
+          <span id="mxMeta" style="margin-left:auto"></span>
+        </div>
       </section>
 
       <section class="sec" id="hub">
@@ -1286,6 +1406,7 @@ function skeleton() {
 
 async function load() {
   loadHealth();
+  loadMethods();
   const r = await (await fetch('/api/list')).json();
   PLUGINS = r.plugins || [];
   /* 外部桌面程序单独成区，不参与插件计数与筛选 */
@@ -1295,9 +1416,10 @@ async function load() {
   const cats = ['全部', ...Object.keys(counts)];
   $('#chips').innerHTML = cats.map((c) => {
     const n = c === '全部' ? mcpPlugins.length : counts[c];
-    return `<button class="${c === CAT ? 'on' : ''}" data-c="${c}">${c}<span class="n">${n}</span></button>`;
+    return `<button class="${c === CAT ? 'on' : ''}" data-c="${c}">${c}    <span class="n">${n}</span></button>`;
   }).join('');
   render();
+  loadCompat();
 }
 
 function render() {
@@ -1312,6 +1434,336 @@ function render() {
 }
 
 /* 配套桌面程序（非 MCP 插件，点按钮直接下载） */
+/* ============ 部署方法（Phase 1） ============ */
+let METHODS = [], MRUNTIME = null, MACC = '全部', MCOMPAT = null;
+const ACC_LABEL = { personal: '个人号', official: '官方号' };
+const LV_CLASS = { oneclick: 'lv-oneclick', compose: 'lv-compose', assisted: 'lv-assisted', guide: 'lv-guide' };
+
+async function loadMethods() {
+  const box = $('#mList');
+  try {
+    const r = await (await fetch('/api/methods')).json();
+    METHODS = r.methods || [];
+    MRUNTIME = r.runtime || null;
+    renderMethods();
+  } catch (e) {
+    if (box) box.innerHTML = `<div class="hub-empty">读不到方法清单：${esc(e.message)}</div>`;
+  }
+}
+
+function renderMethods() {
+  const box = $('#mList');
+  if (!box) return;
+  const accs = ['全部', '个人号', '官方号', '可一键'];
+  $('#mChips').innerHTML = accs.map((a) => {
+    const n = a === '全部' ? METHODS.length
+      : a === '可一键' ? METHODS.filter((m) => m.deploy.level === 'oneclick' || m.deploy.level === 'compose').length
+      : METHODS.filter((m) => ACC_LABEL[m.account] === a).length;
+    return `<button class="${a === MACC ? 'on' : ''}" data-acc="${a}">${a}<span class="n">${n}</span></button>`;
+  }).join('');
+
+  const list = METHODS.filter((m) => MACC === '全部' ? true
+    : MACC === '可一键' ? (m.deploy.level === 'oneclick' || m.deploy.level === 'compose')
+    : ACC_LABEL[m.account] === MACC);
+  box.innerHTML = list.map((m) => methodCard(m)).join('') || '<div class="hub-empty">这个筛选下没有方法</div>';
+
+  const rt = MRUNTIME || {};
+  const bits = [
+    `Node ${rt.node ? rt.node.version : '?'}`,
+    rt.python && rt.python.ok ? `Python ${rt.python.version}` : '未检测到 Python',
+    rt.docker && rt.docker.ok ? `Docker ${rt.docker.version}` : '未检测到 Docker',
+  ];
+  $('#mHint').textContent = `本机环境：${bits.join(' · ')}（每次打开页面重新探测）`;
+}
+
+function methodCard(m) {
+  const d = m.deploy || {};
+  const lv = d.level || 'guide';
+  const key = (d.kind === 'compose') ? 'compose' : (d.verified ? 'verified' : 'unverified');
+  const accTag = `<span class="tag ${m.account}">${ACC_LABEL[m.account] || m.account}</span>`;
+  const lvTag = `<span class="tag ${LV_CLASS[lv] || ''}">${esc(d.levelLabel || lv)}</span>`;
+  const verTag = d.verified
+    ? '<span class="tag ver-ok">本机已验证</span>'
+    : `<span class="tag ver-no" title="${esc(d.verifiedNote || '')}">未在本机验证</span>`;
+  const stack = (m.stack || []).map((s) => `<code>${esc(s)}</code>`).join('');
+  const ports = (m.ports || []).filter((p) => p.port).map((p) => p.port).join(' / ') || '无固定端口';
+  const reqs = (m.requirements || []).map((r) => esc(r.label)).join('、') || '无额外依赖';
+  const miss = (m.missing || []).length
+    ? `<div class="mc-miss">本机还缺：${m.missing.map(esc).join('、')}</div>` : '';
+  const canRun = lv === 'oneclick' || lv === 'compose';
+  const btn = canRun
+    ? `<button class="pri" data-deploy="${esc(m.id)}" ${m.ready ? '' : 'disabled'}>${m.ready ? '部署' : '依赖未满足'}</button>`
+    : `<button class="pri" data-detail="${esc(m.id)}">查看步骤</button>`;
+  return `<article class="mcard ${m.missing && m.missing.length ? 'miss' : ''}">
+    <div class="mc-top">${accTag}${lvTag}${verTag}</div>
+    <h3 class="mc-name">${esc(m.name)}</h3>
+    <p class="mc-tag">${esc(m.tagline || '')}</p>
+    <div class="mc-stack">${stack}</div>
+    <div class="mc-rows">
+      <b>系统</b><span>${(m.os || []).map((o) => o === 'windows' ? 'Windows' : o === 'linux' ? 'Linux' : o).join(' / ')}</span>
+      <b>桌面 QQ</b><span>${m.needsDesktopQQ ? '需要' : '不需要'}</span>
+      <b>端口</b><span>${ports}</span>
+      <b>依赖</b><span>${reqs}</span>
+    </div>
+    ${miss}
+    <div class="mc-btns">${btn}<button class="ghost" data-detail="${esc(m.id)}">详情</button></div>
+  </article>`;
+}
+
+document.addEventListener('click', (e) => {
+  const c = e.target.closest && e.target.closest('#mChips button[data-acc]');
+  if (c) { MACC = c.dataset.acc; renderMethods(); return; }
+  const b = e.target.closest && e.target.closest('[data-deploy]');
+  if (b) { deployMethod(b.dataset.deploy); return; }
+  const d = e.target.closest && e.target.closest('[data-detail]');
+  if (d) { openMethod(d.dataset.detail); }
+});
+
+/* 一键部署：按方法声明的链条逐个 recipe 走，遇到 failed 就停 + 给回滚 */
+async function deployMethod(id) {
+  const m = METHODS.find((x) => x.id === id);
+  if (!m) return;
+  if (m.deploy.level === 'guide') { openMethod(id); return; }
+  if (!m.ready) {
+    toast(`这条方法还缺：${(m.missing || []).join('、')}`, 'err');
+    openMethod(id);
+    return;
+  }
+  const chain = m.deploy.kind === 'compose'
+    ? ['compose']
+    : (m.deploy.chain && m.deploy.chain.length ? m.deploy.chain : [m.deploy.recipe]).filter(Boolean);
+  const done = [], manual = [], jobs = [];
+  for (const t of chain) {
+    const params = t === 'compose' ? { method: m.id } : {};
+    const st = await startInstall(t, params, `${m.name} · ${t}`, { method: m.id });
+    jobs.push(window.__lastJobId || '');
+    if (st === 'done') { done.push(t); continue; }
+    if (st === 'manual') { manual.push(t); continue; }   /* 需要扫码这类，不拦后面的步骤 */
+    addRollbackBtn(jobs, `「${m.name}」停在 ${t}，可以撤销这次已经做过的部分`);
+    toast(`部署停在 ${t}：这一步真的失败了，展开日志看红字，或点「回滚这次部署」`, 'err');
+    loadMethods();
+    return;
+  }
+  loadMethods();
+  loadComponents();
+  if (manual.length) toast(`已自动完成 ${done.length} 步；${manual.join('、')} 需要你扫码/填 Key，做完再点一次部署`, 'warn');
+  else toast(`「${m.name}」已部署完成（${done.length} 步全部通过）`, 'ok');
+}
+
+/* 失败后的回滚按钮：把这次链条里成功/失败的 job 都撤掉 */
+function addRollbackBtn(jobIds, tip) {
+  const ids = (jobIds || []).filter(Boolean);
+  const foot = $('#instFoot');
+  if (!foot || !ids.length) return;
+  const btn = document.createElement('button');
+  btn.className = 'dep-btn';
+  btn.textContent = '回滚这次部署';
+  btn.onclick = async () => {
+    btn.disabled = true;
+    btn.textContent = '回滚中…';
+    const lines = [];
+    for (const jid of ids) {
+      try {
+        const r = await (await fetch('/api/install/rollback', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobId: jid }),
+        })).json();
+        if (!r.ok && r.error) lines.push(r.error);
+        (r.done || []).forEach((x) => lines.push('✓ ' + x));
+        (r.failed || []).forEach((x) => lines.push('✗ ' + x));
+      } catch (e) { lines.push('✗ ' + e.message); }
+    }
+    const pre = document.createElement('div');
+    pre.style.cssText = 'font-size:12px;color:var(--dim);white-space:pre-wrap;margin-top:8px';
+    pre.textContent = lines.join('\n') || '没有可回滚的内容';
+    foot.appendChild(pre);
+    btn.textContent = '已回滚';
+    toast('回滚完成，明细写在底部', 'ok');
+    loadMethods();
+  };
+  const note = document.createElement('span');
+  note.className = 'dep-hint';
+  note.style.flex = '1';
+  note.textContent = tip || '这次部署可以撤销';
+  foot.appendChild(note);
+  foot.appendChild(btn);
+}
+
+/* 方法详情：完整参数 + 加密填 Key + 手工步骤 + 风险 */
+function openMethod(id) {
+  const m = METHODS.find((x) => x.id === id);
+  if (!m) return;
+  const old = document.getElementById('mthModal');
+  if (old) old.remove();
+  const d = document.createElement('div');
+  d.className = 'modal';
+  d.id = 'mthModal';
+  const ports = (m.ports || []).map((p) => p.port ? `${p.port}（${esc(p.role)}）` : esc(p.role)).join('、') || '无固定端口';
+  const keyFields = (m.keyConfig || []).map((k) => `<div class="field">
+      <label>${esc(k.label)}${k.required ? ' <b style="color:var(--bad)">*</b>' : ''}</label>
+      <div class="kv-secret">
+        <input type="${k.secret ? 'password' : 'text'}" data-secret="${esc(k.key)}" autocomplete="off"
+          placeholder="${k.hasValue ? '已保存，留空表示不修改' : '未设置'}">
+        ${k.hasValue ? '<span class="kv-has">✓ 已加密保存</span>' : ''}
+      </div>
+      <div class="help">${esc(k.help || '')}</div>
+    </div>`).join('');
+  const qqnt = m.qqnt && m.qqnt.note ? `<div class="mc-miss" style="color:#c9d6e8;background:rgba(91,140,255,.06);border-color:rgba(91,140,255,.2)">QQNT：${esc(m.qqnt.note)}</div>` : '';
+  const risks = (m.risks || []).length ? `<div class="mth-sec">风险与限制</div><ul class="risk-list">${m.risks.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>` : '';
+  const steps = (m.deploy.manualSteps || []).length ? `<div class="mth-sec">必须你本人做的步骤</div><ol class="step-list">${m.deploy.manualSteps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>` : '';
+  const canRun = m.deploy.level === 'oneclick' || m.deploy.level === 'compose';
+
+  d.innerHTML = `<div class="mask" onclick="document.getElementById('mthModal').remove()"></div>
+  <div class="modal-in" style="width:min(780px,94vw);max-height:90vh;overflow:auto">
+    <div class="modal-head">
+      <b>${esc(m.name)}</b>
+      <span class="tag ${LV_CLASS[m.deploy.level] || ''}">${esc(m.deploy.levelLabel)}</span>
+      <button class="x" style="margin-left:auto;background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer;padding:2px 8px"
+        onclick="document.getElementById('mthModal').remove()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="mth-hero">
+        <p>${esc(m.tagline || '')}</p>
+        <div class="mc-stack">${(m.stack || []).map((s) => `<code>${esc(s)}</code>`).join('')}</div>
+      </div>
+      <div class="mth-grid">
+        <div class="mth-cell"><span>账号类型</span><b>${ACC_LABEL[m.account] || m.account}${m.account === 'personal' ? '（务必用小号）' : '（不封号）'}</b></div>
+        <div class="mth-cell"><span>系统</span><b>${(m.os || []).join(' / ') || '—'}</b></div>
+        <div class="mth-cell"><span>桌面 QQ</span><b>${m.needsDesktopQQ ? '需要（QQNT 注入）' : '不需要'}</b></div>
+        <div class="mth-cell"><span>端口</span><b style="font-weight:400;font-size:12px">${ports}</b></div>
+        <div class="mth-cell"><span>协议</span><b>${(m.protocols || []).join(' / ') || '—'}</b></div>
+        <div class="mth-cell"><span>插件生态</span><b>${esc(m.pluginApi || '—')}</b></div>
+      </div>
+      ${qqnt}
+      ${(m.missing || []).length ? `<div class="mc-miss">本机还缺：${m.missing.map(esc).join('、')}</div>` : ''}
+      <div class="mth-sec">关键配置</div>
+      ${keyFields || '<p class="dep-hint">这条方法没有需要预先填的密钥。</p>'}
+      <p class="dep-hint" style="margin-top:8px">密钥用 AES-256-GCM 加密后存在本机（data/state/.secrets.key），接口不回传明文，日志里也会打码。本市场不收集、不存储 QQ 密码，登录一律扫码。</p>
+      ${risks}
+      ${steps}
+      <div class="mth-sec">自动化程度</div>
+      <p class="dep-hint">${esc(m.deploy.verifiedNote || (m.deploy.verified ? '已在本机跑通' : '尚未在本机验证，请按步骤核对'))}</p>
+    </div>
+    <div class="modal-foot">
+      <span class="hint">${canRun ? (m.ready ? '点「开始部署」会真的执行' : '依赖未满足，先补齐再部署') : '这条路线只给步骤，没有一键按钮'}</span>
+      <button class="ghost" onclick="saveMethodSecrets('${esc(m.id)}')">保存配置</button>
+      ${canRun ? `<button class="pri" ${m.ready ? '' : 'disabled'} onclick="document.getElementById('mthModal').remove();deployMethod('${esc(m.id)}')">开始部署</button>` : ''}
+    </div>
+  </div>`;
+  d.addEventListener('click', (e) => { if (e.target === d) d.remove(); });
+  document.body.appendChild(d);
+}
+
+async function saveMethodSecrets(id) {
+  const box = document.getElementById('mthModal');
+  if (!box) return;
+  const inputs = [...box.querySelectorAll('[data-secret]')];
+  let n = 0;
+  for (const inp of inputs) {
+    const v = inp.value.trim();
+    if (!v) continue;                       /* 留空=不修改，避免"保存一次清一次" */
+    const r = await (await fetch('/api/secrets', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ method: id, key: inp.dataset.secret, value: v }),
+    })).json();
+    if (r.ok) { n++; inp.value = ''; }
+  }
+  toast(n ? `已加密保存 ${n} 项配置` : '没有填写新值（留空不会清空已存的）', n ? 'ok' : 'warn');
+  await loadMethods();
+  const m = METHODS.find((x) => x.id === id);
+  if (m) { box.remove(); openMethod(id); }
+}
+
+/* ============ 兼容性矩阵 ============ */
+async function loadCompat() {
+  try {
+    MCOMPAT = await (await fetch('/api/compat')).json();
+    renderMatrix();
+  } catch (e) {
+    const t = $('#mxTable');
+    if (t) t.innerHTML = `<tbody><tr><td>读不到兼容性数据：${esc(e.message)}</td></tr></tbody>`;
+  }
+}
+
+function renderMatrix() {
+  const t = $('#mxTable');
+  if (!t || !MCOMPAT) return;
+  const cols = [
+    { key: 'mcp-dsh:bridge', label: '本市场插件<br><span style="font-weight:400;color:var(--dim-2)">要协议端动作</span>' },
+    { key: 'mcp-dsh:local', label: '本市场插件<br><span style="font-weight:400;color:var(--dim-2)">纯本地工具</span>' },
+    { key: 'astrbot', label: 'AstrBot' },
+    { key: 'koishi', label: 'Koishi' },
+    { key: 'nonebot', label: 'NoneBot2' },
+    { key: 'yunzai', label: 'Yunzai' },
+    { key: 'maibot', label: 'MaiBot' },
+    { key: 'ncatbot', label: 'NcatBot' },
+  ];
+  const methods = MCOMPAT.methods || [];
+  const head = `<thead><tr>
+    <th>部署方法</th><th>账号</th><th>协议</th><th>自动化</th><th>可用插件</th>
+    ${cols.map((c) => `<th>${c.label}</th>`).join('')}
+  </tr></thead>`;
+  const rows = methods.map((m) => {
+    const avail = PLUGINS.filter((p) => !p.external && (p.compat && p.compat.methods || []).includes(m.id)).length;
+    const cells = cols.map((c) => {
+      const v = (MCOMPAT.matrix[c.key] || {})[m.id];
+      if (v === 'native') {
+        return m.ready ? '<td class="yes">●</td>' : '<td class="part" title="依赖未满足">◐</td>';
+      }
+      return '<td class="no">○</td>';
+    }).join('');
+    return `<tr>
+      <td class="mname"><b>${esc(m.name)}</b>${m.verified ? '' : '<br><span style="font-size:10.5px;color:var(--warn)">未在本机验证</span>'}</td>
+      <td>${m.account === 'personal' ? '个人号' : '官方号'}</td>
+      <td>${(m.protocols || []).join('<br>')}</td>
+      <td>${esc(m.levelLabel)}</td>
+      <td>${avail}</td>
+      ${cells}
+    </tr>`;
+  }).join('');
+  t.innerHTML = head + `<tbody>${rows}</tbody>`;
+  const meta = $('#mxMeta');
+  if (meta) meta.textContent = `${methods.length} 种方法 × ${cols.length} 类插件 · 生成于 ${new Date(MCOMPAT.generatedAt).toLocaleString('zh-CN')}`;
+}
+
+/* 安装前的权限确认：能执行命令 / 能写文件 / 能以机器人身份说话，必须勾选 */
+function confirmInstall(id) {
+  const p = PLUGINS.find((x) => x.id === id);
+  if (!p) return;
+  if (!p.confirmRequired) { startInstall('plugin', { id }, p.name); return; }
+  const old = document.getElementById('cfmModal');
+  if (old) old.remove();
+  const d = document.createElement('div');
+  d.className = 'modal';
+  d.id = 'cfmModal';
+  const perms = (p.permissions || []).map((x) => `<li><b>${esc(x.label)}</b> — ${esc(x.why)}</li>`).join('');
+  d.innerHTML = `<div class="mask" onclick="document.getElementById('cfmModal').remove()"></div>
+  <div class="modal-in" style="width:min(620px,92vw)">
+    <div class="modal-head"><b>安装前确认 · ${esc(p.name)}</b>
+      <button class="x" style="margin-left:auto;background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer;padding:2px 8px"
+        onclick="document.getElementById('cfmModal').remove()">×</button></div>
+    <div class="modal-body">
+      <p class="dep-hint">这个插件会用到下面这些能力（来自对插件源码的静态扫描，不是它自己声明的）：</p>
+      <div class="confirm-box">
+        <h4>它会做的事</h4>
+        <ul>${perms || '<li>没有扫描到敏感能力</li>'}</ul>
+        <label class="confirm-ok"><input type="checkbox" id="cfmOk">
+          <span>我知道它会${(p.permissions || []).some((x) => x.key === 'exec') ? '执行系统命令、' : ''}${(p.permissions || []).some((x) => x.key === 'file:write') ? '写本地文件、' : ''}${(p.permissions || []).some((x) => x.key === 'message:send') ? '以机器人身份在群里发言、' : ''}并同意安装</span></label>
+      </div>
+      <p class="dep-hint">兼容性：${(p.compat && p.compat.methods || []).length} 种部署方法可用${p.compat && p.compat.needsBridge ? '（要求 OneBot v11 + DSH 宿主）' : '（纯本地工具）'}。</p>
+    </div>
+    <div class="modal-foot">
+      <span class="hint">安装后可随时停用或卸载</span>
+      <button class="ghost" onclick="document.getElementById('cfmModal').remove()">取消</button>
+      <button class="pri" id="cfmGo" disabled onclick="document.getElementById('cfmModal').remove();startInstall('plugin',{id:'${esc(p.id)}'},'${esc(p.name)}')">确认安装</button>
+    </div>
+  </div>`;
+  document.body.appendChild(d);
+  document.getElementById('cfmOk').addEventListener('change', (e) => {
+    document.getElementById('cfmGo').disabled = !e.target.checked;
+  });
+}
+
 /* ============ 部署整条链路 ============ */
 let COMPS = [];
 const DEP_ROLE = { prereq: '前置', protocol: '协议端', host: '宿主', bridge: '桥接', market: '市场', companion: '配套' };
@@ -1510,14 +1962,14 @@ function finishInstall(status) {
   load();
 }
 
-async function startInstall(target, params, title) {
+async function startInstall(target, params, title, opts) {
   openInstallPanel(title || target);
   ensureInstallStream();
   let res;
   try {
     res = await (await fetch('/api/install', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ target, params: params || {} }),
+      body: JSON.stringify({ target, params: params || {}, method: (opts && opts.method) || '' }),
     })).json();
   } catch (e) {
     finishInstall('failed');
@@ -1530,6 +1982,7 @@ async function startInstall(target, params, title) {
   }
   const cur = { id: res.jobId, finished: false };
   INST.cur = cur;
+  window.__lastJobId = res.jobId;      // 给「回滚这次部署」用
   /* 拉一次骨架（步骤标题），SSE 之后只负责增量更新 */
   try {
     const jr = await (await fetch('/api/install/job?id=' + encodeURIComponent(res.jobId))).json();
@@ -1644,9 +2097,26 @@ function card(p, i) {
   const btns = p.installed
     ? `<button onclick="op('toggle','${p.id}',{enabled:${!p.enabled}})">${p.enabled ? '停用' : '启用'}</button>
        <button class="ghost" onclick="op('uninstall','${p.id}')">卸载</button>`
-    : `<button class="pri" onclick="startInstall('plugin',{id:'${p.id}'},'${esc(p.name)}')">安装</button>`;
+    : `<button class="pri" onclick="confirmInstall('${p.id}')">安装</button>`;
   const gear = p.hasSettings
     ? `<button class="gear" onclick="openPluginCfg('${p.id}')" title="配置这个插件">⚙ 配置</button>` : '';
+  /* 权限来自对源码的静态扫描；兼容方法来自 methods.json，都不手写 */
+  const perms = (p.permissions || []).map((x) =>
+    `<span class="perm-chip ${x.level}" title="${esc(x.why || '')}">${esc(x.label)}</span>`).join('');
+  const nCompat = (p.compat && p.compat.methods || []).length;
+  const compatNames = (p.compat && p.compat.methods || []).map((id) => {
+    const m = (METHODS || []).find((x) => x.id === id);
+    return m ? m.name.split(' ')[0] + (m.name.includes('+') ? '+' : '') : id;
+  });
+  const compatChip = nCompat
+    ? `<span class="compat-chip" title="兼容：${compatNames.join('、')}">兼容 ${nCompat} 种部署方法</span>`
+    : '<span class="compat-chip" style="color:var(--warn);border-color:rgba(255,180,84,.35)">当前没有可用方法</span>';
+  const meta = `<div class="c-meta">
+      <span title="宿主框架">${esc(p.framework || 'mcp')}</span><span>·</span>
+      <span>${esc(p.language || 'JavaScript')}</span><span>·</span>
+      <span title="作者">${esc(p.author || '本项目')}</span>
+      ${compatChip}${perms}
+    </div>`;
   return `<article class="card" style="--cat:${color};animation-delay:${Math.min(i, 16) * 16}ms">
     <div class="c-top">
       <h3>${p.name}</h3>
@@ -1656,6 +2126,7 @@ function card(p, i) {
     </div>
     <p class="c-desc">${p.description}</p>
     <div class="c-tools">${tools}</div>
+    ${meta}
     <div class="c-btns">${btns}${gear}</div>
   </article>`;
 }

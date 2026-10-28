@@ -1,0 +1,682 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-28T13:30:19.299Z",
+  "method": "静态扫描 plugins/*.mjs 的 API 使用情况（见 scripts/build-permissions.mjs）",
+  "sourceHashes": {
+    "abbr": "aaf2b0777f4d",
+    "baseconv": "1868e5e7a668",
+    "bilihot": "4899ca88af05",
+    "bingimg": "1fe4faec635d",
+    "birthday": "26a8cfd7a104",
+    "blackjack": "5e95e95309a6",
+    "bombgame": "a10e529d3047",
+    "calc": "2c4c12ac7988",
+    "clock": "c2e35ad57ee0",
+    "coin": "576514c2aadc",
+    "color": "34f2bd555974",
+    "dice": "135130c3d18e",
+    "draw": "0f6aed29e5ad",
+    "exchange": "4ca4064d0d3e",
+    "fortune": "012ea9d8348b",
+    "gacha": "776308242116",
+    "group_admin": "3673f06c034e",
+    "group_info": "52edcee8f59a",
+    "guess": "c92531caa6a9",
+    "hitokoto": "264f7da69778",
+    "idiom": "18653e8c109c",
+    "imagine": "6b6c3bc49dec",
+    "joke": "1f5afbb027bc",
+    "jukebox": "89170ac6138a",
+    "ledger": "6cac1bdd33e2",
+    "meihua": "3d0a920ed7ff",
+    "memo": "9c0028e6878d",
+    "memory": "d0600a0aac0e",
+    "morse": "dc542ea0856f",
+    "passgen": "bdd9a86cb6e6",
+    "poem": "05edc9a13b83",
+    "pomodoro": "cbea9cf938de",
+    "quote": "ec80eee2c574",
+    "qzone": "250e5a838ff9",
+    "remind": "9902e0b4a988",
+    "riddle": "08fc4271c2df",
+    "roulette": "69ad07c70fea",
+    "sensoji": "238a160fc290",
+    "signin": "e202f0da411f",
+    "tarot": "10a32071232e",
+    "translate": "ecea05d38891",
+    "unit": "4e7c4f180b3f",
+    "voice": "41ae45f66e07",
+    "weather": "b318eef485aa",
+    "wordle": "cf74ed61f333",
+    "zodiac": "9485afe7b13e"
+  },
+  "plugins": {
+    "abbr": {
+      "permissions": [
+        {
+          "key": "network",
+          "label": "访问网络",
+          "level": "info",
+          "why": "数据会发到本机之外的接口"
+        }
+      ],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 30
+    },
+    "baseconv": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 28
+    },
+    "bilihot": {
+      "permissions": [
+        {
+          "key": "network",
+          "label": "访问网络",
+          "level": "info",
+          "why": "数据会发到本机之外的接口"
+        }
+      ],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 27
+    },
+    "bingimg": {
+      "permissions": [
+        {
+          "key": "network",
+          "label": "访问网络",
+          "level": "info",
+          "why": "数据会发到本机之外的接口"
+        }
+      ],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 22
+    },
+    "birthday": {
+      "permissions": [
+        {
+          "key": "file:write",
+          "label": "写入本地文件",
+          "level": "warn",
+          "why": "会往磁盘写数据（缓存、配置、下载的文件）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 58
+    },
+    "blackjack": {
+      "permissions": [
+        {
+          "key": "file:write",
+          "label": "写入本地文件",
+          "level": "warn",
+          "why": "会往磁盘写数据（缓存、配置、下载的文件）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 73
+    },
+    "bombgame": {
+      "permissions": [
+        {
+          "key": "file:write",
+          "label": "写入本地文件",
+          "level": "warn",
+          "why": "会往磁盘写数据（缓存、配置、下载的文件）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 47
+    },
+    "calc": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 68
+    },
+    "clock": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 22
+    },
+    "coin": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 24
+    },
+    "color": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 19
+    },
+    "dice": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 42
+    },
+    "draw": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 29
+    },
+    "exchange": {
+      "permissions": [
+        {
+          "key": "network",
+          "label": "访问网络",
+          "level": "info",
+          "why": "数据会发到本机之外的接口"
+        }
+      ],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 33
+    },
+    "fortune": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 36
+    },
+    "gacha": {
+      "permissions": [
+        {
+          "key": "message:send",
+          "label": "以机器人身份发消息 / 管理群",
+          "level": "warn",
+          "why": "会在群里说话、发图、禁言或踢人（受机器人自身群权限限制）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": true,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 34
+    },
+    "group_admin": {
+      "permissions": [
+        {
+          "key": "message:send",
+          "label": "以机器人身份发消息 / 管理群",
+          "level": "warn",
+          "why": "会在群里说话、发图、禁言或踢人（受机器人自身群权限限制）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": true,
+      "hasSettings": true,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 181
+    },
+    "group_info": {
+      "permissions": [
+        {
+          "key": "message:send",
+          "label": "以机器人身份发消息 / 管理群",
+          "level": "warn",
+          "why": "会在群里说话、发图、禁言或踢人（受机器人自身群权限限制）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": true,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 53
+    },
+    "guess": {
+      "permissions": [
+        {
+          "key": "file:write",
+          "label": "写入本地文件",
+          "level": "warn",
+          "why": "会往磁盘写数据（缓存、配置、下载的文件）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 46
+    },
+    "hitokoto": {
+      "permissions": [
+        {
+          "key": "network",
+          "label": "访问网络",
+          "level": "info",
+          "why": "数据会发到本机之外的接口"
+        }
+      ],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 21
+    },
+    "idiom": {
+      "permissions": [
+        {
+          "key": "file:write",
+          "label": "写入本地文件",
+          "level": "warn",
+          "why": "会往磁盘写数据（缓存、配置、下载的文件）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 53
+    },
+    "imagine": {
+      "permissions": [
+        {
+          "key": "message:send",
+          "label": "以机器人身份发消息 / 管理群",
+          "level": "warn",
+          "why": "会在群里说话、发图、禁言或踢人（受机器人自身群权限限制）"
+        },
+        {
+          "key": "network",
+          "label": "访问网络",
+          "level": "info",
+          "why": "数据会发到本机之外的接口"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": true,
+      "hasSettings": true,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 175
+    },
+    "joke": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 23
+    },
+    "jukebox": {
+      "permissions": [
+        {
+          "key": "network",
+          "label": "访问网络",
+          "level": "info",
+          "why": "数据会发到本机之外的接口"
+        }
+      ],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 22
+    },
+    "ledger": {
+      "permissions": [
+        {
+          "key": "file:write",
+          "label": "写入本地文件",
+          "level": "warn",
+          "why": "会往磁盘写数据（缓存、配置、下载的文件）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 53
+    },
+    "meihua": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 36
+    },
+    "memo": {
+      "permissions": [
+        {
+          "key": "file:write",
+          "label": "写入本地文件",
+          "level": "warn",
+          "why": "会往磁盘写数据（缓存、配置、下载的文件）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 71
+    },
+    "memory": {
+      "permissions": [
+        {
+          "key": "file:write",
+          "label": "写入本地文件",
+          "level": "warn",
+          "why": "会往磁盘写数据（缓存、配置、下载的文件）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": false,
+      "hasSettings": true,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 228
+    },
+    "morse": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 30
+    },
+    "passgen": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 28
+    },
+    "poem": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 34
+    },
+    "pomodoro": {
+      "permissions": [
+        {
+          "key": "file:write",
+          "label": "写入本地文件",
+          "level": "warn",
+          "why": "会往磁盘写数据（缓存、配置、下载的文件）"
+        },
+        {
+          "key": "message:send",
+          "label": "以机器人身份发消息 / 管理群",
+          "level": "warn",
+          "why": "会在群里说话、发图、禁言或踢人（受机器人自身群权限限制）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": true,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 63
+    },
+    "quote": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 25
+    },
+    "qzone": {
+      "permissions": [
+        {
+          "key": "message:send",
+          "label": "以机器人身份发消息 / 管理群",
+          "level": "warn",
+          "why": "会在群里说话、发图、禁言或踢人（受机器人自身群权限限制）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": true,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 69
+    },
+    "remind": {
+      "permissions": [
+        {
+          "key": "file:write",
+          "label": "写入本地文件",
+          "level": "warn",
+          "why": "会往磁盘写数据（缓存、配置、下载的文件）"
+        },
+        {
+          "key": "message:send",
+          "label": "以机器人身份发消息 / 管理群",
+          "level": "warn",
+          "why": "会在群里说话、发图、禁言或踢人（受机器人自身群权限限制）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": true,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 83
+    },
+    "riddle": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 27
+    },
+    "roulette": {
+      "permissions": [
+        {
+          "key": "message:send",
+          "label": "以机器人身份发消息 / 管理群",
+          "level": "warn",
+          "why": "会在群里说话、发图、禁言或踢人（受机器人自身群权限限制）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": true,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 38
+    },
+    "sensoji": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 30
+    },
+    "signin": {
+      "permissions": [
+        {
+          "key": "file:write",
+          "label": "写入本地文件",
+          "level": "warn",
+          "why": "会往磁盘写数据（缓存、配置、下载的文件）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 56
+    },
+    "tarot": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 29
+    },
+    "translate": {
+      "permissions": [
+        {
+          "key": "network",
+          "label": "访问网络",
+          "level": "info",
+          "why": "数据会发到本机之外的接口"
+        }
+      ],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 35
+    },
+    "unit": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 53
+    },
+    "voice": {
+      "permissions": [
+        {
+          "key": "message:send",
+          "label": "以机器人身份发消息 / 管理群",
+          "level": "warn",
+          "why": "会在群里说话、发图、禁言或踢人（受机器人自身群权限限制）"
+        },
+        {
+          "key": "network",
+          "label": "访问网络",
+          "level": "info",
+          "why": "数据会发到本机之外的接口"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": true,
+      "hasSettings": true,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 183
+    },
+    "weather": {
+      "permissions": [
+        {
+          "key": "network",
+          "label": "访问网络",
+          "level": "info",
+          "why": "数据会发到本机之外的接口"
+        }
+      ],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": true,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 53
+    },
+    "wordle": {
+      "permissions": [
+        {
+          "key": "file:write",
+          "label": "写入本地文件",
+          "level": "warn",
+          "why": "会往磁盘写数据（缓存、配置、下载的文件）"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 64
+    },
+    "zodiac": {
+      "permissions": [],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 29
+    }
+  }
+}

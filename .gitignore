@@ -7,4 +7,9 @@ data/store/
 
 # 安装状态是本机运行时数据（含 QQ 号等隐私），不入库
 data/state/*.json
+# 密钥文件（AES-256-GCM 的 key）绝不入库
+data/state/.secrets.key
+# 密钥迁移时的 config 备份里含历史明文 token，更不能入库
+config.backup-*.json
 runtimes/
+.shots/
