@@ -45,19 +45,37 @@ node scripts/register-dsh.mjs desktop
 
 反过来也行，只要**最后重启一次 DSH**。
 
-### ③ 工具重复：AI 会犯迷糊
+### ③ 工具重叠：其实只有 3 个领域
 
-| 能力 | SurfCore | 本市场 | 建议 |
+先把数据摆出来（两边工具名逐条比对）：
+
+| 指标 | 数值 |
+| --- | --- |
+| SurfCore 工具 | 39 个 |
+| 本市场工具 | 75 个 |
+| **完全同名的** | **0 个** |
+| 功能重叠的领域 | **3 个**：记忆、语音、群成员查询 |
+
+MCP 的工具名带服务前缀，所以**不会真的撞名字**：
+
+```
+mcp__snowluma__qq_memory_append   ← SurfCore
+mcp__qqbot__qq_memory_save        ← 本市场
+```
+
+真正的麻烦只有一个，但很真实：**记忆分裂**。
+
+| 领域 | SurfCore | 本市场 | 实际影响 |
 | --- | --- | --- | --- |
-| 记忆 | `qq_memory_append/query/remove/clear` | `qq_memory_save/recall/card/forget` | **只留一套**，否则记忆会分裂在两个地方 |
-| 语音 | `qq_send_voice`（走 voxd 8765/8767） | `qq_tts` | 只留一个；或用下面的「共用一个引擎」方案 |
-| 消息收发 | `qq_send_message` / `qq_reply` / `qq_wait_for_messages` 等 | 无 | SurfCore 负责 |
-| 群管 | 无 | `group_admin`（禁言/踢人/公告） | 本市场负责 |
-| 记账 / 备忘 / 签到 / 天气 / 计算 / 汇率 | 无 | 有 | 本市场负责 |
-| 小游戏（成语接龙、21点、猜数字…） | 无 | 6 个 | 本市场负责 |
-| AI 画画 | 无 | `imagine` | 本市场负责 |
-| B站 | 有（扫码登录、动态、分享） | 无 | SurfCore 负责 |
-| 桌宠 | 有（SurfPet） | 无（只有下载入口） | SurfCore 负责 |
+| 记忆 | `qq_memory_append/query/remove/clear` | `qq_memory_save/recall/card/forget` | ⚠️ **两个独立的存储**。让它记到 SurfCore 那边，你问我这边就查不到，反之亦然 |
+| 语音 | `qq_send_voice`、`qq_list_voices` | `qq_tts` | 资源重复（两套引擎/两套音色），不致命，但浪费 |
+| 群成员 | `qq_get_group_members`、`qq_get_active_members` | `qq_group_info/members/member` | 都是只读，无害，只是多一层选择 |
+| 群管理动作 | **无** | `qq_group_ban/kick/recall/...` 8 个 | 只有本市场有 |
+| 发消息/表情包/未读 | 一整套 8 个 | 无 | 只有 SurfCore 有 |
+
+剩下的 60 多个插件（记账、签到、天气、计算、汇率、6 个小游戏、AI 画画、备忘、提醒…）**完全无重叠**，各管各的。
+
+所以准确的说法不是"AI 会犯迷糊"，而是：**同一件事有两套实现，其中记忆会真的分家。**
 
 **推荐分工**：SurfCore 管"像人一样聊天"（身份、记忆、语音、B站、桌宠），本市场管"替人办事"（群管、记账、游戏、画画）。
 
