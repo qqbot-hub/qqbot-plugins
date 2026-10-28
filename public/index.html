@@ -359,6 +359,47 @@
   }
   .seg button .n { font-size: 10px; opacity: .6; font-variant-numeric: tabular-nums; }
 
+  /* 全网插件源（聚合目录） */
+  .hub-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 18px 0 12px; }
+  .hub-bar .seg { margin-bottom: 0; }
+  .hub-tools { display: flex; gap: 8px; align-items: center; margin-left: auto; flex-wrap: wrap; }
+  .hub-tools select {
+    background: rgba(12,17,26,.82); color: var(--text); border: 1px solid var(--line);
+    border-radius: 9px; padding: 7px 10px; font: inherit; font-size: 12px; outline: none;
+  }
+  .btn-ghost {
+    border: 1px solid var(--line); background: rgba(12,17,26,.7); color: var(--dim);
+    font-size: 12px; padding: 7px 12px; border-radius: 9px; transition: .16s; white-space: nowrap;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: rgba(91,140,255,.45); background: rgba(91,140,255,.07); }
+  .btn-ghost[disabled] { opacity: .55; pointer-events: none; }
+  .hub-meta { font-size: 11px; color: var(--dim-2); font-variant-numeric: tabular-nums; }
+  .hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(298px, 1fr)); gap: 11px; }
+  .hub-card {
+    display: flex; flex-direction: column; gap: 7px; padding: 13px 14px 12px;
+    border-radius: var(--r-md); border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(21,27,39,.7), rgba(13,18,27,.55));
+    transition: border-color .16s, transform .16s;
+  }
+  .hub-card:hover { border-color: rgba(91,140,255,.32); transform: translateY(-1px); }
+  .hc-top { display: flex; align-items: baseline; gap: 8px; }
+  .hc-top b { font-size: 13px; font-weight: 600; letter-spacing: -.1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hc-star { margin-left: auto; font-size: 11px; color: var(--warn); font-variant-numeric: tabular-nums; flex: 0 0 auto; }
+  .hc-desc {
+    font-size: 12px; color: var(--dim); line-height: 1.6; min-height: 38px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .hc-meta { display: flex; gap: 5px; flex-wrap: wrap; font-size: 10.5px; color: var(--dim-2); }
+  .hc-meta span { border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; white-space: nowrap; }
+  .hc-actions { display: flex; gap: 8px; margin-top: 3px; }
+  .hc-actions a, .hc-actions button {
+    flex: 1; text-align: center; font-size: 11.5px; padding: 6px 8px; border-radius: 8px;
+    border: 1px solid var(--line); color: var(--dim); background: transparent; transition: .16s;
+  }
+  .hc-actions a:hover, .hc-actions button:hover { color: var(--text); border-color: rgba(91,140,255,.5); background: rgba(91,140,255,.08); }
+  .hub-more { display: flex; justify-content: center; margin-top: 14px; }
+  .hub-empty { text-align: center; padding: 34px 10px; color: var(--dim-2); font-size: 12.5px; }
+
   /* 卡片 */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(286px, 1fr)); gap: 13px; }
   .card {
@@ -653,6 +694,7 @@
     <div class="side-label">导航</div>
     <nav class="nav">
       <a href="#market" data-nav="market"><span class="ic">▦</span>插件市场</a>
+      <a href="#hub" data-nav="hub"><span class="ic">⊞</span>全网插件源</a>
       <a href="#stack" data-nav="stack"><span class="ic">⇢</span>链路位置</a>
       <a href="#prov" data-nav="prov"><span class="ic">✓</span>来源与实测</a>
       <a href="#bridge" data-nav="bridge"><span class="ic">⇄</span>接入 DSH</a>
@@ -754,6 +796,35 @@
         <div class="seg" id="chips"></div>
         <div class="grid" id="grid"></div>
         <div id="companion"></div>
+      </section>
+
+      <section class="sec reveal" id="hub">
+        <div class="sec-head"><h2>全网插件源</h2><span class="ln"></span></div>
+        <p class="sec-sub">
+          像外卖平台一样：不自己做所有菜，但把各家店都摆在一张桌上。这里聚合 Yunzai / NoneBot / Koishi / AstrBot / OneBot
+          生态里真实存在的插件仓库，统一检索。<b>目录接入 ≠ 能直接装</b>——它们依赖各自的加载器，点「复制适配提示词」
+          就能让它按本市场的规范重写成一个零依赖的 <code>.mjs</code> 插件。
+        </p>
+        <div class="hub-bar">
+          <div class="seg" id="hubChips"></div>
+          <div class="hub-tools">
+            <div class="search" style="flex:0 1 240px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/>
+              </svg>
+              <input type="search" id="hubQ" placeholder="搜全网插件，比如 原神 / 签到 / 语音" autocomplete="off">
+            </div>
+            <select id="hubSort" title="排序">
+              <option value="stars">按星数</option>
+              <option value="updated">按最近更新</option>
+              <option value="name">按名字</option>
+            </select>
+            <button class="btn-ghost" id="hubSync" onclick="syncHub()">重新抓取</button>
+            <span class="hub-meta" id="hubMeta">加载中…</span>
+          </div>
+        </div>
+        <div class="hub-grid" id="hubList"></div>
+        <div class="hub-more" id="hubMore"></div>
       </section>
 
       <section class="sec reveal" id="prov">
@@ -877,6 +948,160 @@ async function copyGroup() {
   setTimeout(() => { btn.classList.remove('copied'); tip.textContent = '复制'; }, 2200);
 }
 
+/* ============ 全网插件源 ============ */
+const HUB = { q: '', platform: '', sort: 'stars', page: 1, perPage: 18, items: [], matched: 0, total: 0, loading: false };
+
+function hubQuery(n) {
+  const u = new URL('/api/hub', location.origin);
+  u.searchParams.set('page', String(n));
+  u.searchParams.set('perPage', String(HUB.perPage));
+  u.searchParams.set('sort', HUB.sort);
+  if (HUB.q) u.searchParams.set('q', HUB.q);
+  if (HUB.platform) u.searchParams.set('platform', HUB.platform);
+  return u;
+}
+
+function hubChips(facets) {
+  const items = Object.keys(facets).sort((a, b) => facets[b] - facets[a]);
+  $('#hubChips').innerHTML = [{ k: '', n: HUB.total, label: '全部' }]
+    .concat(items.map((k) => ({ k, n: facets[k], label: k })))
+    .map((it) => `<button class="${HUB.platform === it.k ? 'on' : ''}" data-plat="${esc(it.k)}">${esc(it.label)}<span class="n">${it.n}</span></button>`)
+    .join('');
+}
+
+function hubMeta(box, r) {
+  const t = r.fetchedAt ? new Date(r.fetchedAt) : null;
+  const when = t && !Number.isNaN(t.getTime())
+    ? `${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')} ${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`
+    : '未知';
+  box.textContent = r.syncing
+    ? '正在抓取上游…'
+    : `${r.total} 个仓库 · ${(r.counts && r.counts.okSources) || 0}/${(r.counts && r.counts.sources) || 0} 个源 · 抓取于 ${when}`;
+}
+
+async function loadHub(append) {
+  if (HUB.loading) return;
+  HUB.loading = true;
+  try {
+    const r = await (await fetch(hubQuery(append ? HUB.page + 1 : 1))).json();
+    HUB.items = append ? HUB.items.concat(r.entries || []) : (r.entries || []);
+    HUB.page = r.page || 1;
+    HUB.matched = r.matched || 0;
+    HUB.total = r.total || 0;
+    hubChips(r.facets || {});
+    hubMeta($('#hubMeta'), r);
+    renderHub();
+    const more = HUB.items.length < HUB.matched;
+    $('#hubMore').innerHTML = more
+      ? `<button class="btn-ghost" onclick="loadHub(true)">再看 ${Math.min(HUB.perPage, HUB.matched - HUB.items.length)} 个</button>`
+      : '';
+  } catch (e) {
+    $('#hubList').innerHTML = `<div class="hub-empty">插件源没加载出来：${esc(e.message)}</div>`;
+  } finally {
+    HUB.loading = false;
+  }
+}
+
+function renderHub() {
+  const box = $('#hubList');
+  if (!HUB.items.length) {
+    box.innerHTML = '<div class="hub-empty">没有匹配的仓库。换个词，或者点「重新抓取」拉最新的。</div>';
+    return;
+  }
+  box.innerHTML = HUB.items.map((e) => {
+    const meta = [];
+    if (e.platform) meta.push(e.platform);
+    if (e.lang) meta.push(e.lang);
+    if (e.updatedAt) meta.push('更新 ' + String(e.updatedAt).slice(0, 10));
+    if (e.license) meta.push(e.license);
+    if (e.archived) meta.push('已归档');
+    return `<article class="hub-card">
+      <div class="hc-top"><b title="${esc(e.repo)}">${esc(e.repo)}</b><span class="hc-star">★ ${e.stars || 0}</span></div>
+      <div class="hc-desc">${esc(e.desc || '（作者没写描述）')}</div>
+      <div class="hc-meta">${meta.map((m) => `<span>${esc(m)}</span>`).join('')}</div>
+      <div class="hc-actions">
+        <a href="${esc(e.url)}" target="_blank" rel="noopener">看源码 ↗</a>
+        <button data-port="${esc(e.id)}">复制适配提示词</button>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+/* 把一个外部插件仓库，变成"交给 AI 改造成本市场插件"的开工单 */
+function portPrompt(e) {
+  return `把这个 QQ 插件的能力，改成 qqbot-plugins（MCP 插件市场）里的一个插件：
+
+- 仓库：${e.url}
+- 平台：${e.platform || '未知'}
+- 描述：${e.desc || '（无）'}
+
+按本仓库的规范写：
+1. 新建 plugins/<id>.mjs，导出 { meta:{ id, name, description, category }, settings?, tools:[{ name, description, inputSchema, run }] }
+2. 零第三方依赖，只用 node: 内置模块；联网用 _lib.mjs 的 httpJson，超时 8 秒内，失败给中文可读提示
+3. 操作 QQ 一律走 ctx.bridge（sendText / banMember / getMembers / setNotice …），不要直接拼 HTTP，也不要在插件里判断协议端
+4. 不抓版权音视频；需要 Key 的服务要在 settings 里声明字段，由市场生成配置表单
+5. 危险动作（踢人 / 全体禁言 / 设管理员）必须要求 confirm=true 二次确认
+6. 在 data/plugins.json 登记，并在 scripts/verify-plugins.mjs 的 SAMPLES 里补示例参数
+7. 改完跑 node scripts/verify-plugins.mjs 和 node scripts/test-bridge.mjs，两个都过了再提交`;
+}
+
+async function copyPort(id) {
+  const e = HUB.items.find((x) => x.id === id);
+  if (!e) return;
+  const text = portPrompt(e);
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('适配提示词已复制，粘给 AI 就能开工：' + e.repo, 'ok');
+  } catch {
+    /* 剪贴板被浏览器拦住时，退到可选中复制的弹窗 */
+    showText('复制这段提示词', text);
+  }
+}
+
+async function syncHub() {
+  const btn = $('#hubSync');
+  btn.disabled = true;
+  try {
+    const r = await (await fetch('/api/hub/sync', { method: 'POST' })).json();
+    if (!r.ok) { toast(r.error || '同步没启动成功', 'err'); return; }
+    if (!r.started) { toast(r.msg || '正在同步中', ''); return; }
+    toast('已开始抓取，GitHub 限速下大约要 40 秒');
+    for (let i = 0; i < 40; i++) {
+      await new Promise((res) => setTimeout(res, 3000));
+      const s = await (await fetch('/api/hub?perPage=1')).json();
+      hubMeta($('#hubMeta'), s);
+      if (!s.syncing) {
+        if (s.lastError) toast('抓取失败：' + s.lastError, 'err');
+        else toast('抓完了：' + ((s.counts && s.counts.entries) || 0) + ' 个仓库', 'ok');
+        await loadHub(false);
+        return;
+      }
+    }
+    toast('抓取还没结束，过会儿刷新看看', '');
+  } catch (e) {
+    toast('同步出错：' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* 通用文本弹窗（剪贴板不可用时的兜底） */
+function showText(title, text) {
+  const d = document.createElement('div');
+  d.className = 'modal';
+  d.innerHTML = `<div class="mask" onclick="this.parentNode.remove()"></div>
+    <div class="modal-box"><div class="modal-in">
+      <div class="modal-head"><b>${esc(title)}</b><button class="x" onclick="this.closest('.modal').remove()" title="关闭">✕</button></div>
+      <div class="modal-body">
+        <p class="modal-intro">全选复制（Ctrl/⌘ + A），粘给任意 AI 即可开工。</p>
+        <textarea readonly style="width:100%;height:280px;background:rgba(12,17,26,.85);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px;font:12px/1.6 ui-monospace,Consolas,monospace">${esc(text)}</textarea>
+      </div>
+    </div></div>`;
+  document.body.appendChild(d);
+  const ta = d.querySelector('textarea');
+  ta.focus(); ta.select();
+}
+
 /* ============ 侧栏状态 ============ */
 /* 协议端那一行下面补一小行：昵称 · QQ 号 · 心跳延迟
    数据来自 /api/status（只做心跳，不逐个加载插件，适合每 20 秒轮询一次） */
@@ -968,8 +1193,8 @@ function renderCompanion() {
   if (!items.length) { box.innerHTML = ''; return; }
   box.innerHTML = `
     <div class="comp-head">
-      <h2>配套桌面程序</h2>
-      <span class="comp-note">独立程序，装在电脑上陪着你，不装进 QQ 机器人</span>
+      <h2>配套工具与桌面程序</h2>
+      <span class="comp-note">独立运行的小工具，不装进 QQ 机器人；调音台可以直接在市场里打开</span>
     </div>
     ${items.map((p) => `
       <article class="comp-card">
@@ -978,7 +1203,9 @@ function renderCompanion() {
             <h3>${esc(p.name)}</h3>
             <span class="chip-cat" style="--cat:var(--c-social)">${esc(p.category)}</span>
             <span class="chip-src" title="${esc((p.source && p.source.label) || '')}">${esc((p.source && p.source.label) || '第三方')}</span>
-            <span class="c-state off"><span class="dot"></span>${esc(p.version || '')}</span>
+            ${p.statusApi
+              ? `<span class="c-state off" data-status="${esc(p.statusApi)}"><span class="dot"></span>查询中…</span>`
+              : `<span class="c-state off"><span class="dot"></span>${esc(p.version || '')}</span>`}
           </div>
           <p class="c-desc">${esc(p.description)}</p>
           <div class="dl-row">
@@ -992,6 +1219,15 @@ function renderCompanion() {
           ${p.setup ? `<div class="comp-setup"><b>怎么接进来</b>${esc(p.setup)}</div>` : ''}
         </div>
       </article>`).join('')}`;
+
+  /* 带 statusApi 的（调音台这类本地服务）：顺手查一次在不在线 */
+  box.querySelectorAll('[data-status]').forEach(async (el) => {
+    try {
+      const r = await (await fetch(el.dataset.status)).json();
+      el.className = 'c-state' + (r.online ? '' : ' off');
+      el.innerHTML = `<span class="dot ${r.online ? 'ok' : ''}"></span>${r.online ? '已启动' : '未启动'}`;
+    } catch { /* 查不到就保持「查询中…」 */ }
+  });
 }
 
 function card(p, i) {
@@ -1204,6 +1440,27 @@ $('#chips').addEventListener('click', (e) => {
   if (b) { CAT = b.dataset.c; load(); }
 });
 $('#q').addEventListener('input', render);
+
+/* 全网插件源：筛选 / 搜索 / 排序 / 复制提示词 */
+$('#hubChips').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-plat]');
+  if (!b) return;
+  HUB.platform = b.dataset.plat;
+  loadHub(false);
+});
+$('#hubList').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-port]');
+  if (b) copyPort(b.dataset.port);
+});
+{
+  let hubTimer = 0;
+  $('#hubQ').addEventListener('input', (e) => {
+    clearTimeout(hubTimer);
+    const v = e.target.value.trim();
+    hubTimer = setTimeout(() => { HUB.q = v; loadHub(false); }, 320);
+  });
+  $('#hubSort').addEventListener('change', (e) => { HUB.sort = e.target.value; loadHub(false); });
+}
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     if (!$('#modal').hidden) return closeModal();
@@ -1267,9 +1524,14 @@ window.addEventListener('scroll', spy, { passive: true });
 /* 启动 */
 skeleton();
 document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+/* ?noreveal=1：直接显示所有区块（无头截图 / 打印 / 排查用） */
+if (new URLSearchParams(location.search).has('noreveal')) {
+  document.querySelectorAll('.reveal').forEach((el) => el.classList.add('in'));
+}
 countUp();
 load().then(() => { spy(); });
 loadStars();
+loadHub(false);
 /* 心跳：每 20 秒刷新一次侧栏状态；页面切回前台时立刻补一次 */
 setInterval(() => { if (!document.hidden) loadHealth(); }, 20000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) loadHealth(); });

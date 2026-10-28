@@ -1054,5 +1054,38 @@
     "origin": "external",
     "installed": false,
     "enabled": false
+  },
+  {
+    "id": "voicelab",
+    "name": "调音台 · Voice Lab",
+    "description": "本地语音工作台：试听音色、调语速/音高/情绪、克隆参考音色，满意了一键写进机器人的 voice 插件。跑在本机 3120，市场通过 /lab/ 直接代理进来，不用另开窗口。",
+    "category": "配套工具",
+    "tools": [],
+    "external": true,
+    "version": "本机 3120",
+    "statusApi": "/api/lab/status",
+    "homepage": "http://127.0.0.1:3120",
+    "releases": "http://127.0.0.1:3120",
+    "downloads": [
+      {
+        "label": "在市场里打开",
+        "note": "走 /lab/ 代理，不用另开窗口",
+        "url": "/lab/",
+        "primary": true
+      },
+      {
+        "label": "原窗口打开",
+        "note": "127.0.0.1:3120",
+        "url": "http://127.0.0.1:3120"
+      }
+    ],
+    "setup": "调音台是独立进程，先启动它：node D:\\tts\\voicelab\\server.mjs（默认 127.0.0.1:3120）。启动后市场里点「在市场里打开」即可；要让局域网也能访问，用它自带的 share.bat。",
+    "source": {
+      "label": "本机独立程序（不属于本仓库）",
+      "url": "http://127.0.0.1:3120"
+    },
+    "origin": "external",
+    "installed": false,
+    "enabled": false
   }
 ]

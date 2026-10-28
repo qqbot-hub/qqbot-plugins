@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "note": "全网插件源：每条 = 一个真实可查询的上游来源。抓取走 GitHub Search API（只读、公开数据），不改任何仓库。新增源只要加一条，不用改代码。",
+  "defaults": { "perPage": 40, "sort": "stars" },
+  "sources": [
+    {
+      "id": "yunzai",
+      "name": "Yunzai / 云崽 插件",
+      "platform": "Yunzai",
+      "query": "yunzai plugin in:name,description",
+      "homepage": "https://github.com/topics/yunzai-plugin",
+      "filter": "pluginish",
+      "note": "云崽系插件多为 JS，装法是把插件目录丢进 plugins/，与本市场格式不同，需要适配"
+    },
+    {
+      "id": "nonebot",
+      "name": "NoneBot 插件",
+      "platform": "NoneBot",
+      "query": "topic:nonebot-plugin",
+      "homepage": "https://github.com/topics/nonebot-plugin",
+      "note": "NoneBot2 插件，Python 包，能力最全的一支"
+    },
+    {
+      "id": "koishi",
+      "name": "Koishi 插件",
+      "platform": "Koishi",
+      "query": "topic:koishi-plugin",
+      "homepage": "https://github.com/topics/koishi-plugin",
+      "note": "Koishi 插件是 npm 包，装进 Koishi 运行时；接口抽象得最干净"
+    },
+    {
+      "id": "astrbot",
+      "name": "AstrBot 插件",
+      "platform": "AstrBot",
+      "query": "topic:astrbot-plugin",
+      "homepage": "https://github.com/topics/astrbot-plugin",
+      "note": "AstrBot 插件（Python），近年增长很快，接 QQ 用 napcat / aiocqhttp"
+    },
+    {
+      "id": "onebot",
+      "name": "OneBot 生态",
+      "platform": "OneBot v11/v12",
+      "query": "topic:onebot-plugin",
+      "homepage": "https://github.com/topics/onebot-plugin",
+      "note": "以 OneBot 协议为目标写的插件/适配器，跨框架通用度最高"
+    },
+    {
+      "id": "qqbot",
+      "name": "QQ 机器人插件（通用）",
+      "platform": "QQ 机器人",
+      "query": "qq bot plugin in:name,description",
+      "homepage": "https://github.com/search?q=qq+bot+plugin&type=repositories",
+      "filter": "pluginish",
+      "note": "不挑框架的关键词搜索，用来兜住上面几类漏掉的；噪音也最多，已按关键词过滤"
+    }
+  ]
+}

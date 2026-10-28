@@ -337,6 +337,20 @@ qqbot-plugins/
 
 详见 [docs/PROTOCOLS.md](docs/PROTOCOLS.md)。自测：`node scripts/test-bridge.mjs`（19 项）。
 
+## 全网插件源（平台模式）
+
+市场不只陈列自己写的 46 个插件，还像外卖平台一样把**各家店摆上同一张桌**：
+`data/sources.json` 定义了 Yunzai / NoneBot / Koishi / AstrBot / OneBot 生态的真实查询源，
+`node scripts/hub-sync.mjs` 一键抓成统一目录（截至 2026-10-28：6 个源、204 个仓库），
+网页「全网插件源」板块可以直接搜索、按平台筛选、按星数排序。
+
+- **目录接入 ≠ 能直接装**：外部插件依赖各自框架的加载器；每张卡片提供「看源码」和
+  「复制适配提示词」，让 AI 按本市场规范把它重写成零依赖的 `.mjs` 插件
+- 首次同步的快照随仓库提交，离线也能看；页面可随时重新抓取（60 秒冷却防限流）
+- 配套的调音台（Voice Lab，本机 3120）也通过 `/lab/` 反向代理接进了市场
+
+详见 [docs/HUB.md](docs/HUB.md)。自测：`node scripts/test-hub.mjs`（11 项）。
+
 ## 与 SurfCore 共存
 
 [SurfCore](https://github.com/Mieksido/surfcore) 是另一套「QQ × B站 × 桌宠」的完整栈，它**接替 qq-bridge 的位置**。

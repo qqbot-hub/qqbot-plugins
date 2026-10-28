@@ -32,7 +32,7 @@ const readBin = (f) => fs.readFileSync(path.join(ROOT, f));
 const CFG_FILE = path.join(ROOT, 'config.json');
 let cfg = { password: '', port: 3210, snowluma: {}, dsh: {}, bridge: {}, plugins: {} };
 try { cfg = Object.assign(cfg, JSON.parse(read('config.json'))); } catch (e) { /* 首次运行用默认值 */ }
-const PORT = Number(cfg.port || 3210);
+const PORT = Number(process.env.PORT || cfg.port || 3210);
 const PASSWORD = String(cfg.password || '');
 const STATE_FILE = path.join(ROOT, 'data', 'state.json');
 
@@ -287,6 +287,143 @@ async function doctor() {
   };
 }
 
+/* ---------- 调音台（配套本地服务）接入 ----------
+ * 调音台是 D:\tts\voicelab 里的独立小服务（默认 127.0.0.1:3120），
+ * 用来调语音音色、试听、直接把音色写进机器人的 voice 插件。
+ * 它不属于本仓库，也不复制它的代码 —— 这里只做**反向代理**，让它出现在市场里。
+ * 它页面里的请求是绝对路径（/api/state、/audio/x.wav），所以这几个前缀在市场根上转给它；
+ * 市场自己的 /api/* 优先匹配，两者不冲突。
+ */
+function labTarget() {
+  const raw = String((cfg.lab && cfg.lab.url) || 'http://127.0.0.1:3120');
+  try { return new URL(raw); } catch { return new URL('http://127.0.0.1:3120'); }
+}
+const LAB_PATHS = [
+  /^\/audio\//,
+  /^\/api\/(state|synth|voices|presets|upload|save-voice|send|bot\/voice)(\/|\?|$)/,
+];
+const isLabPath = (p) => LAB_PATHS.some((re) => re.test(p));
+
+function labDownPage() {
+  const t = labTarget();
+  return `<!doctype html><meta charset="utf-8"><title>调音台没启动</title>
+<style>body{background:#0d1014;color:#e6edf3;font:15px/1.7 system-ui,"Microsoft YaHei";padding:40px;max-width:640px;margin:auto}
+code{background:#1c232c;padding:2px 6px;border-radius:4px;color:#5eead4}a{color:#38bdf8}</style>
+<h1>调音台没启动</h1>
+<p>市场连不上 <code>${t.origin}</code>。调音台是独立进程，需要先启动它：</p>
+<p><code>node D:\\tts\\voicelab\\server.mjs</code></p>
+<p>启动后刷新本页即可。想看它自己的界面也可以直接开
+<a href="${t.origin}" target="_blank" rel="noopener">${t.origin}</a>。</p>`;
+}
+
+function proxyTo(target, req, res, stripPrefix = '') {
+  let p = req.url && req.url.startsWith('/') ? req.url : '/' + (req.url || '');
+  if (stripPrefix && p.startsWith(stripPrefix)) {
+    p = p.slice(stripPrefix.length) || '/';
+    if (!p.startsWith('/')) p = '/' + p;
+  }
+  const headers = Object.assign({}, req.headers, { host: target.host });
+  delete headers.cookie;                       // 市场的登录口令不带给调音台
+  delete headers['accept-encoding'];           // 让上游回明文，省得我们解压
+  const up = http.request({
+    hostname: target.hostname,
+    port: target.port || (target.protocol === 'https:' ? 443 : 80),
+    path: p,
+    method: req.method,
+    headers,
+    timeout: 180000,
+  }, (r) => {
+    const out = Object.assign({}, r.headers);
+    delete out['transfer-encoding'];
+    delete out.connection;
+    res.writeHead(r.statusCode || 502, out);
+    r.pipe(res);
+  });
+  up.on('timeout', () => up.destroy(new Error('上游超时')));
+  up.on('error', () => { if (!res.headersSent) sendHtml(res, 502, labDownPage()); else res.end(); });
+  req.pipe(up);
+}
+
+/* ---------- 全网插件源（聚合目录） ---------- */
+const HUB_FILE = path.join(ROOT, 'data', 'hub.json');
+const HUB_STATE = { syncing: false, startedAt: 0, lastError: '', lastResult: null };
+
+function hubSnapshot() {
+  try { return JSON.parse(fs.readFileSync(HUB_FILE, 'utf8')); } catch { return null; }
+}
+function hubSyncStatus() {
+  return {
+    syncing: HUB_STATE.syncing,
+    lastSyncAt: HUB_STATE.startedAt ? new Date(HUB_STATE.startedAt).toISOString() : '',
+    lastError: HUB_STATE.lastError,
+    lastResult: HUB_STATE.lastResult,
+  };
+}
+async function startHubSync() {
+  if (HUB_STATE.syncing) return { ok: true, started: false, msg: '正在同步中，稍等' };
+  /* 冷却一分钟：GitHub 未登录时搜索接口只有 10 次/分钟 */
+  if (HUB_STATE.startedAt && Date.now() - HUB_STATE.startedAt < 60000) {
+    const wait = Math.ceil((60000 - (Date.now() - HUB_STATE.startedAt)) / 1000);
+    return { ok: false, error: `刚同步过，${wait} 秒后再试（GitHub 限流保护）` };
+  }
+  HUB_STATE.syncing = true;
+  HUB_STATE.startedAt = Date.now();
+  HUB_STATE.lastError = '';
+  (async () => {
+    try {
+      const { syncAll } = await import(pathToFileURL(path.join(ROOT, 'scripts', 'hub-sync.mjs')).href);
+      const snap = await syncAll();
+      fs.writeFileSync(HUB_FILE, JSON.stringify(snap, null, 1) + '\n');
+      HUB_STATE.lastResult = { counts: snap.counts, fetchedAt: snap.fetchedAt, sources: snap.sources };
+    } catch (e) {
+      HUB_STATE.lastError = String((e && e.message) || e);
+    } finally {
+      HUB_STATE.syncing = false;
+    }
+  })();
+  return { ok: true, started: true };
+}
+function hubQuery(params) {
+  const snap = hubSnapshot();
+  const all = (snap && snap.entries) || [];
+  const q = String(params.get('q') || '').trim().toLowerCase();
+  const platform = String(params.get('platform') || '');
+  const source = String(params.get('source') || '');
+  const sort = String(params.get('sort') || 'stars');
+  const page = Math.max(1, Number(params.get('page')) || 1);
+  const perPage = Math.min(60, Math.max(6, Number(params.get('perPage')) || 18));
+
+  const hit = (e) => {
+    if (platform && e.platform !== platform) return false;
+    if (source && !(e.sources || [e.sourceId]).includes(source)) return false;
+    if (!q) return true;
+    return [e.repo, e.name, e.desc, e.platform, (e.topics || []).join(' ')].join(' ').toLowerCase().includes(q);
+  };
+  const list = all.filter(hit);
+  const cmp = sort === 'updated' ? (a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt))
+    : sort === 'name' ? (a, b) => String(a.repo).localeCompare(String(b.repo))
+    : (a, b) => (b.stars || 0) - (a.stars || 0);
+  list.sort(cmp);
+
+  const facets = {};
+  for (const e of all) facets[e.platform] = (facets[e.platform] || 0) + 1;
+
+  return {
+    ok: true,
+    fetchedAt: (snap && snap.fetchedAt) || '',
+    via: (snap && snap.via) || '',
+    counts: (snap && snap.counts) || { entries: 0, sources: 0, okSources: 0 },
+    sourceDefs: (snap && snap.sources) || [],
+    facets,
+    total: all.length,
+    matched: list.length,
+    page,
+    perPage,
+    entries: list.slice((page - 1) * perPage, page * perPage),
+    ...hubSyncStatus(),
+  };
+}
+
 /* ---------- 搭桥：注册进 DSH ---------- */
 function registerDsh(profile) {
   const home = process.env.USERPROFILE || process.env.HOME || '';
@@ -418,6 +555,20 @@ const server = http.createServer(async (req, res) => {
     }
     if (method === 'GET' && p === '/api/doctor') return sendJson(res, 200, { ok: true, ...(await doctor()) });
     if (method === 'GET' && p === '/api/tools') return sendJson(res, 200, { ok: true, tools: await installedTools() });
+
+    /* 全网插件源：读快照 + 过滤/分页；POST 触发一次重新抓取（后台跑，带冷却） */
+    if (method === 'GET' && p === '/api/hub') {
+      return sendJson(res, 200, hubQuery(new URL(req.url, 'http://x').searchParams));
+    }
+    if (method === 'POST' && p === '/api/hub/sync') {
+      return sendJson(res, 200, await startHubSync());
+    }
+    /* 配套服务：调音台是否在跑 */
+    if (method === 'GET' && p === '/api/lab/status') {
+      const t = labTarget();
+      const online = await tcpProbe(t.hostname, Number(t.port) || 80, 800);
+      return sendJson(res, 200, { ok: true, online, url: t.origin, proxy: '/lab/' });
+    }
     if (method === 'GET' && p === '/api/tunnel') {
       return sendJson(res, 200, { ok: true, enabled: !!cfg.tunnelEnabled, alive: !!cfg.tunnelAlive, url: cfg.tunnelUrl || '' });
     }
@@ -460,7 +611,22 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { ok: true, id: obj.id, values: cfg.plugins[obj.id], msg: '配置已保存，立即生效' });
     }
 
+    /* 调音台的接口（/api/state、/api/synth、/api/voices…）：市场没有同名的，原样转给它 */
+    if (isLabPath(p)) return proxyTo(labTarget(), req, res);
+
     return sendJson(res, 404, { ok: false, error: 'not found' });
+  }
+
+  /* 调音台：整站在 /lab/ 下代理（页面 + 资源），打开 /lab/ 就像市场自己的页面 */
+  if (p === '/lab') return sendRedirect(res, '/lab/');
+  if (p.startsWith('/lab/')) {
+    if (!authed(req)) return sendRedirect(res, '/login');
+    return proxyTo(labTarget(), req, res, '/lab');
+  }
+  /* 调音台的音频是根路径 /audio/xxx.wav */
+  if (p.startsWith('/audio/')) {
+    if (!authed(req)) return sendJson(res, 401, { ok: false, error: '未登录' });
+    return proxyTo(labTarget(), req, res);
   }
 
   /* 静态页 */

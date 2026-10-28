@@ -1,0 +1,5512 @@
+{
+ "version": 1,
+ "fetchedAt": "2026-10-28T11:38:26.474Z",
+ "via": "github-search(anonymous)",
+ "counts": {
+  "sources": 6,
+  "okSources": 6,
+  "entries": 204
+ },
+ "sources": [
+  {
+   "id": "yunzai",
+   "name": "Yunzai / 云崽 插件",
+   "ok": true,
+   "count": 40,
+   "total": 391,
+   "error": "",
+   "via": "curl",
+   "tookMs": 2209
+  },
+  {
+   "id": "nonebot",
+   "name": "NoneBot 插件",
+   "ok": true,
+   "count": 40,
+   "total": 146,
+   "error": "",
+   "via": "curl",
+   "tookMs": 1926
+  },
+  {
+   "id": "koishi",
+   "name": "Koishi 插件",
+   "ok": true,
+   "count": 40,
+   "total": 79,
+   "error": "",
+   "via": "curl",
+   "tookMs": 2518
+  },
+  {
+   "id": "astrbot",
+   "name": "AstrBot 插件",
+   "ok": true,
+   "count": 40,
+   "total": 548,
+   "error": "",
+   "via": "curl",
+   "tookMs": 1612
+  },
+  {
+   "id": "onebot",
+   "name": "OneBot 生态",
+   "ok": true,
+   "count": 13,
+   "total": 13,
+   "error": "",
+   "via": "curl",
+   "tookMs": 872
+  },
+  {
+   "id": "qqbot",
+   "name": "QQ 机器人插件（通用）",
+   "ok": true,
+   "count": 33,
+   "total": 225,
+   "error": "",
+   "via": "curl",
+   "tookMs": 2400
+  }
+ ],
+ "entries": [
+  {
+   "id": "floattech/zerobot-plugin",
+   "repo": "FloatTech/ZeroBot-Plugin",
+   "name": "ZeroBot-Plugin",
+   "desc": "基于 ZeroBot 的 OneBot 插件",
+   "url": "https://github.com/FloatTech/ZeroBot-Plugin",
+   "homepage": "",
+   "platform": "OneBot v11/v12",
+   "sourceId": "onebot",
+   "sourceName": "OneBot 生态",
+   "stars": 2651,
+   "forks": 1944,
+   "lang": "Go",
+   "updatedAt": "2026-09-10T06:40:26Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "coolq",
+    "cqhttp",
+    "cqhttp-mirai",
+    "go",
+    "go-cqhttp",
+    "golang",
+    "group-manager",
+    "mirai"
+   ],
+   "sources": [
+    "onebot"
+   ]
+  },
+  {
+   "id": "yoimiya-kokomi/miao-plugin",
+   "repo": "yoimiya-kokomi/miao-plugin",
+   "name": "miao-plugin",
+   "desc": "Miao-Plugin for Yunzai-Bot",
+   "url": "https://github.com/yoimiya-kokomi/miao-plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 1593,
+   "forks": 256,
+   "lang": "JavaScript",
+   "updatedAt": "2026-10-27T14:00:14Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "yharcadia/yunzai-bot-plugins-index",
+   "repo": "yhArcadia/Yunzai-Bot-plugins-index",
+   "name": "Yunzai-Bot-plugins-index",
+   "desc": "Yunzai-Bot云崽QQ机器人插件索引",
+   "url": "https://github.com/yhArcadia/Yunzai-Bot-plugins-index",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 1226,
+   "forks": 107,
+   "lang": "",
+   "updatedAt": "2026-10-28T01:37:06Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [],
+   "sources": [
+    "yunzai",
+    "qqbot"
+   ]
+  },
+  {
+   "id": "yyuueexxiinngg/onebot-kotlin",
+   "repo": "yyuueexxiinngg/onebot-kotlin",
+   "name": "onebot-kotlin",
+   "desc": "OneBot标准的Kotlin实现及mirai插件 - 原cqhttp-mirai",
+   "url": "https://github.com/yyuueexxiinngg/onebot-kotlin",
+   "homepage": "",
+   "platform": "OneBot v11/v12",
+   "sourceId": "onebot",
+   "sourceName": "OneBot 生态",
+   "stars": 583,
+   "forks": 122,
+   "lang": "Kotlin",
+   "updatedAt": "2023-10-21T17:20:50Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "coolq",
+    "coolq-http-api",
+    "cqhttp-api",
+    "cqhttp-mirai",
+    "mirai",
+    "mirai-bot",
+    "onebot",
+    "onebot-plugin"
+   ],
+   "sources": [
+    "onebot"
+   ]
+  },
+  {
+   "id": "sxp-simon/astrbot_plugin_qq_group_daily_analysis",
+   "repo": "SXP-Simon/astrbot_plugin_qq_group_daily_analysis",
+   "name": "astrbot_plugin_qq_group_daily_analysis",
+   "desc": "✨ AstrBot 群日常分析总结插件 —— 自动总结群聊提取有趣信息并生成精美海报或网页链接，还能制作群趣味连环漫画；自带管理后台，可查看运行链路、历史报告、异常日志和数据审计；支持 QQ 官方机器人、OneBot (NapCat / LLOneBot / SnowLuma)、Telegram 与 Discord 等消息平台。",
+   "url": "https://github.com/SXP-Simon/astrbot_plugin_qq_group_daily_analysis",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 529,
+   "forks": 78,
+   "lang": "Python",
+   "updatedAt": "2026-10-28T07:31:54Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "analyze",
+    "astrbot-plugin",
+    "discord",
+    "llm",
+    "qq",
+    "summary",
+    "telegram"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "pancakes-labs/astrbot_plugin_proactive_chat",
+   "repo": "Pancakes-Labs/astrbot_plugin_proactive_chat",
+   "name": "astrbot_plugin_proactive_chat",
+   "desc": "一个能让 Bot 在私聊和群聊中发起主动消息的插件，拥有上下文感知、持久化数据、动态情绪、免打扰时段和 TTS 集成。还有独立 WebUI，可进行个性化配置。 An AstrBot plugin that enables Bot to send proactive messages in private and group chats, featuring context awareness, persistent data, dyna",
+   "url": "https://github.com/Pancakes-Labs/astrbot_plugin_proactive_chat",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 475,
+   "forks": 26,
+   "lang": "Python",
+   "updatedAt": "2026-10-26T15:17:16Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "agent",
+    "ai",
+    "astrbot",
+    "astrbot-plugin",
+    "codex",
+    "css",
+    "heartbeat",
+    "javascript"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "ljzd-pro/nonebot-plugin-mystool",
+   "repo": "Ljzd-PRO/nonebot-plugin-mystool",
+   "name": "nonebot-plugin-mystool",
+   "desc": "QQ聊天、频道机器人插件 | 米游社工具-每日米游币任务、游戏签到、商品兑换、免抓包登录、原神崩铁便笺提醒",
+   "url": "https://github.com/Ljzd-PRO/nonebot-plugin-mystool",
+   "homepage": "https://pypi.org/project/nonebot-plugin-mystool",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 456,
+   "forks": 58,
+   "lang": "Python",
+   "updatedAt": "2026-03-25T15:16:36Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "genshin-impact",
+    "mihoyo",
+    "mihoyobbs",
+    "nonebot",
+    "nonebot-plugin",
+    "nonebot2",
+    "onebot",
+    "onebot11"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "h-k-y/genshin_impact_bot",
+   "repo": "H-K-Y/Genshin_Impact_bot",
+   "name": "Genshin_Impact_bot",
+   "desc": "原神bot，这是一个基于nonebot和HoshinoBot的原神娱乐及信息查询插件，包含原神抽卡，丘丘语翻译，找资源点等功能",
+   "url": "https://github.com/H-K-Y/Genshin_Impact_bot",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 400,
+   "forks": 80,
+   "lang": "Python",
+   "updatedAt": "2024-01-31T13:04:16Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "bot-hoshinobot",
+    "gacha",
+    "genshin-impact",
+    "hoshinobot",
+    "nonebot-plugin",
+    "nonebot2"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "ctrlcvs/xiaoyao-cvs-plugin",
+   "repo": "ctrlcvs/xiaoyao-cvs-plugin",
+   "name": "xiaoyao-cvs-plugin",
+   "desc": "xiaoyao-cvs-Plugin for Yunzai-Bot",
+   "url": "https://github.com/ctrlcvs/xiaoyao-cvs-plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 333,
+   "forks": 50,
+   "lang": "JavaScript",
+   "updatedAt": "2026-10-25T16:47:02Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "erzaozi/waves-plugin",
+   "repo": "erzaozi/waves-plugin",
+   "name": "waves-plugin",
+   "desc": "基于 Yunzai 的鸣潮游戏数据查询插件",
+   "url": "https://github.com/erzaozi/waves-plugin",
+   "homepage": "https://docs.cikeyqi.com",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 324,
+   "forks": 36,
+   "lang": "JavaScript",
+   "updatedAt": "2025-06-21T14:06:31Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "plugins",
+    "wuthering-waves",
+    "yunzai",
+    "yunzai-bot"
+   ],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "a-kirami/nonebot-plugin-chatgpt",
+   "repo": "A-kirami/nonebot-plugin-chatgpt",
+   "name": "nonebot-plugin-chatgpt",
+   "desc": "",
+   "url": "https://github.com/A-kirami/nonebot-plugin-chatgpt",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 311,
+   "forks": 31,
+   "lang": "Python",
+   "updatedAt": "2023-05-07T00:39:47Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "chatgpt",
+    "nonebot-plugin",
+    "nonebot2"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "gemiluxvii/astrbot_plugin_jm_cosmos",
+   "repo": "GEMILUXVII/astrbot_plugin_jm_cosmos",
+   "name": "astrbot_plugin_jm_cosmos",
+   "desc": "AstrBot 禁漫漫画下载插件 | 全新重构v2.x架构 | 支持搜索/详情/排行榜/推荐浏览 | 加密PDF/ZIP打包 | 账号登录与收藏夹 | 封面预览 | 代理支持",
+   "url": "https://github.com/GEMILUXVII/astrbot_plugin_jm_cosmos",
+   "homepage": "https://www.aspchang.com",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 294,
+   "forks": 37,
+   "lang": "Python",
+   "updatedAt": "2026-08-06T01:30:12Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "jm",
+    "jmcomic",
+    "qq",
+    "qqbot"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "catrong/phi-plugin",
+   "repo": "Catrong/phi-plugin",
+   "name": "phi-plugin",
+   "desc": "适用于 Yunzai-Bot V3 的 phigros 信息查询插件，支持查询分数等信息统计，以及猜曲目等小游戏",
+   "url": "https://github.com/Catrong/phi-plugin",
+   "homepage": "http://www.phib19.top/",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 271,
+   "forks": 32,
+   "lang": "JavaScript",
+   "updatedAt": "2026-10-27T03:13:55Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "phi-plugin",
+    "phigros"
+   ],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "well2333/nonebot-plugin-bilichat",
+   "repo": "Well2333/nonebot-plugin-bilichat",
+   "name": "nonebot-plugin-bilichat",
+   "desc": "一个废物写的屁用没有还一堆bug甚至不如停更三年的bot的垃圾项目罢了",
+   "url": "https://github.com/Well2333/nonebot-plugin-bilichat",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 263,
+   "forks": 18,
+   "lang": "Python",
+   "updatedAt": "2026-01-02T12:17:27Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "bilibili",
+    "chatgpt",
+    "nonebot-plugin",
+    "nonebot2",
+    "openai",
+    "summarizer",
+    "summary"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "lxfight/astrbot_plugin_mnemosyne",
+   "repo": "lxfight/astrbot_plugin_mnemosyne",
+   "name": "astrbot_plugin_mnemosyne",
+   "desc": "一个AstrBot插件，实现基于RAG技术的长期记忆功能。",
+   "url": "https://github.com/lxfight/astrbot_plugin_mnemosyne",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 259,
+   "forks": 33,
+   "lang": "Python",
+   "updatedAt": "2026-10-26T08:51:53Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot-plugin"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "zzzure/zzz-plugin",
+   "repo": "ZZZure/ZZZ-Plugin",
+   "name": "ZZZ-Plugin",
+   "desc": "Yunzai云崽 绝区零 Bot 插件",
+   "url": "https://github.com/ZZZure/ZZZ-Plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 247,
+   "forks": 38,
+   "lang": "SCSS",
+   "updatedAt": "2026-10-22T12:37:22Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "guoba-yunzai/guoba-plugin",
+   "repo": "guoba-yunzai/guoba-plugin",
+   "name": "guoba-plugin",
+   "desc": "Yunzai-Bot的插件，主要提供后台管理界面。",
+   "url": "https://github.com/guoba-yunzai/guoba-plugin",
+   "homepage": "https://github.com/guoba-yunzai",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 236,
+   "forks": 33,
+   "lang": "JavaScript",
+   "updatedAt": "2026-06-29T06:57:45Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "fllesser/nonebot-plugin-parser",
+   "repo": "fllesser/nonebot-plugin-parser",
+   "name": "nonebot-plugin-parser",
+   "desc": "社交媒体分享链接解析插件",
+   "url": "https://github.com/fllesser/nonebot-plugin-parser",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 235,
+   "forks": 32,
+   "lang": "Python",
+   "updatedAt": "2026-10-26T15:29:43Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "ryanlee-gemini/openclaw-qqbot-formal",
+   "repo": "ryanlee-gemini/openclaw-qqbot-formal",
+   "name": "openclaw-qqbot-formal",
+   "desc": "QQ Bot Channel Plugin for OpenClaw",
+   "url": "https://github.com/ryanlee-gemini/openclaw-qqbot-formal",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 226,
+   "forks": 38,
+   "lang": "TypeScript",
+   "updatedAt": "2026-03-21T14:10:08Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "bot-plugin",
+    "openclaw",
+    "openclaw-qqbot",
+    "qqbot"
+   ],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "sena-nana/nonebot-plugin-novelai",
+   "repo": "sena-nana/nonebot-plugin-novelai",
+   "name": "nonebot-plugin-novelai",
+   "desc": "Generate images by Stable-Diffusion-webui Based on Python | 使用Python的基于 SD-webui 的画图机器人（支持中文、Novelai和Naifu）",
+   "url": "https://github.com/sena-nana/nonebot-plugin-novelai",
+   "homepage": "https://nb.novelai.dev",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 215,
+   "forks": 30,
+   "lang": "Python",
+   "updatedAt": "2025-01-08T05:52:06Z",
+   "archived": true,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "ai",
+    "bot",
+    "chatbot",
+    "image",
+    "koishi",
+    "koishijs",
+    "naifu",
+    "nonebot"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "mountaindash/nonebot-bison",
+   "repo": "MountainDash/nonebot-bison",
+   "name": "nonebot-bison",
+   "desc": "A nonebot2 plugin to repost social media posts to QQ group",
+   "url": "https://github.com/MountainDash/nonebot-bison",
+   "homepage": "https://nonebot-bison.netlify.app",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 213,
+   "forks": 36,
+   "lang": "Python",
+   "updatedAt": "2026-10-28T10:11:24Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "bot",
+    "nonebot-plugin",
+    "nonebot2",
+    "qqbot"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "richeyjang/paimengbot",
+   "repo": "RicheyJang/PaimengBot",
+   "name": "PaimengBot",
+   "desc": "派蒙Bot：一个使用Onebot协议的插件式聊天机器人，支持30余种功能。支持多种数据库（包括SQLite、Postgresql、Mysql等）",
+   "url": "https://github.com/RicheyJang/PaimengBot",
+   "homepage": "https://richeyjang.github.io/PaimengBot/",
+   "platform": "OneBot v11/v12",
+   "sourceId": "onebot",
+   "sourceName": "OneBot 生态",
+   "stars": 201,
+   "forks": 29,
+   "lang": "Go",
+   "updatedAt": "2022-11-20T04:38:00Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "onebot",
+    "onebot-plugin",
+    "sqlite",
+    "zerobot"
+   ],
+   "sources": [
+    "onebot"
+   ]
+  },
+  {
+   "id": "him666233/astrbot_plugin_group_chat_plus",
+   "repo": "Him666233/astrbot_plugin_group_chat_plus",
+   "name": "astrbot_plugin_group_chat_plus",
+   "desc": "一个为AstrBot平台提供的以AI读空气为核心的群聊增强插件，让你的Bot更懂氛围、更自然地参与群聊互动",
+   "url": "https://github.com/Him666233/astrbot_plugin_group_chat_plus",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 185,
+   "forks": 23,
+   "lang": "Python",
+   "updatedAt": "2026-09-23T16:54:48Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "kexue-z/nonebot-plugin-htmlrender",
+   "repo": "kexue-z/nonebot-plugin-htmlrender",
+   "name": "nonebot-plugin-htmlrender",
+   "desc": "好康! 又好用!(可能)",
+   "url": "https://github.com/kexue-z/nonebot-plugin-htmlrender",
+   "homepage": "https://kexue-z.github.io/nonebot-plugin-htmlrender/",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 164,
+   "forks": 27,
+   "lang": "Python",
+   "updatedAt": "2026-10-18T20:05:56Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "tomyjan/yunzai-kuro-plugin",
+   "repo": "TomyJan/Yunzai-Kuro-Plugin",
+   "name": "Yunzai-Kuro-Plugin",
+   "desc": "一个库洛游戏 (战双&鸣潮) 的插件，适用于云崽Bot。 | A Plugin of Kuro Games(Punshining Gray Raven & Wuthering Waves), adapt to Yunzai-Bot.",
+   "url": "https://github.com/TomyJan/Yunzai-Kuro-Plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 163,
+   "forks": 6,
+   "lang": "JavaScript",
+   "updatedAt": "2026-10-20T02:58:18Z",
+   "archived": false,
+   "fork": false,
+   "license": "MPL-2.0",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "17theword/nonebot-plugin-mcqq",
+   "repo": "17TheWord/nonebot-plugin-mcqq",
+   "name": "nonebot-plugin-mcqq",
+   "desc": "基于NoneBot的与Minecraft Server互通消息的插件",
+   "url": "https://github.com/17TheWord/nonebot-plugin-mcqq",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 140,
+   "forks": 8,
+   "lang": "Python",
+   "updatedAt": "2026-05-23T13:37:36Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "bot",
+    "mc",
+    "mcbot",
+    "minecraft",
+    "nonebot-plugin",
+    "qq",
+    "qqbot"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "thricecola/kovi",
+   "repo": "ThriceCola/Kovi",
+   "name": "Kovi",
+   "desc": "一个 Rust 的 Milky / OneBot / more 机器人插件框架。开发友好，文档详细，简单实用，还有一点点插件生态。",
+   "url": "https://github.com/ThriceCola/Kovi",
+   "homepage": "https://kovi.thricecola.com",
+   "platform": "OneBot v11/v12",
+   "sourceId": "onebot",
+   "sourceName": "OneBot 生态",
+   "stars": 140,
+   "forks": 19,
+   "lang": "Rust",
+   "updatedAt": "2026-09-09T03:47:04Z",
+   "archived": false,
+   "fork": false,
+   "license": "MPL-2.0",
+   "topics": [
+    "bot",
+    "chatbot",
+    "kovi",
+    "milky",
+    "onebot",
+    "onebot-plugin",
+    "onebot-sdk",
+    "onebot11"
+   ],
+   "sources": [
+    "onebot"
+   ]
+  },
+  {
+   "id": "hoshinonyaruko/gensokyo-llm",
+   "repo": "Hoshinonyaruko/Gensokyo-llm",
+   "name": "Gensokyo-llm",
+   "desc": "开源的智能体项目 支持6种聊天平台 Onebotv11一对多连接 流式信息 agent 对话keyboard气泡生成 支持10+大模型接口(持续更新) 具有将多种大模型接口转化为带有上下文的通用格式的能力.",
+   "url": "https://github.com/Hoshinonyaruko/Gensokyo-llm",
+   "homepage": "https://gensokyo.bot",
+   "platform": "OneBot v11/v12",
+   "sourceId": "onebot",
+   "sourceName": "OneBot 生态",
+   "stars": 138,
+   "forks": 5,
+   "lang": "Go",
+   "updatedAt": "2026-07-10T05:21:56Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "ai-agents",
+    "ai-agents-framework",
+    "chatbot",
+    "llm",
+    "llm-api",
+    "llm-inference",
+    "onebot",
+    "onebot-plugin"
+   ],
+   "sources": [
+    "onebot"
+   ]
+  },
+  {
+   "id": "bot-ssttkkl/nonebot-plugin-pixivbot",
+   "repo": "bot-ssttkkl/nonebot-plugin-pixivbot",
+   "name": "nonebot-plugin-pixivbot",
+   "desc": "NoneBot插件，发送随机Pixiv插画、画师更新推送、定时订阅推送……",
+   "url": "https://github.com/bot-ssttkkl/nonebot-plugin-pixivbot",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 136,
+   "forks": 7,
+   "lang": "Python",
+   "updatedAt": "2025-08-21T06:02:23Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "pixiv",
+    "python"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "komoridev/nonebot-plugin-kawaii-status",
+   "repo": "KomoriDev/nonebot-plugin-kawaii-status",
+   "name": "nonebot-plugin-kawaii-status",
+   "desc": "NoneBot2 服务器状态查看插件 / View server status for NoneBot2",
+   "url": "https://github.com/KomoriDev/nonebot-plugin-kawaii-status",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 126,
+   "forks": 3,
+   "lang": "Python",
+   "updatedAt": "2026-07-06T17:02:24Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "guguniu/miao-plugin-mbt",
+   "repo": "GuGuNiu/Miao-Plugin-MBT",
+   "name": "Miao-Plugin-MBT",
+   "desc": "Yunzai的原神&星铁&绝区零&鸣潮面板图库",
+   "url": "https://github.com/GuGuNiu/Miao-Plugin-MBT",
+   "homepage": "https://github.com/GuGuNiu/GuGuNiu-Gallery",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 124,
+   "forks": 11,
+   "lang": "JavaScript",
+   "updatedAt": "2026-10-26T09:12:17Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "javascript",
+    "miao-yunzai"
+   ],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "minatoaquacrews/nonebot_plugin_fortune",
+   "repo": "MinatoAquaCrews/nonebot_plugin_fortune",
+   "name": "nonebot_plugin_fortune",
+   "desc": "Fortune divination plugin for nonebot2",
+   "url": "https://github.com/MinatoAquaCrews/nonebot_plugin_fortune",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 124,
+   "forks": 33,
+   "lang": "Python",
+   "updatedAt": "2026-10-05T19:29:01Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2",
+    "python3"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "mountaindash/nonebot-plugin-send-anything-anywhere",
+   "repo": "MountainDash/nonebot-plugin-send-anything-anywhere",
+   "name": "nonebot-plugin-send-anything-anywhere",
+   "desc": "一个帮助处理不同 adapter 消息的适配和发送的插件",
+   "url": "https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 122,
+   "forks": 11,
+   "lang": "Python",
+   "updatedAt": "2026-09-07T02:38:03Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "smallk111407/earth-k-plugin",
+   "repo": "SmallK111407/earth-k-plugin",
+   "name": "earth-k-plugin",
+   "desc": "Earth-K-Plugin for Yunzai-Bot",
+   "url": "https://github.com/SmallK111407/earth-k-plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 121,
+   "forks": 27,
+   "lang": "JavaScript",
+   "updatedAt": "2025-11-30T17:44:29Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "plugin",
+    "yunzai-bot"
+   ],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "yharcadia/ap-plugin",
+   "repo": "yhArcadia/ap-plugin",
+   "name": "ap-plugin",
+   "desc": "基于 Yunzai 的 AI 绘图插件，使用 Stable Diffusion 接口",
+   "url": "https://github.com/yhArcadia/ap-plugin",
+   "homepage": "https://docs.cikeyqi.com",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 113,
+   "forks": 12,
+   "lang": "JavaScript",
+   "updatedAt": "2025-04-24T13:57:38Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "plugin",
+    "stable-diffusion",
+    "stable-diffusion-webui",
+    "yunzai",
+    "yunzai-bot"
+   ],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "yeyang52/yenai-plugin",
+   "repo": "yeyang52/yenai-plugin",
+   "name": "yenai-plugin",
+   "desc": "适用于Yunzai-Botv3的扩展",
+   "url": "https://github.com/yeyang52/yenai-plugin",
+   "homepage": "https://yenai-plugin-eta.vercel.app/",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 111,
+   "forks": 33,
+   "lang": "JavaScript",
+   "updatedAt": "2026-10-28T01:54:34Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "yunzai-bot"
+   ],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "nonebot/plugin-apscheduler",
+   "repo": "nonebot/plugin-apscheduler",
+   "name": "plugin-apscheduler",
+   "desc": "APScheduler Support for NoneBot2",
+   "url": "https://github.com/nonebot/plugin-apscheduler",
+   "homepage": "https://nonebot.dev/docs/best-practice/scheduler",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 108,
+   "forks": 11,
+   "lang": "Python",
+   "updatedAt": "2026-10-08T16:03:10Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "apscheduler",
+    "cron",
+    "nonebot-plugin",
+    "nonebot2"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "afanskyqs/fansky_qs",
+   "repo": "AFanSKyQs/FanSky_Qs",
+   "name": "FanSky_Qs",
+   "desc": "基于Yunzai-Bot，实现一些功能，如提队伍伤害(@monsterxcn/nonebot-plugin-gspanel)，打卡-魔晶系统、GPT模型聊天（各种人设）、宝箱成就排行等、票房查询、发病文学、点赞等~",
+   "url": "https://github.com/AFanSKyQs/FanSky_Qs",
+   "homepage": "https://github.com/AFanSKyQs/FanSky_Qs",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 107,
+   "forks": 11,
+   "lang": "JavaScript",
+   "updatedAt": "2024-06-07T08:28:14Z",
+   "archived": false,
+   "fork": false,
+   "license": "Apache-2.0",
+   "topics": [
+    "apps",
+    "fansky",
+    "plugins",
+    "yunzai-bot"
+   ],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "chrisyy2003/nonebot-plugin-gpt3",
+   "repo": "chrisyy2003/nonebot-plugin-gpt3",
+   "name": "nonebot-plugin-gpt3",
+   "desc": "A nonebot plugin base on OpenAI API (gpt-3.5-turbo)",
+   "url": "https://github.com/chrisyy2003/nonebot-plugin-gpt3",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 106,
+   "forks": 15,
+   "lang": "Python",
+   "updatedAt": "2023-04-23T04:13:24Z",
+   "archived": true,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "chatgpt",
+    "gpt3",
+    "nonebot-plugin",
+    "nonebot2",
+    "openai"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "floattech/nanobot-plugin",
+   "repo": "FloatTech/NanoBot-Plugin",
+   "name": "NanoBot-Plugin",
+   "desc": "基于 NanoBot 的 QQ 机器人插件合集",
+   "url": "https://github.com/FloatTech/NanoBot-Plugin",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 105,
+   "forks": 29,
+   "lang": "Go",
+   "updatedAt": "2023-12-01T18:25:40Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "automatic",
+    "channel",
+    "golang",
+    "golang-cli",
+    "guild",
+    "plugin",
+    "plugin-architecture",
+    "plugin-manager"
+   ],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "minatoaquacrews/nonebot_plugin_tarot",
+   "repo": "MinatoAquaCrews/nonebot_plugin_tarot",
+   "name": "nonebot_plugin_tarot",
+   "desc": "Tarot divination plugin for nonebot2.",
+   "url": "https://github.com/MinatoAquaCrews/nonebot_plugin_tarot",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 104,
+   "forks": 25,
+   "lang": "Python",
+   "updatedAt": "2026-10-05T19:27:31Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2",
+    "python3"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "pancakes-labs/astrbot_plugin_disaster_warning",
+   "repo": "Pancakes-Labs/astrbot_plugin_disaster_warning",
+   "name": "astrbot_plugin_disaster_warning",
+   "desc": "基于 AstrBot 的新一代灾害预警平台。无缝聚合全球权威数据，实时追踪地震、海啸、气象与台风动态。搭载现代化 WebUI、专业级可视化渲染与智能本地感知，让硬核的灾害监控触手可及。 The next-gen disaster warning platform for AstrBot. Tracking earthquakes, tsunamis, weather & typhoons in real-time with global",
+   "url": "https://github.com/Pancakes-Labs/astrbot_plugin_disaster_warning",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 104,
+   "forks": 16,
+   "lang": "JavaScript",
+   "updatedAt": "2026-10-14T20:37:40Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "cenc",
+    "disaster-warning",
+    "earthquake",
+    "eew",
+    "fan-studio-api",
+    "globalquake"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "cypas/splatoon3-schedule",
+   "repo": "Cypas/splatoon3-schedule",
+   "name": "splatoon3-schedule",
+   "desc": "NoneBot2 splatoon3日程查询插件 / plugin for NoneBot2 splatoon3 schedule.",
+   "url": "https://github.com/Cypas/splatoon3-schedule",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 103,
+   "forks": 5,
+   "lang": "Python",
+   "updatedAt": "2026-09-29T01:58:27Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2",
+    "qq-bot",
+    "splatoon3"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "koishi-shangxue-plugins/koishi-shangxue-apps",
+   "repo": "koishi-shangxue-plugins/koishi-shangxue-apps",
+   "name": "koishi-shangxue-apps",
+   "desc": "小学在koishi的插件合集？",
+   "url": "https://github.com/koishi-shangxue-plugins/koishi-shangxue-apps",
+   "homepage": "https://koishi-shangxue-plugins.github.io/koishi-shangxue-apps-docs/",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 98,
+   "forks": 12,
+   "lang": "TypeScript",
+   "updatedAt": "2026-10-24T15:44:44Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "koishi-plugin",
+    "shangxue-apps"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "xianxincoder/xianxin-plugin",
+   "repo": "xianxincoder/xianxin-plugin",
+   "name": "xianxin-plugin",
+   "desc": "Yunzai-Bot云崽QQ机器人 v3插件",
+   "url": "https://github.com/xianxincoder/xianxin-plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 97,
+   "forks": 6,
+   "lang": "JavaScript",
+   "updatedAt": "2023-02-16T03:40:42Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [],
+   "sources": [
+    "yunzai",
+    "qqbot"
+   ]
+  },
+  {
+   "id": "cypas/splatoon3-nso",
+   "repo": "Cypas/splatoon3-nso",
+   "name": "splatoon3-nso",
+   "desc": "NoneBot2 splatoon3 nso查询插件 / plugin for NoneBot2 splatoon3 nso.",
+   "url": "https://github.com/Cypas/splatoon3-nso",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 96,
+   "forks": 6,
+   "lang": "Python",
+   "updatedAt": "2026-09-14T06:30:31Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2",
+    "qq-bot",
+    "splatoon3"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "the-cattail/qq-bot-api",
+   "repo": "THE-cattail/qq-bot-api",
+   "name": "qq-bot-api",
+   "desc": "Golang bindings for the Coolq HTTP API Plugin",
+   "url": "https://github.com/THE-cattail/qq-bot-api",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 94,
+   "forks": 18,
+   "lang": "Go",
+   "updatedAt": "2019-12-30T11:18:50Z",
+   "archived": true,
+   "fork": false,
+   "license": "MIT",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "youthlearning/teenstudy",
+   "repo": "YouthLearning/TeenStudy",
+   "name": "TeenStudy",
+   "desc": "基于nonebot2和OneBot V11协议的青年大学习自动提交插件，用于自动完成最新一期青年大学习，在后台留下记录，返回完成截图",
+   "url": "https://github.com/YouthLearning/TeenStudy",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 91,
+   "forks": 3,
+   "lang": "Python",
+   "updatedAt": "2023-12-03T07:00:34Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2",
+    "onebot11",
+    "qqbot"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "cnlimiter/onebot-mirai",
+   "repo": "cnlimiter/onebot-mirai",
+   "name": "onebot-mirai",
+   "desc": "mirai消息转换成onebot标准",
+   "url": "https://github.com/cnlimiter/onebot-mirai",
+   "homepage": "",
+   "platform": "OneBot v11/v12",
+   "sourceId": "onebot",
+   "sourceName": "OneBot 生态",
+   "stars": 91,
+   "forks": 7,
+   "lang": "Java",
+   "updatedAt": "2024-03-21T17:39:38Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "cqhttp-api",
+    "cqhttp-mirai",
+    "mirai",
+    "mirai-bot",
+    "mirai-plugin",
+    "onebot",
+    "onebot-plugin",
+    "qqbot"
+   ],
+   "sources": [
+    "onebot"
+   ]
+  },
+  {
+   "id": "aigc-yunzai/siliconflow-plugin",
+   "repo": "AIGC-Yunzai/siliconflow-plugin",
+   "name": "siliconflow-plugin",
+   "desc": "基于 Yunzai 的 AIGC 插件，可免费使用 FLUX、SD、MJ 等绘图、对话、谷歌实时搜索 LLM、Vits 语音合成等功能。支持多模型接入、多 Key 负载均衡、图生图、直链获取、Markdown 图片输出。支持主动表情包、主动回复等暖群功能。支持抖音、快手、b站视频解析。",
+   "url": "https://github.com/AIGC-Yunzai/siliconflow-plugin",
+   "homepage": "https://aigc-yunzai.dwe.me/",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 90,
+   "forks": 14,
+   "lang": "JavaScript",
+   "updatedAt": "2026-10-05T11:29:04Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "aicg",
+    "yunzai"
+   ],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "zhiyu1998/rconsole-plugin",
+   "repo": "zhiyu1998/rconsole-plugin",
+   "name": "rconsole-plugin",
+   "desc": "专门为朋友们写的Yunzai-Bot插件，专注图片视频分享、生活、健康和学习的插件！",
+   "url": "https://github.com/zhiyu1998/rconsole-plugin",
+   "homepage": "https://zhiyu1998.github.io/rconsole-plugin/",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 88,
+   "forks": 34,
+   "lang": "JavaScript",
+   "updatedAt": "2026-10-16T05:50:37Z",
+   "archived": false,
+   "fork": false,
+   "license": "MulanPSL-2.0",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "entropy-increase-team/delta-force-plugin",
+   "repo": "Entropy-Increase-Team/delta-force-plugin",
+   "name": "delta-force-plugin",
+   "desc": "适用于Yunzai-Bot V3的三角洲行动插件",
+   "url": "https://github.com/Entropy-Increase-Team/delta-force-plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 86,
+   "forks": 12,
+   "lang": "JavaScript",
+   "updatedAt": "2026-04-08T08:17:15Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "cvandia/nonebot-plugin-whateat-pic",
+   "repo": "Cvandia/nonebot-plugin-whateat-pic",
+   "name": "nonebot-plugin-whateat-pic",
+   "desc": "基于Nonebot2的一款今天吃什么喝什么的插件",
+   "url": "https://github.com/Cvandia/nonebot-plugin-whateat-pic",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 85,
+   "forks": 13,
+   "lang": "Python",
+   "updatedAt": "2026-10-26T16:56:54Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2",
+    "pictures",
+    "random",
+    "what2eat"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "ikaros-521/nonebot_plugin_searchbiliinfo",
+   "repo": "Ikaros-521/nonebot_plugin_searchBiliInfo",
+   "name": "nonebot_plugin_searchBiliInfo",
+   "desc": "适用于nonebot2 v11/red 的b站用户信息查询插件【粉丝、舰团信息；直播收益数据；直播观看信息；关键词搜昵称、UID等】",
+   "url": "https://github.com/Ikaros-521/nonebot_plugin_searchBiliInfo",
+   "homepage": "https://www.bilibili.com/video/BV1sR4y1y7Bo",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 81,
+   "forks": 6,
+   "lang": "Python",
+   "updatedAt": "2024-04-30T02:15:22Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2",
+    "plugin",
+    "python"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "melodyknit/nonebot_plugin_animeres",
+   "repo": "MelodyKnit/nonebot_plugin_animeres",
+   "name": "nonebot_plugin_animeres",
+   "desc": "简单易用的动漫资源获取插件，全平台通用",
+   "url": "https://github.com/MelodyKnit/nonebot_plugin_animeres",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 70,
+   "forks": 4,
+   "lang": "Python",
+   "updatedAt": "2026-10-19T20:23:17Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-2.0",
+   "topics": [
+    "anime",
+    "nonebot-plugin",
+    "nonebot2",
+    "onebot"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "cat-bl/bl-chat-plugin",
+   "repo": "Cat-bl/bl-chat-plugin",
+   "name": "bl-chat-plugin",
+   "desc": "适用于Trss yunzai+oneBot v11的ai对话插件，支持本地工具调用，自定义本地工具，mcp服务配置等",
+   "url": "https://github.com/Cat-bl/bl-chat-plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 69,
+   "forks": 9,
+   "lang": "JavaScript",
+   "updatedAt": "2026-08-19T10:23:32Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "mcp",
+    "napcat",
+    "trss-yunzai",
+    "yunzai",
+    "yunzai-bot"
+   ],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "xasyer/steam-plugin",
+   "repo": "XasYer/steam-plugin",
+   "name": "steam-plugin",
+   "desc": "为Yunzai&karin提供steam相关功能",
+   "url": "https://github.com/XasYer/steam-plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 67,
+   "forks": 8,
+   "lang": "JavaScript",
+   "updatedAt": "2026-01-04T04:53:59Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "minatoaquacrews/nonebot_plugin_what2eat",
+   "repo": "MinatoAquaCrews/nonebot_plugin_what2eat",
+   "name": "nonebot_plugin_what2eat",
+   "desc": "What2eat & what2drink plugin for nonebot2",
+   "url": "https://github.com/MinatoAquaCrews/nonebot_plugin_what2eat",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 66,
+   "forks": 10,
+   "lang": "Python",
+   "updatedAt": "2026-10-05T19:27:37Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2",
+    "python3"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "flanchanxwo/nonebot-plugin-epicfree",
+   "repo": "FlanChanXwO/nonebot-plugin-epicfree",
+   "name": "nonebot-plugin-epicfree",
+   "desc": "🤖 NoneBot2 EpicGameStore 喜加一资讯插件，发送「喜加一」逝世看吧！",
+   "url": "https://github.com/FlanChanXwO/nonebot-plugin-epicfree",
+   "homepage": "https://pypi.org/project/nonebot-plugin-epicfree/",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 62,
+   "forks": 7,
+   "lang": "Python",
+   "updatedAt": "2026-01-16T03:47:31Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "epic-games",
+    "nonebot-plugin",
+    "python",
+    "qqbot"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "entropy-increase-team/endfield-plugin",
+   "repo": "Entropy-Increase-Team/endfield-plugin",
+   "name": "endfield-plugin",
+   "desc": "Endfield-plugin 是一个为 Yunzai-Bot 开发的 终末地 游戏插件",
+   "url": "https://github.com/Entropy-Increase-Team/endfield-plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 61,
+   "forks": 4,
+   "lang": "JavaScript",
+   "updatedAt": "2026-07-15T14:59:12Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "sumght-z/vits_yunzai_plugin",
+   "repo": "sumght-z/vits_yunzai_plugin",
+   "name": "vits_yunzai_plugin",
+   "desc": "AI语音本地生成并发送的yunzai插件",
+   "url": "https://github.com/sumght-z/vits_yunzai_plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 60,
+   "forks": 4,
+   "lang": "Python",
+   "updatedAt": "2026-05-26T05:40:31Z",
+   "archived": false,
+   "fork": false,
+   "license": "Apache-2.0",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "erzaozi/neko-status-plugin",
+   "repo": "erzaozi/neko-status-plugin",
+   "name": "neko-status-plugin",
+   "desc": "基于 Yunzai 的系统状态插件喵~",
+   "url": "https://github.com/erzaozi/neko-status-plugin",
+   "homepage": "https://docs.cikeyqi.com",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 60,
+   "forks": 4,
+   "lang": "JavaScript",
+   "updatedAt": "2024-11-07T18:39:26Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "plugins",
+    "status",
+    "yunzai",
+    "yunzai-bot"
+   ],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "headmastertan/zhi-plugin",
+   "repo": "HeadmasterTan/zhi-plugin",
+   "name": "zhi-plugin",
+   "desc": "Yunzai-Bot的一个插件，添加了B站动态推送功能，覆盖了表情功能",
+   "url": "https://github.com/HeadmasterTan/zhi-plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 60,
+   "forks": 3,
+   "lang": "JavaScript",
+   "updatedAt": "2023-06-03T05:09:36Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "hoshinonyaruko/gensokyo",
+   "repo": "Hoshinonyaruko/Gensokyo",
+   "name": "Gensokyo",
+   "desc": "基于qq官方api开发的符合onebot标准的golang实现，轻量、原生跨平台.",
+   "url": "https://github.com/Hoshinonyaruko/Gensokyo",
+   "homepage": "",
+   "platform": "OneBot v11/v12",
+   "sourceId": "onebot",
+   "sourceName": "OneBot 生态",
+   "stars": 59,
+   "forks": 15,
+   "lang": "Go",
+   "updatedAt": "2026-10-02T17:03:20Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "chatbot",
+    "go",
+    "golang",
+    "group-manager",
+    "guild",
+    "koishi",
+    "mirai",
+    "nonebot"
+   ],
+   "sources": [
+    "onebot"
+   ]
+  },
+  {
+   "id": "cvandia/nonebot-plugin-genshin-cos",
+   "repo": "Cvandia/nonebot-plugin-genshin-cos",
+   "name": "nonebot-plugin-genshin-cos",
+   "desc": "获取米游社原神cos图",
+   "url": "https://github.com/Cvandia/nonebot-plugin-genshin-cos",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 58,
+   "forks": 3,
+   "lang": "Python",
+   "updatedAt": "2026-10-26T16:56:46Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "coser",
+    "genshin",
+    "mihoyo",
+    "miyoushe",
+    "nonebot-plugin",
+    "nonebot2"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "bot-ssttkkl/nonebot-plugin-access-control",
+   "repo": "bot-ssttkkl/nonebot-plugin-access-control",
+   "name": "nonebot-plugin-access-control",
+   "desc": "Nonebot 权限控制插件",
+   "url": "https://github.com/bot-ssttkkl/nonebot-plugin-access-control",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 58,
+   "forks": 2,
+   "lang": "Python",
+   "updatedAt": "2026-10-05T19:54:44Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "access-control",
+    "nonebot-plugin",
+    "python"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "2718labs/astrbot_plugin_sylanne",
+   "repo": "2718labs/astrbot_plugin_sylanne",
+   "name": "astrbot_plugin_sylanne",
+   "desc": "让你的Bot不再只是记住你，Sylanne致力于为你的Bot提供一个足以回答“Ta是谁、Ta如何看待你、Ta为什么这样回应、Ta如何因经历而改变”的试验性方案。",
+   "url": "https://github.com/2718labs/astrbot_plugin_sylanne",
+   "homepage": "https://2718labs.github.io/astrbot_plugin_sylanne/",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 58,
+   "forks": 3,
+   "lang": "Python",
+   "updatedAt": "2026-10-19T16:01:56Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "emotion-engine",
+    "lifelike-engine",
+    "livingemotion",
+    "proactive-chat",
+    "sylanne"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "xasyer/ws-plugin",
+   "repo": "XasYer/ws-plugin",
+   "name": "ws-plugin",
+   "desc": "Yunzai-Bot 的扩展插件 ws-plugin 提供ontbot协议适配,通过ws连接onebot实现的bot",
+   "url": "https://github.com/XasYer/ws-plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 57,
+   "forks": 14,
+   "lang": "JavaScript",
+   "updatedAt": "2026-05-09T02:07:38Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "nwflower/flower-plugin",
+   "repo": "Nwflower/flower-plugin",
+   "name": "flower-plugin",
+   "desc": "Yunzai-Bot V3 的插件包，主要提供拓展抽卡功能",
+   "url": "https://github.com/Nwflower/flower-plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 56,
+   "forks": 6,
+   "lang": "JavaScript",
+   "updatedAt": "2026-08-29T07:48:09Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "piexian/astrbot_plugin_gemini_image_generation",
+   "repo": "piexian/astrbot_plugin_gemini_image_generation",
+   "name": "astrbot_plugin_gemini_image_generation",
+   "desc": "图像生成插件，支持生图和改图，可以自动获取头像作为参考等。",
+   "url": "https://github.com/piexian/astrbot_plugin_gemini_image_generation",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 55,
+   "forks": 14,
+   "lang": "Python",
+   "updatedAt": "2026-10-28T07:30:43Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot-plugin",
+    "doubao",
+    "gemimi",
+    "grok",
+    "image-generation",
+    "openai",
+    "xai-api"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "perseus037/nonebot_plugin_batarot",
+   "repo": "Perseus037/nonebot_plugin_batarot",
+   "name": "nonebot_plugin_batarot",
+   "desc": "碧蓝档案塔罗牌-nonebot2插件（支持多适配器）",
+   "url": "https://github.com/Perseus037/nonebot_plugin_batarot",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 53,
+   "forks": 7,
+   "lang": "Python",
+   "updatedAt": "2026-10-11T14:11:57Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "blue-archive",
+    "nonebot-plugin",
+    "nonebot2",
+    "onebot11",
+    "red",
+    "tarot",
+    "telegram"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "cikeyqi/mc-plugin",
+   "repo": "CikeyQi/mc-plugin",
+   "name": "mc-plugin",
+   "desc": "基于 Yunzai 的 Minecraft 消息互通插件",
+   "url": "https://github.com/CikeyQi/mc-plugin",
+   "homepage": "https://docs.cikeyqi.com",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 52,
+   "forks": 10,
+   "lang": "JavaScript",
+   "updatedAt": "2026-02-25T04:21:03Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "minecraft",
+    "plugin",
+    "rcon",
+    "websocket",
+    "yunzai",
+    "yunzai-bot"
+   ],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "nwflower/auto-plugin",
+   "repo": "Nwflower/auto-plugin",
+   "name": "auto-plugin",
+   "desc": "Yunzai-Bot V3 的插件包，主要提供各式各样的定时任务功能",
+   "url": "https://github.com/Nwflower/auto-plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 52,
+   "forks": 11,
+   "lang": "JavaScript",
+   "updatedAt": "2026-10-03T15:09:25Z",
+   "archived": false,
+   "fork": false,
+   "license": "MulanPSL-2.0",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "muxia-0326/yunzaibotjspluginmuxia",
+   "repo": "MuXia-0326/YunzaiBotJsPluginMuXia",
+   "name": "YunzaiBotJsPluginMuXia",
+   "desc": "自用云仔机器人js插件",
+   "url": "https://github.com/MuXia-0326/YunzaiBotJsPluginMuXia",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 51,
+   "forks": 17,
+   "lang": "JavaScript",
+   "updatedAt": "2024-10-18T06:41:11Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "kaguya233qwq/nonebot_plugin_sky",
+   "repo": "Kaguya233qwq/nonebot_plugin_sky",
+   "name": "nonebot_plugin_sky",
+   "desc": "nonebot2的光遇每日任务及活动查询插件",
+   "url": "https://github.com/Kaguya233qwq/nonebot_plugin_sky",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 50,
+   "forks": 5,
+   "lang": "Python",
+   "updatedAt": "2026-01-12T02:03:53Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2",
+    "sky"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "yharcadia/yunzaijsplugins",
+   "repo": "yhArcadia/YunzaiJsPlugins",
+   "name": "YunzaiJsPlugins",
+   "desc": "用来保存一些云崽机器人的插件",
+   "url": "https://github.com/yhArcadia/YunzaiJsPlugins",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 49,
+   "forks": 14,
+   "lang": "JavaScript",
+   "updatedAt": "2022-09-08T06:17:57Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "timerainstarsky/yunzai-qqbot-plugin",
+   "repo": "TimeRainStarSky/Yunzai-QQBot-Plugin",
+   "name": "Yunzai-QQBot-Plugin",
+   "desc": "TRSS-Yunzai QQBot 适配器",
+   "url": "https://github.com/TimeRainStarSky/Yunzai-QQBot-Plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 49,
+   "forks": 10,
+   "lang": "JavaScript",
+   "updatedAt": "2026-06-02T01:04:24Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "tomorinao-www/nonebot-plugin-anime-trace",
+   "repo": "tomorinao-www/nonebot-plugin-anime-trace",
+   "name": "nonebot-plugin-anime-trace",
+   "desc": "nonebot2插件，识别动漫和galgame角色",
+   "url": "https://github.com/tomorinao-www/nonebot-plugin-anime-trace",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 49,
+   "forks": 4,
+   "lang": "Python",
+   "updatedAt": "2025-11-07T08:23:32Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "acg",
+    "ai",
+    "nonebot-plugin"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "cpuopt/nonebot_plugin_imgexploration",
+   "repo": "cpuopt/nonebot_plugin_imgexploration",
+   "name": "nonebot_plugin_imgexploration",
+   "desc": "Google、Yandx和基于PicImageSearch的saucenao、ascii2d搜图",
+   "url": "https://github.com/cpuopt/nonebot_plugin_imgexploration",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 49,
+   "forks": 1,
+   "lang": "Python",
+   "updatedAt": "2026-10-27T03:02:30Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot",
+    "nonebot-plugin"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "erzaozi/imgs-plugin",
+   "repo": "erzaozi/imgS-plugin",
+   "name": "imgS-plugin",
+   "desc": "基于 Yunzai 的以图搜源插件，整合图片识别API",
+   "url": "https://github.com/erzaozi/imgS-plugin",
+   "homepage": "https://docs.cikeyqi.com",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 48,
+   "forks": 4,
+   "lang": "JavaScript",
+   "updatedAt": "2025-06-02T16:35:34Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "plugins",
+    "reverse-image-search",
+    "yunzai",
+    "yunzai-bot"
+   ],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "cikeyqi/gpti-plugin",
+   "repo": "CikeyQi/gpti-plugin",
+   "name": "gpti-plugin",
+   "desc": "基于 Yunzai 的 GPT 插件，使用 gpti-js 免费接口",
+   "url": "https://github.com/CikeyQi/gpti-plugin",
+   "homepage": "https://docs.cikeyqi.com",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 48,
+   "forks": 1,
+   "lang": "JavaScript",
+   "updatedAt": "2024-11-10T08:19:48Z",
+   "archived": true,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "bing",
+    "gpt",
+    "pixart",
+    "prodia",
+    "yunzai",
+    "yunzai-bot"
+   ],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "minatoaquacrews/nonebot_plugin_crazy_thursday",
+   "repo": "MinatoAquaCrews/nonebot_plugin_crazy_thursday",
+   "name": "nonebot_plugin_crazy_thursday",
+   "desc": "KFC Crazy Thursday plugin for nonebot2",
+   "url": "https://github.com/MinatoAquaCrews/nonebot_plugin_crazy_thursday",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 47,
+   "forks": 9,
+   "lang": "Python",
+   "updatedAt": "2026-10-05T19:27:26Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2",
+    "python3"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "gxy12345/windoge-plugin",
+   "repo": "gxy12345/windoge-plugin",
+   "name": "windoge-plugin",
+   "desc": "自用Yunzai-bot插件(兼容V2/V3)，多为修改适配其他大佬的插件功能",
+   "url": "https://github.com/gxy12345/windoge-plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 45,
+   "forks": 7,
+   "lang": "JavaScript",
+   "updatedAt": "2026-07-01T01:17:04Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "cikeyqi/nsfwjs-plugin",
+   "repo": "CikeyQi/nsfwjs-plugin",
+   "name": "nsfwjs-plugin",
+   "desc": "基于 Yunzai 的涩图监听插件，使用 NSFWJS 模型",
+   "url": "https://github.com/CikeyQi/nsfwjs-plugin",
+   "homepage": "https://docs.cikeyqi.com",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 44,
+   "forks": 4,
+   "lang": "JavaScript",
+   "updatedAt": "2026-07-25T13:02:12Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "nsfwjs",
+    "plugin",
+    "yunzai",
+    "yunzai-bot"
+   ],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "litesuggardev/nonebot_plugin_suggarchat",
+   "repo": "LiteSuggarDEV/nonebot_plugin_suggarchat",
+   "name": "nonebot_plugin_suggarchat",
+   "desc": "基于AmritaCore的聊天智能体插件——SuggarChat",
+   "url": "https://github.com/LiteSuggarDEV/nonebot_plugin_suggarchat",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 43,
+   "forks": 7,
+   "lang": "Python",
+   "updatedAt": "2026-08-21T14:34:42Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "chat",
+    "llm",
+    "nonebot-plugin",
+    "nonebot2",
+    "onebot11"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "timerainstarsky/yunzai-icqq-plugin",
+   "repo": "TimeRainStarSky/Yunzai-ICQQ-Plugin",
+   "name": "Yunzai-ICQQ-Plugin",
+   "desc": "TRSS-Yunzai ICQQ Bot 适配器 插件",
+   "url": "https://github.com/TimeRainStarSky/Yunzai-ICQQ-Plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 42,
+   "forks": 7,
+   "lang": "JavaScript",
+   "updatedAt": "2026-10-06T12:27:10Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "tomyjan/yunzai-tomyjan-plugin",
+   "repo": "TomyJan/Yunzai-TomyJan-Plugin",
+   "name": "Yunzai-TomyJan-Plugin",
+   "desc": "TomyJan 自用 YunzaiBot 插件",
+   "url": "https://github.com/TomyJan/Yunzai-TomyJan-Plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 41,
+   "forks": 3,
+   "lang": "JavaScript",
+   "updatedAt": "2026-10-23T03:14:02Z",
+   "archived": false,
+   "fork": false,
+   "license": "MPL-2.0",
+   "topics": [
+    "jmcomic",
+    "tomyjan",
+    "yunzai",
+    "yunzai-bot"
+   ],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "notivny/ark-plugin",
+   "repo": "NotIvny/ark-plugin",
+   "name": "ark-plugin",
+   "desc": "适用于Yunzai-Bot的喵喵插件功能拓展插件",
+   "url": "https://github.com/NotIvny/ark-plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 41,
+   "forks": 6,
+   "lang": "JavaScript",
+   "updatedAt": "2026-09-25T14:11:14Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "xitiangame/xitian-plugin",
+   "repo": "XiTianGame/xitian-plugin",
+   "name": "xitian-plugin",
+   "desc": "一个Yunzai-Bot（V3）的插件管理器",
+   "url": "https://github.com/XiTianGame/xitian-plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 41,
+   "forks": 2,
+   "lang": "JavaScript",
+   "updatedAt": "2025-05-01T06:16:09Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "clhikari/astrbot_plugin_office_assistant",
+   "repo": "Clhikari/astrbot_plugin_office_assistant",
+   "name": "astrbot_plugin_office_assistant",
+   "desc": "这是一个为 AstrBot 设计的 Office 助手插件。它赋予大语言模型（LLM）直接操作文件的能力，支持读取并分析多种格式文件，以及生成 Office 文档和office互转pdf的功能",
+   "url": "https://github.com/Clhikari/astrbot_plugin_office_assistant",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 41,
+   "forks": 3,
+   "lang": "Python",
+   "updatedAt": "2026-09-30T10:08:46Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "excel",
+    "flies",
+    "llm-agent",
+    "office365",
+    "pdf",
+    "ppt"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "snowtafir/yuki-plugin",
+   "repo": "snowtafir/yuki-plugin",
+   "name": "yuki-plugin",
+   "desc": "一个适用于 Yunzai 系列机器人框架 的B站动态、微博动态订阅推送和B站视频链接解析的插件。当前适用情况：YunzaiJS；Yunzai-V3：trss-yunzai、miao-yunzai。 Q群：836088936。镜像：https://gitee.com/snowtafir/yuki-plugin",
+   "url": "https://github.com/snowtafir/yuki-plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 40,
+   "forks": 6,
+   "lang": "JavaScript",
+   "updatedAt": "2026-09-05T06:19:41Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "yunzai",
+    "yunzai-v3",
+    "yunzaijs"
+   ],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "mai-icy/nonebot-plugin-bread-shop",
+   "repo": "Mai-icy/nonebot-plugin-bread-shop",
+   "name": "nonebot-plugin-bread-shop",
+   "desc": "nonebot2面包店插件 面包休闲小游戏",
+   "url": "https://github.com/Mai-icy/nonebot-plugin-bread-shop",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 40,
+   "forks": 6,
+   "lang": "Python",
+   "updatedAt": "2023-02-17T08:18:35Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "kaguyajs/yunzai-df-plugin",
+   "repo": "KaguyaJs/Yunzai-DF-Plugin",
+   "name": "Yunzai-DF-Plugin",
+   "desc": "适用于Yunzai框架的拓展插件",
+   "url": "https://github.com/KaguyaJs/Yunzai-DF-Plugin",
+   "homepage": "",
+   "platform": "Yunzai",
+   "sourceId": "yunzai",
+   "sourceName": "Yunzai / 云崽 插件",
+   "stars": 39,
+   "forks": 7,
+   "lang": "TypeScript",
+   "updatedAt": "2026-10-05T14:06:53Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [],
+   "sources": [
+    "yunzai"
+   ]
+  },
+  {
+   "id": "minatoaquacrews/nonebot_plugin_morning",
+   "repo": "MinatoAquaCrews/nonebot_plugin_morning",
+   "name": "nonebot_plugin_morning",
+   "desc": "Good morning & good night plugin for nonebot2",
+   "url": "https://github.com/MinatoAquaCrews/nonebot_plugin_morning",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 39,
+   "forks": 3,
+   "lang": "Python",
+   "updatedAt": "2022-12-28T03:40:49Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2",
+    "python3"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "x-zero-l/jmhelper",
+   "repo": "X-Zero-L/jmhelper",
+   "name": "jmhelper",
+   "desc": "适用于 NoneBot2 的 JM(禁漫天堂) 插件，支持分页搜索、下载漫画并上传群文件、查看漫画元信息、漫画文件缓存及定时清理等功能。",
+   "url": "https://github.com/X-Zero-L/jmhelper",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 38,
+   "forks": 2,
+   "lang": "HTML",
+   "updatedAt": "2026-09-24T14:51:11Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "bot",
+    "jm",
+    "jmcomic",
+    "jmdownload",
+    "nonebot",
+    "nonebot-plugin",
+    "nonebot2",
+    "plugin"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "koishijs/koishi-plugin-blockly",
+   "repo": "koishijs/koishi-plugin-blockly",
+   "name": "koishi-plugin-blockly",
+   "desc": "Use blockly to write a plugin for koishi bot",
+   "url": "https://github.com/koishijs/koishi-plugin-blockly",
+   "homepage": "https://blockly.koishi.chat",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 38,
+   "forks": 28,
+   "lang": "TypeScript",
+   "updatedAt": "2023-12-14T12:34:21Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "chatbot",
+    "flow-based-programming",
+    "koishi",
+    "koishi-plugin",
+    "low-code",
+    "plugin"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "sokoko-org/nonebot-plugin-parser-lite",
+   "repo": "sokoko-org/nonebot-plugin-parser-lite",
+   "name": "nonebot-plugin-parser-lite",
+   "desc": "社交媒体分享链接解析插件-Lite版",
+   "url": "https://github.com/sokoko-org/nonebot-plugin-parser-lite",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 37,
+   "forks": 9,
+   "lang": "Python",
+   "updatedAt": "2026-10-28T10:27:19Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2",
+    "python"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "zyksslm/nonebot_plugin_zyk_novelai",
+   "repo": "ZYKsslm/nonebot_plugin_zyk_novelai",
+   "name": "nonebot_plugin_zyk_novelai",
+   "desc": "一个用于nonebot2的简约AI绘图插件",
+   "url": "https://github.com/ZYKsslm/nonebot_plugin_zyk_novelai",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 33,
+   "forks": 5,
+   "lang": "Python",
+   "updatedAt": "2024-06-21T16:56:25Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "ai",
+    "naifu",
+    "nonebot-plugin",
+    "nonebot2",
+    "novelai",
+    "plugin",
+    "python",
+    "python3"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "xiaoxiao150/vram-switcher",
+   "repo": "xiaoxiao150/vram-switcher",
+   "name": "vram-switcher",
+   "desc": "GPU coordination for local AI companions on AstrBot / DeepSeek Harness: persona LLM, IndexTTS voice and ComfyUI selfies take turns on one 12 GB card. No proxy.",
+   "url": "https://github.com/xiaoxiao150/vram-switcher",
+   "homepage": "https://github.com/xiaoxiao150/vram-switcher#readme",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 33,
+   "forks": 0,
+   "lang": "Python",
+   "updatedAt": "2026-10-27T15:58:20Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "ai-companion",
+    "astrbot",
+    "astrbot-plugin",
+    "comfyui",
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "gpu"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "komoridev/nonebot-plugin-wakatime",
+   "repo": "KomoriDev/nonebot-plugin-wakatime",
+   "name": "nonebot-plugin-wakatime",
+   "desc": "NoneBot Wakatime 查询插件，将你的代码统计嵌入 Bot 中",
+   "url": "https://github.com/KomoriDev/nonebot-plugin-wakatime",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 32,
+   "forks": 4,
+   "lang": "Python",
+   "updatedAt": "2026-07-06T17:02:25Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "nonebot",
+    "nonebot-plugin",
+    "wakatime"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "vanillanahida/astrbot_plugin_group_geetest_verify",
+   "repo": "VanillaNahida/astrbot_plugin_group_geetest_verify",
+   "name": "astrbot_plugin_group_geetest_verify",
+   "desc": "群聊入群验证插件，使用极验Geetest V4实现入群人机验证",
+   "url": "https://github.com/VanillaNahida/astrbot_plugin_group_geetest_verify",
+   "homepage": "https://gt.xcnahida.cn",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 32,
+   "forks": 8,
+   "lang": "Python",
+   "updatedAt": "2026-08-31T10:29:17Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "python",
+    "qq",
+    "qqbot",
+    "qqchannel"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "floattech/zerobot-plugin-webui",
+   "repo": "FloatTech/ZeroBot-Plugin-Webui",
+   "name": "ZeroBot-Plugin-Webui",
+   "desc": "一个qq机器人的前端ui实现",
+   "url": "https://github.com/FloatTech/ZeroBot-Plugin-Webui",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 32,
+   "forks": 17,
+   "lang": "TypeScript",
+   "updatedAt": "2023-04-23T09:03:02Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "staskaer/nonebot_plugin_realesrgan",
+   "repo": "Staskaer/nonebot_plugin_RealESRGAN",
+   "name": "nonebot_plugin_RealESRGAN",
+   "desc": "基于nonebot的超分辨率重建",
+   "url": "https://github.com/Staskaer/nonebot_plugin_RealESRGAN",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 31,
+   "forks": 3,
+   "lang": "Python",
+   "updatedAt": "2023-10-17T07:20:39Z",
+   "archived": true,
+   "fork": false,
+   "license": "BSD-3-Clause",
+   "topics": [
+    "nonebot-plugin",
+    "nonebot2"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "astrbot-elementary-school/astrbot_plugin_rsshub",
+   "repo": "AstrBot-Elementary-School/astrbot_plugin_rsshub",
+   "name": "astrbot_plugin_rsshub",
+   "desc": "多平台RSS订阅推送插件，支持失败队列重试、多BOT去重、平台数据共享、智能发送策略，LLM工具调用，让你的BOT成为信息聚合中心。",
+   "url": "https://github.com/AstrBot-Elementary-School/astrbot_plugin_rsshub",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 31,
+   "forks": 10,
+   "lang": "Python",
+   "updatedAt": "2026-09-06T05:45:51Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot-plugin",
+    "push-notifications",
+    "rss",
+    "rss-aggregator",
+    "rss-feed",
+    "rss-reader",
+    "rsshub",
+    "subscribe"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "elflare/nonebot-plugin-moellmchats",
+   "repo": "Elflare/nonebot-plugin-moellmchats",
+   "name": "nonebot-plugin-moellmchats",
+   "desc": "✨ 混合专家模型调度LLM插件 | 混合调度·联网搜索·上下文优化·个性定制·Token节约·更加拟人✨",
+   "url": "https://github.com/Elflare/nonebot-plugin-moellmchats",
+   "homepage": "",
+   "platform": "NoneBot",
+   "sourceId": "nonebot",
+   "sourceName": "NoneBot 插件",
+   "stars": 30,
+   "forks": 6,
+   "lang": "Python",
+   "updatedAt": "2026-07-17T01:51:19Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "chatgpt",
+    "llm",
+    "nonebot-plugin",
+    "nonebot2",
+    "openai"
+   ],
+   "sources": [
+    "nonebot"
+   ]
+  },
+  {
+   "id": "pancakes-labs/astrbot_plugin_live_dashboard",
+   "repo": "Pancakes-Labs/astrbot_plugin_live_dashboard",
+   "name": "astrbot_plugin_live_dashboard",
+   "desc": "一个适配了“视奸面板”的 AstrBot 插件。上游项目：Monika-Dream/live-dashboard。点击下方链接可视奸插件作者 ❤️ An AstrBot plugin adapted for the \"live-dashboard\". Upstream project: Monika-Dream/live-dashboard. Click the link below to see what am i doing ❤️",
+   "url": "https://github.com/Pancakes-Labs/astrbot_plugin_live_dashboard",
+   "homepage": "https://live.cafenya.top",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 30,
+   "forks": 1,
+   "lang": "Python",
+   "updatedAt": "2026-09-09T02:54:54Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot-plugin",
+    "dashboard",
+    "panel",
+    "python",
+    "watcher"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "gemiluxvii/astrbot_plugin_cloudrank",
+   "repo": "GEMILUXVII/astrbot_plugin_cloudrank",
+   "name": "astrbot_plugin_cloudrank",
+   "desc": "AstrBot词云与排名插件(CloudRank)：基于Astrbot的聊天分析插件。可分析群聊消息，生成美观词云图，直观展示热点话题，并展示用户活跃度排行。支持定时与手动生成，提供丰富的颜色、字体、形状及排名显示自定义选项",
+   "url": "https://github.com/GEMILUXVII/astrbot_plugin_cloudrank",
+   "homepage": "https://www.aspchang.cn",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 30,
+   "forks": 6,
+   "lang": "Python",
+   "updatedAt": "2025-12-30T08:00:43Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "qq",
+    "qqbot",
+    "wordcloud",
+    "wordcloud-generator"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "zhalslar/astrbot_plugin_buttons",
+   "repo": "Zhalslar/astrbot_plugin_buttons",
+   "name": "astrbot_plugin_buttons",
+   "desc": "[仅napcat] 让QQ的野生bot也能发送按钮！",
+   "url": "https://github.com/Zhalslar/astrbot_plugin_buttons",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 28,
+   "forks": 0,
+   "lang": "Python",
+   "updatedAt": "2026-03-17T23:46:14Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "astrbot-elementary-school/astrbot_plugin_status",
+   "repo": "AstrBot-Elementary-School/astrbot_plugin_status",
+   "name": "astrbot_plugin_status",
+   "desc": "简易又可爱的系统状态展示插件，支持LLM接入",
+   "url": "https://github.com/AstrBot-Elementary-School/astrbot_plugin_status",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 26,
+   "forks": 8,
+   "lang": "Python",
+   "updatedAt": "2026-10-11T15:28:01Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot-plugin",
+    "kawaii",
+    "status"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "piexian/astrbot_plugin_grok_web_search",
+   "repo": "piexian/astrbot_plugin_grok_web_search",
+   "name": "astrbot_plugin_grok_web_search",
+   "desc": "通过 Grok API 进行实时联网搜索，返回综合答案和来源链接，支持指令，LLM Tool和skills调用。",
+   "url": "https://github.com/piexian/astrbot_plugin_grok_web_search",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 25,
+   "forks": 5,
+   "lang": "Python",
+   "updatedAt": "2026-10-05T13:44:25Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot-plugin",
+    "grok",
+    "web-search"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "astrbot-elementary-school/astrbot_plugin_setu",
+   "repo": "AstrBot-Elementary-School/astrbot_plugin_setu",
+   "name": "astrbot_plugin_setu",
+   "desc": "色图插件，支持接入不同的API中 (lolicon, sexyan等），也可以指定自己的自定义API",
+   "url": "https://github.com/AstrBot-Elementary-School/astrbot_plugin_setu",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 25,
+   "forks": 4,
+   "lang": "Python",
+   "updatedAt": "2026-10-25T02:19:42Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot-plugin",
+    "image",
+    "image-gallery",
+    "jrys",
+    "lolicon",
+    "loliconapi",
+    "sexyan",
+    "sexyanapi"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "stevessr/astrbot_plugin_matrix_adapter",
+   "repo": "stevessr/astrbot_plugin_matrix_adapter",
+   "name": "astrbot_plugin_matrix_adapter",
+   "desc": "stevessr🐟 自用的matrix插件，为 astrbot 设计，有问题请提issue",
+   "url": "https://github.com/stevessr/astrbot_plugin_matrix_adapter",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 24,
+   "forks": 4,
+   "lang": "Python",
+   "updatedAt": "2026-09-03T01:12:59Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "astrbot-plugin",
+    "matrix"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "rayquantum/ts3audiobot-plugin-netease-qq",
+   "repo": "RayQuantum/TS3AudioBot-Plugin-Netease-QQ",
+   "name": "TS3AudioBot-Plugin-Netease-QQ",
+   "desc": "适配网易云API和QQ音乐API的TS3音乐机器人插件",
+   "url": "https://github.com/RayQuantum/TS3AudioBot-Plugin-Netease-QQ",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 24,
+   "forks": 5,
+   "lang": "C#",
+   "updatedAt": "2026-02-06T06:04:13Z",
+   "archived": false,
+   "fork": false,
+   "license": "OSL-3.0",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "7985200/astrbot_plugin_newapi_qq_group_verify",
+   "repo": "7985200/astrbot_plugin_newapi_qq_group_verify",
+   "name": "astrbot_plugin_newapi_qq_group_verify",
+   "desc": "AstrBot 插件：NewAPI 进群验证 / 加群验证 / QQ群验证的发码端。群内发送 /获取验证码，为指定 QQ 号签发 6 位验证码。 需先安装 NewAPI 配套补丁才能生效。",
+   "url": "https://github.com/7985200/astrbot_plugin_newapi_qq_group_verify",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 22,
+   "forks": 15,
+   "lang": "Python",
+   "updatedAt": "2026-10-18T02:48:20Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "group-verification",
+    "newapi",
+    "one-api",
+    "qq-group",
+    "qq-verification",
+    "verification"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "hynemankan/qq_bot",
+   "repo": "HynemanKan/qq_bot",
+   "name": "qq_bot",
+   "desc": "A Python framework for CoolQ HTTP API plugin",
+   "url": "https://github.com/HynemanKan/qq_bot",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 22,
+   "forks": 5,
+   "lang": "JavaScript",
+   "updatedAt": "2019-11-05T04:24:01Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "swaggymacro/mirainsfwbot",
+   "repo": "SwaggyMacro/MiraiNsfwBot",
+   "name": "MiraiNsfwBot",
+   "desc": "A plugin for QQBot based on Mirai. 一个通过Mirai框架实现的QQ机器人鉴黄插件。",
+   "url": "https://github.com/SwaggyMacro/MiraiNsfwBot",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 21,
+   "forks": 3,
+   "lang": "Java",
+   "updatedAt": "2023-06-24T13:06:25Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "mirai",
+    "mirai-bot",
+    "mirai-plugin",
+    "nsfw",
+    "plugin"
+   ],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "dwgx/yukiko",
+   "repo": "dwgx/YuKiKo",
+   "name": "YuKiKo",
+   "desc": "AI QQ bot with OneBot, NapCat, LLM routing, plugins, and WebUI",
+   "url": "https://github.com/dwgx/YuKiKo",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 21,
+   "forks": 1,
+   "lang": "Python",
+   "updatedAt": "2026-09-30T19:39:06Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "ai-gateway",
+    "chatbot",
+    "fastapi",
+    "llm-agent",
+    "napcat",
+    "nonebot2",
+    "onebot",
+    "openai-proxy"
+   ],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "backrooms-yrc/astrbot_plugin_currentcortex",
+   "repo": "backrooms-yrc/astrbot_plugin_currentcortex",
+   "name": "astrbot_plugin_currentcortex",
+   "desc": "多功能 AstrBot 插件（CurrentCortex）—— Pixiv 随机图片 ·网易云点歌 ·JMComic 漫画 ·小红书/B站/抖音媒体解析 ·每日一言 ·天气 ·男娘 ·DG-LAB（郊狼） 设备管理 ·跨群聊记忆 ·按群聊开关。基于 LeiZ API。",
+   "url": "https://github.com/backrooms-yrc/astrbot_plugin_currentcortex",
+   "homepage": "https://cloud.astrbot.app/plugin/backrooms-yrc/astrbot_plugin_currentcortex",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 20,
+   "forks": 6,
+   "lang": "Python",
+   "updatedAt": "2026-10-26T15:47:45Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "chatbot",
+    "dg-lab",
+    "jmcomic",
+    "media-parser",
+    "netease-music",
+    "pixiv"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "raka-loah/paarthurnax",
+   "repo": "Raka-loah/Paarthurnax",
+   "name": "Paarthurnax",
+   "desc": "🐉符合OneBot标准的Warframe通报机器人插件，昵称“老帕”",
+   "url": "https://github.com/Raka-loah/Paarthurnax",
+   "homepage": "",
+   "platform": "OneBot v11/v12",
+   "sourceId": "onebot",
+   "sourceName": "OneBot 生态",
+   "stars": 18,
+   "forks": 3,
+   "lang": "Python",
+   "updatedAt": "2025-12-07T03:36:02Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "onebot-plugin",
+    "python"
+   ],
+   "sources": [
+    "onebot"
+   ]
+  },
+  {
+   "id": "shitianyaa/astrbot_plugin_nitter_tweets",
+   "repo": "shitianyaa/astrbot_plugin_nitter_tweets",
+   "name": "astrbot_plugin_nitter_tweets",
+   "desc": "FxTwitter与自建 Nitter 获取公开 X/Twitter 推文，博主/标签/List 分组（list仅Nitter支持）定时推送到 OneBot/QQ/Telegram/飞书。AstrBot 插件。",
+   "url": "https://github.com/shitianyaa/astrbot_plugin_nitter_tweets",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 17,
+   "forks": 2,
+   "lang": "Python",
+   "updatedAt": "2026-10-27T09:36:12Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "nitter",
+    "plugin",
+    "qq-bot",
+    "rss",
+    "telegram",
+    "twitter"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "piexian/astrbot_plugin_simple_long_memory",
+   "repo": "piexian/astrbot_plugin_simple_long_memory",
+   "name": "astrbot_plugin_simple_long_memory",
+   "desc": "为 AstrBot 提供简易的长期记忆能力，基于内置知识库实现用户偏好、历史交互和重要事实的记忆存储与召回。",
+   "url": "https://github.com/piexian/astrbot_plugin_simple_long_memory",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 17,
+   "forks": 0,
+   "lang": "Python",
+   "updatedAt": "2026-09-15T00:20:58Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot-plugin",
+    "memory"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "piexian/astrbot_plugin_rg2",
+   "repo": "piexian/astrbot_plugin_rg2",
+   "name": "astrbot_plugin_rg2",
+   "desc": "基于 AstrBot 官方插件规范开发的群聊轮盘赌游戏插件，采用现代化代码架构，提供刺激的左轮手枪对决体验。",
+   "url": "https://github.com/piexian/astrbot_plugin_rg2",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 14,
+   "forks": 2,
+   "lang": "Python",
+   "updatedAt": "2026-09-29T23:39:48Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot-plugin"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "ra1nyxin/koishi-plugin-esp32-to-galaku",
+   "repo": "ra1nyxin/koishi-plugin-esp32-to-galaku",
+   "name": "koishi-plugin-esp32-to-galaku",
+   "desc": "通过PowerShell串口桥把Koishi命令转发到ESP32S3再由ESP32S3控制GALAKU设备实现让群友控制我的跳蛋或其他小玩具",
+   "url": "https://github.com/ra1nyxin/koishi-plugin-esp32-to-galaku",
+   "homepage": "https://www.npmjs.com/package/koishi-plugin-esp32-to-galaku",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 13,
+   "forks": 0,
+   "lang": "C",
+   "updatedAt": "2026-06-19T06:40:11Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "ble",
+    "discord-bot",
+    "esp32",
+    "esp32s3",
+    "koishi",
+    "koishi-plugin"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "piexian/astrbot_plugin_skills_mcp_manager",
+   "repo": "piexian/astrbot_plugin_skills_mcp_manager",
+   "name": "astrbot_plugin_skills_mcp_manager",
+   "desc": "为astrbot提供函数工具和指令来管理 AstrBot Skills 和 MCP 服务器。",
+   "url": "https://github.com/piexian/astrbot_plugin_skills_mcp_manager",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 13,
+   "forks": 1,
+   "lang": "Python",
+   "updatedAt": "2026-10-17T00:21:26Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot-plugin",
+    "manger",
+    "mcp",
+    "skills",
+    "tools"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "intellimarkets/jianer_plugins_index",
+   "repo": "IntelliMarkets/Jianer_Plugins_Index",
+   "name": "Jianer_Plugins_Index",
+   "desc": "The Intelligent Plugins Market for Jianer_QQ_Bot",
+   "url": "https://github.com/IntelliMarkets/Jianer_Plugins_Index",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 13,
+   "forks": 17,
+   "lang": "Python",
+   "updatedAt": "2026-05-10T04:45:00Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "hatoyuze/life-restart-bot",
+   "repo": "HatoYuze/life-restart-bot",
+   "name": "life-restart-bot",
+   "desc": "A qq-bot plugin based on mirai-console for remake your life(X",
+   "url": "https://github.com/HatoYuze/life-restart-bot",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 13,
+   "forks": 1,
+   "lang": "Kotlin",
+   "updatedAt": "2025-04-19T11:15:52Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "mirai",
+    "mirai-console",
+    "qq"
+   ],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "orchidsziyou/astrbot_plugins_convetpicture",
+   "repo": "orchidsziyou/astrbot_plugins_ConvetPicture",
+   "name": "astrbot_plugins_ConvetPicture",
+   "desc": "转换qq不可直接保存的表情包",
+   "url": "https://github.com/orchidsziyou/astrbot_plugins_ConvetPicture",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 12,
+   "forks": 3,
+   "lang": "Python",
+   "updatedAt": "2026-08-05T07:38:00Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "iona-s/astrbot_plugin_imgexploration",
+   "repo": "iona-s/astrbot_plugin_imgexploration",
+   "name": "astrbot_plugin_imgexploration",
+   "desc": "通过上传图片搜索其来源，支持 SauceNAO、Google Lens、Ascii2d 等搜图引擎，并结合LLM改善使用体验。",
+   "url": "https://github.com/iona-s/astrbot_plugin_imgexploration",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 11,
+   "forks": 5,
+   "lang": "Python",
+   "updatedAt": "2026-10-24T13:31:12Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "ascii2d",
+    "astrbot-plugin",
+    "google-lens",
+    "image-search",
+    "saucenao"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "7985200/newapi-qq-group-verification",
+   "repo": "7985200/newapi-qq-group-verification",
+   "name": "newapi-qq-group-verification",
+   "desc": "NewAPI 进群验证 / 加群验证 / QQ群验证：必须加入 QQ 群并完成验证才能调用模型。配套 AstrBot 插件发码；支持邮箱与QQ号强校验、一QQ一账号、多群提示、后台验证状态管理、解除绑定、失败次数上限。基于 NewAPI v1.0.0-rc.36 的补丁包。",
+   "url": "https://github.com/7985200/newapi-qq-group-verification",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 11,
+   "forks": 7,
+   "lang": "TypeScript",
+   "updatedAt": "2026-10-18T02:40:25Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "group-verification",
+    "llm-gateway",
+    "newapi",
+    "one-api",
+    "qq-group",
+    "qq-verification"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "timetetng/astrbot_plugin_echoscore",
+   "repo": "timetetng/astrbot_plugin_echoscore",
+   "name": "astrbot_plugin_echoscore",
+   "desc": "基于Loping151识别《鸣潮》声骸评分API的astrbot插件，提供LLM交互和指令两种使用方式",
+   "url": "https://github.com/timetetng/astrbot_plugin_echoscore",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 10,
+   "forks": 1,
+   "lang": "Python",
+   "updatedAt": "2025-12-02T17:17:13Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "astrbot-plugin",
+    "ocr",
+    "python",
+    "wutheringwaves"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "vanillanahida/astrbot_plugin_group_aip_review",
+   "repo": "VanillaNahida/astrbot_plugin_group_aip_review",
+   "name": "astrbot_plugin_group_aip_review",
+   "desc": "AstrBot 群聊内容安全审核插件，使用百度内容安全审核，实现违规信息警告撤回禁言等功能",
+   "url": "https://github.com/VanillaNahida/astrbot_plugin_group_aip_review",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 10,
+   "forks": 3,
+   "lang": "Python",
+   "updatedAt": "2026-06-09T11:47:45Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "baidu-aip",
+    "plugins"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "jawwe/astrbot_plugin_tataru",
+   "repo": "jawwe/astrbot_plugin_tataru",
+   "name": "astrbot_plugin_tataru",
+   "desc": "面向 Final Fantasy XIV 国服/国际服玩家的 AstrBot 插件，提供时尚品鉴、活动日历、副本攻略、招募板、微博资讯、物品资料、市场价格、房屋空房、FFLogs 输出分位、角色 Logs 和塔罗抽卡等查询功能。",
+   "url": "https://github.com/jawwe/astrbot_plugin_tataru",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 9,
+   "forks": 2,
+   "lang": "Python",
+   "updatedAt": "2026-07-18T04:58:16Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "astrbot-plugin",
+    "ffxiv"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "hakuin123/astrbot_plugin_maa",
+   "repo": "Hakuin123/astrbot_plugin_maa",
+   "name": "astrbot_plugin_maa",
+   "desc": "通过 AstrBot 远程控制 MAA Assistant Arknights",
+   "url": "https://github.com/Hakuin123/astrbot_plugin_maa",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 9,
+   "forks": 0,
+   "lang": "Python",
+   "updatedAt": "2026-06-05T08:57:08Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "maa"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "luoshui319/astrbot_plugin_congling",
+   "repo": "LUOSHUI319/astrbot_plugin_congling",
+   "name": "astrbot_plugin_congling",
+   "desc": "从绫开始 · 把「会聊天」做到像人。AstrBot 插件：拟人化表达与分句节奏、会分级会淡忘的长期记忆、长夜如梦（四种睡眠阶段、只在 REM 做梦）、日记、主动找人、QQ 扩展，带一整套可视化配置面板。洛水 & 望山 一起写的。",
+   "url": "https://github.com/LUOSHUI319/astrbot_plugin_congling",
+   "homepage": "https://github.com/LUOSHUI319/astrbot_plugin_congling",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 9,
+   "forks": 0,
+   "lang": "Python",
+   "updatedAt": "2026-10-27T04:04:11Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "companion",
+    "llm",
+    "lore",
+    "memory",
+    "onebot",
+    "python"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "astrbotdevs/astrbot_plugins_market",
+   "repo": "AstrBotDevs/Astrbot_Plugins_Market",
+   "name": "Astrbot_Plugins_Market",
+   "desc": "A site for browsing and exploring AstrBot plugins.",
+   "url": "https://github.com/AstrBotDevs/Astrbot_Plugins_Market",
+   "homepage": "https://plugins.astrbot.app",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 9,
+   "forks": 5,
+   "lang": "Vue",
+   "updatedAt": "2025-10-29T16:30:36Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "action",
+    "actions",
+    "astrbot",
+    "astrbot-plugin",
+    "community"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "timerainstarsky/yunzai-qqguild-plugin",
+   "repo": "TimeRainStarSky/Yunzai-QQGuild-Plugin",
+   "name": "Yunzai-QQGuild-Plugin",
+   "desc": "TRSS-Yunzai QQ频道 Bot 适配器 插件",
+   "url": "https://github.com/TimeRainStarSky/Yunzai-QQGuild-Plugin",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 9,
+   "forks": 0,
+   "lang": "JavaScript",
+   "updatedAt": "2024-06-03T20:33:17Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "lipraty/koishi-plugin-sleep-manage",
+   "repo": "Lipraty/koishi-plugin-sleep-manage",
+   "name": "koishi-plugin-sleep-manage",
+   "desc": "Manage your sleep time with Koishi Bot!",
+   "url": "https://github.com/Lipraty/koishi-plugin-sleep-manage",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 8,
+   "forks": 2,
+   "lang": "TypeScript",
+   "updatedAt": "2026-08-16T17:41:26Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "koishi",
+    "koishi-plugin",
+    "koishijs",
+    "sleep"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "koishi-ce/koishi",
+   "repo": "Koishi-CE/koishi",
+   "name": "koishi",
+   "desc": "跨平台聊天机器人框架 Koishi 的社区再分发版（Bun-first）",
+   "url": "https://github.com/Koishi-CE/koishi",
+   "homepage": "https://koishi.chat",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 8,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2026-10-26T13:35:00Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "bot",
+    "chatbot",
+    "discord",
+    "feishu",
+    "framework",
+    "koishi",
+    "koishi-ce",
+    "koishi-plugin"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "dreamofice/koishi-plugin-adapter-villa",
+   "repo": "DreamOfIce/koishi-plugin-adapter-villa",
+   "name": "koishi-plugin-adapter-villa",
+   "desc": "Koishi 的大别野适配器 Villa adapter for Koishi",
+   "url": "https://github.com/DreamOfIce/koishi-plugin-adapter-villa",
+   "homepage": "https://koishi.chat",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 8,
+   "forks": 2,
+   "lang": "TypeScript",
+   "updatedAt": "2023-12-17T18:28:48Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "adapter",
+    "bot",
+    "koishi",
+    "koishi-plugin",
+    "koishijs",
+    "mihoyo"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "georgenann/astrbot_plugin_nailong",
+   "repo": "GeorgeNaNN/astrbot_plugin_nailong",
+   "name": "astrbot_plugin_nailong",
+   "desc": "AstrBot 奶龙表情包插件，支持通过 来只奶龙/奶龙/龙来 随机或指定发送奶龙表情包，也可以查询图库数量、添加、删除、查询文件名和重命名表情包；其中添加、删除、查询文件名支持批量处理。插件还提供 Web 管理页面，可上传、删除、重命名、批量导出表情包，并支持从 GitHub 下载奶龙图库和按概率自动发送奶龙。",
+   "url": "https://github.com/GeorgeNaNN/astrbot_plugin_nailong",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 8,
+   "forks": 0,
+   "lang": "Python",
+   "updatedAt": "2026-09-10T09:58:41Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "bot",
+    "bots",
+    "qq",
+    "qq-bot",
+    "qqbot",
+    "qqrobot"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "georgenann/nailong-memes",
+   "repo": "GeorgeNaNN/nailong-memes",
+   "name": "nailong-memes",
+   "desc": "AstrBot 插件「来只奶龙」的默认奶龙图库仓库，专门收集抽象奶龙表情包，为插件提供表情包下载和本地图库补充。",
+   "url": "https://github.com/GeorgeNaNN/nailong-memes",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 8,
+   "forks": 0,
+   "lang": "",
+   "updatedAt": "2026-10-27T10:05:29Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "bot",
+    "meme",
+    "memes",
+    "nailong",
+    "qq",
+    "qq-bot"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "nana7mi0721/astrbot_plugin_quillplus",
+   "repo": "Nana7mi0721/astrbot_plugin_quillplus",
+   "name": "astrbot_plugin_quillplus",
+   "desc": "基于 AstrBot 的羽笔（Quill）世界书与素材库注入插件",
+   "url": "https://github.com/Nana7mi0721/astrbot_plugin_quillplus",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 8,
+   "forks": 0,
+   "lang": "Python",
+   "updatedAt": "2026-10-27T09:25:41Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "ai",
+    "astrbot",
+    "astrbot-plugin",
+    "character-card",
+    "llm",
+    "long-term-memory",
+    "lorebook",
+    "python"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "zzzzzzouhang/astrbot_plugin_overstats",
+   "repo": "Zzzzzzouhang/astrbot_plugin_overstats",
+   "name": "astrbot_plugin_overstats",
+   "desc": "国服守望先锋数据查询AstrBot插件，提供一键部署功能，查询数据渲染成图片",
+   "url": "https://github.com/Zzzzzzouhang/astrbot_plugin_overstats",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 8,
+   "forks": 0,
+   "lang": "Python",
+   "updatedAt": "2026-10-28T05:28:07Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "overwatch",
+    "overwatch-2"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "ttionya/mirai-http-docker",
+   "repo": "ttionya/mirai-http-docker",
+   "name": "mirai-http-docker",
+   "desc": "QQ bot Mirai with \"mirai-api-http\" plugin",
+   "url": "https://github.com/ttionya/mirai-http-docker",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 8,
+   "forks": 4,
+   "lang": "Shell",
+   "updatedAt": "2024-02-01T13:39:48Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "yongqi-zhuo/yqbot",
+   "repo": "Yongqi-Zhuo/yqbot",
+   "name": "yqbot",
+   "desc": "A QQ bot implemented as a mirai-console plugin.",
+   "url": "https://github.com/Yongqi-Zhuo/yqbot",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 8,
+   "forks": 1,
+   "lang": "Kotlin",
+   "updatedAt": "2022-07-01T16:34:39Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "yummy-cookie/biscuit-yunzai",
+   "repo": "Yummy-cookie/Biscuit-Yunzai",
+   "name": "Biscuit-Yunzai",
+   "desc": "Yunzai-Bot，原神qq群机器人，通过米游社接口，查询原神游戏信息，快速生成图片返回，此版本根据Yunzai+miao结合组成的Yunzai，并不依赖miao-plugin",
+   "url": "https://github.com/Yummy-cookie/Biscuit-Yunzai",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 8,
+   "forks": 0,
+   "lang": "JavaScript",
+   "updatedAt": "2023-12-23T04:38:05Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "fantasality/astrbot_plugin_dsh_bridge",
+   "repo": "Fantasality/astrbot_plugin_dsh_bridge",
+   "name": "astrbot_plugin_dsh_bridge",
+   "desc": "AstrBot plugin bridging DeepSeek Harness (DSH) agents — AstrBot 插件：桥接 DeepSeek Harness 智能体",
+   "url": "https://github.com/Fantasality/astrbot_plugin_dsh_bridge",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 7,
+   "forks": 0,
+   "lang": "Python",
+   "updatedAt": "2026-08-15T12:21:51Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "ai-agent",
+    "astrbot",
+    "astrbot-plugin",
+    "bridge",
+    "chatbot",
+    "deepseek",
+    "deepseek-harness",
+    "dsh"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "chengzhi-c/astrbot_plugin_self_initiated_reply",
+   "repo": "chengzhi-c/astrbot_plugin_self_initiated_reply",
+   "name": "astrbot_plugin_self_initiated_reply",
+   "desc": "白名单会话内，避开 @Bot/命令后由判断模型决定是否自然接话，回复走 AstrBot 主 Agent 管线，支持表情包插件和记忆钩子",
+   "url": "https://github.com/chengzhi-c/astrbot_plugin_self_initiated_reply",
+   "homepage": "",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 7,
+   "forks": 2,
+   "lang": "Python",
+   "updatedAt": "2026-10-21T03:37:06Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "zhyx111999/astrbot_plugin_pi_agent",
+   "repo": "zhyx111999/astrbot_plugin_pi_agent",
+   "name": "astrbot_plugin_pi_agent",
+   "desc": "Yezi 与 Cz 维护的开源 AstrBot Pi Agent 插件，支持独立后台任务、原生会话读取、任务恢复和普通回复链路终态处理。",
+   "url": "https://github.com/zhyx111999/astrbot_plugin_pi_agent",
+   "homepage": "https://github.com/zhyx111999/astrbot_plugin_pi_agent",
+   "platform": "AstrBot",
+   "sourceId": "astrbot",
+   "sourceName": "AstrBot 插件",
+   "stars": 7,
+   "forks": 0,
+   "lang": "Python",
+   "updatedAt": "2026-08-29T13:45:55Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "astrbot",
+    "astrbot-plugin",
+    "open-source",
+    "pi-agent",
+    "python"
+   ],
+   "sources": [
+    "astrbot"
+   ]
+  },
+  {
+   "id": "daydreamcafe/cocoa",
+   "repo": "DaydreamCafe/Cocoa",
+   "name": "Cocoa",
+   "desc": "精简化的服务型机器人",
+   "url": "https://github.com/DaydreamCafe/Cocoa",
+   "homepage": "",
+   "platform": "OneBot v11/v12",
+   "sourceId": "onebot",
+   "sourceName": "OneBot 生态",
+   "stars": 7,
+   "forks": 3,
+   "lang": "Go",
+   "updatedAt": "2022-08-05T06:00:25Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "coolq",
+    "cqhttp",
+    "cqhttp-mirai",
+    "go",
+    "go-cqhttp",
+    "golang",
+    "mirai",
+    "mirai-bot"
+   ],
+   "sources": [
+    "onebot"
+   ]
+  },
+  {
+   "id": "zhalslar/astrbot_plugin_qqadmin_official",
+   "repo": "Zhalslar/astrbot_plugin_qqadmin_official",
+   "name": "astrbot_plugin_qqadmin_official",
+   "desc": "适用于QQ官方bot的群管插件，功能包括：禁言、进群审批",
+   "url": "https://github.com/Zhalslar/astrbot_plugin_qqadmin_official",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 7,
+   "forks": 0,
+   "lang": "Python",
+   "updatedAt": "2026-09-20T09:10:15Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "sliverp/deepseek-harness-qqbot",
+   "repo": "sliverp/DeepSeek-harness-qqbot",
+   "name": "DeepSeek-harness-qqbot",
+   "desc": "QQ Bot text and image channel plugin for DeepSeek Harness",
+   "url": "https://github.com/sliverp/DeepSeek-harness-qqbot",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 7,
+   "forks": 2,
+   "lang": "TypeScript",
+   "updatedAt": "2026-08-19T12:13:10Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "cordis",
+    "deepseek",
+    "deepseek-harness",
+    "dsh-plugin",
+    "qqbot",
+    "typescript"
+   ],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "nigh/forward-hime",
+   "repo": "Nigh/forward-hime",
+   "name": "forward-hime",
+   "desc": "Koishi 多群组消息互通插件",
+   "url": "https://github.com/Nigh/forward-hime",
+   "homepage": "https://nigh.github.io/forward-hime/",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 6,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2026-10-25T10:51:58Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "forwarding",
+    "koishi",
+    "koishi-plugin",
+    "message-forwarding"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "cooksleep/koishi-log-enhanced",
+   "repo": "CookSleep/koishi-log-enhanced",
+   "name": "koishi-log-enhanced",
+   "desc": "为 Koishi 控制台 (Console) 的日志界面添加 滚动控制 和 一键复制 功能，大幅提升调试体验。",
+   "url": "https://github.com/CookSleep/koishi-log-enhanced",
+   "homepage": "https://github.com/CookSleep/koishi-log-enhanced/raw/main/koishi-log-enhanced.user.js",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 6,
+   "forks": 0,
+   "lang": "JavaScript",
+   "updatedAt": "2025-12-18T18:55:36Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "frontend-enhancement",
+    "javascript",
+    "koishi",
+    "koishi-plugin",
+    "log-viewer",
+    "tampermonkey",
+    "userscript"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "karinjs/karin-plugin-adapter-qqbot",
+   "repo": "KarinJS/karin-plugin-adapter-qqbot",
+   "name": "karin-plugin-adapter-qqbot",
+   "desc": "把 QQ 官方机器人接入 Karin：接收单聊、群聊、频道事件， 把 Karin 消息段转换成 QQ 官方消息，并暴露 bot.super 调用官方 API",
+   "url": "https://github.com/KarinJS/karin-plugin-adapter-qqbot",
+   "homepage": "https://karinjs.github.io/karin-plugin-adapter-qqbot/",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 6,
+   "forks": 1,
+   "lang": "TypeScript",
+   "updatedAt": "2026-10-26T06:05:17Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "karin-adapter",
+    "karin-plugin",
+    "qq-official-bot",
+    "qqbot"
+   ],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "miniyv-it2/loyanbot",
+   "repo": "MiniYv-IT2/LoyanBot",
+   "name": "LoyanBot",
+   "desc": "A multi-platform chatbot framework for LLMs. Connect to various large language models via multiple instant messaging apps — QQ, WeChat, Telegram, Discord, and more. 😄 Extensible with plugins and modules. 👍 Built on Pyt",
+   "url": "https://github.com/MiniYv-IT2/LoyanBot",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 6,
+   "forks": 0,
+   "lang": "Python",
+   "updatedAt": "2026-09-19T21:07:29Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "chatbot",
+    "gemini",
+    "gracybot",
+    "llm-agents",
+    "loyanbot",
+    "openai-chatgpt",
+    "python3",
+    "qq"
+   ],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "lipraty/koishi-plugin-paimon",
+   "repo": "Lipraty/koishi-plugin-paimon",
+   "name": "koishi-plugin-paimon",
+   "desc": "A koishi plugin for a certain anime game.",
+   "url": "https://github.com/Lipraty/koishi-plugin-paimon",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 5,
+   "forks": 1,
+   "lang": "TypeScript",
+   "updatedAt": "2023-01-19T09:50:23Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "chatbot",
+    "genshin",
+    "genshin-api",
+    "genshin-impact",
+    "koishi",
+    "koishi-plugin",
+    "yuanshen"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "sjtdev/koishi-plugin-dota2tracker",
+   "repo": "sjtdev/koishi-plugin-dota2tracker",
+   "name": "koishi-plugin-dota2tracker",
+   "desc": "",
+   "url": "https://github.com/sjtdev/koishi-plugin-dota2tracker",
+   "homepage": "https://sjtdev.github.io/koishi-plugin-dota2tracker/",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 5,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2026-09-09T12:53:20Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [
+    "chatbot",
+    "dota2",
+    "koishi-plugin"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "neovoxeldev/neobot",
+   "repo": "NeoVoxelDev/NeoBot",
+   "name": "NeoBot",
+   "desc": "A bot plugin that connects Minecraft with QQ, Kook, Discord, etc.",
+   "url": "https://github.com/NeoVoxelDev/NeoBot",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 5,
+   "forks": 4,
+   "lang": "Java",
+   "updatedAt": "2026-08-29T15:03:14Z",
+   "archived": false,
+   "fork": false,
+   "license": "LGPL-3.0",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "advent259141/astrbot_plugin_llmmc",
+   "repo": "advent259141/astrbot_plugin_llmmc",
+   "name": "astrbot_plugin_llmmc",
+   "desc": "LLM-MC AstrBot Plugin - MC/QQ上下文互通 + LLM工具控制Minecraft Bot",
+   "url": "https://github.com/advent259141/astrbot_plugin_llmmc",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 5,
+   "forks": 2,
+   "lang": "Python",
+   "updatedAt": "2026-03-16T13:41:37Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "piexian/astrbot_plugin_qqoffice_expand",
+   "repo": "piexian/astrbot_plugin_qqoffice_expand",
+   "name": "astrbot_plugin_qqoffice_expand",
+   "desc": "扩展缺失QQ官方bot能力",
+   "url": "https://github.com/piexian/astrbot_plugin_qqoffice_expand",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 5,
+   "forks": 1,
+   "lang": "Python",
+   "updatedAt": "2026-10-27T19:27:50Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "afanskyqs/qqguild-plugins",
+   "repo": "AFanSKyQs/QQGuild-Plugins",
+   "name": "QQGuild-Plugins",
+   "desc": "基于Yunzai-Bot和Miao-Yunzai的频道消息处理插件，作用于监听频道消息，转云崽处理，处理完成再返回频道。",
+   "url": "https://github.com/AFanSKyQs/QQGuild-Plugins",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 5,
+   "forks": 1,
+   "lang": "JavaScript",
+   "updatedAt": "2023-03-22T06:37:01Z",
+   "archived": false,
+   "fork": false,
+   "license": "GPL-3.0",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "zhchessovo/chessbot_plugins",
+   "repo": "ZhChessOvO/chessBot_plugins",
+   "name": "chessBot_plugins",
+   "desc": "用于qq聊天机器人“象棋”的插件的简单整理",
+   "url": "https://github.com/ZhChessOvO/chessBot_plugins",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 5,
+   "forks": 1,
+   "lang": "Lua",
+   "updatedAt": "2022-04-08T17:22:00Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "hatoyuze/phigros-bot",
+   "repo": "HatoYuze/phigros-bot",
+   "name": "phigros-bot",
+   "desc": "A simple QQ bot plugin for phigros , based on mirai.",
+   "url": "https://github.com/HatoYuze/phigros-bot",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 5,
+   "forks": 1,
+   "lang": "Kotlin",
+   "updatedAt": "2024-09-01T14:36:53Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "mirai",
+    "mirai-console",
+    "phigros"
+   ],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "std-microblock/orange-bot",
+   "repo": "std-microblock/orange-bot",
+   "name": "orange-bot",
+   "desc": "橘波特 (Orange): a QQ group chat bot stack for DeepSeek Harness — the dsh plugin, the koishi bridge for the official QQ bot, and the crossgram extension for the userbot. Monorepo.",
+   "url": "https://github.com/std-microblock/orange-bot",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 5,
+   "forks": 1,
+   "lang": "TypeScript",
+   "updatedAt": "2026-10-24T10:21:07Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "chatbot",
+    "crossgram",
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "koishi",
+    "monorepo",
+    "qqbot"
+   ],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "panyihikari/materials-explorer-bot",
+   "repo": "PanyiHikari/Materials-Explorer-bot",
+   "name": "Materials-Explorer-bot",
+   "desc": "A QQ chatbot plugin developed based on NoneBot2, which integrates the Materials Project API, supports functions including querying crystal structures, searching for materials, retrieving CIF files in group chats, and ren",
+   "url": "https://github.com/PanyiHikari/Materials-Explorer-bot",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 5,
+   "forks": 0,
+   "lang": "Python",
+   "updatedAt": "2026-10-23T10:04:43Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "znq19/kiraai_video_comprehension_plugin",
+   "repo": "znq19/KiraAI_video_comprehension_plugin",
+   "name": "KiraAI_video_comprehension_plugin",
+   "desc": "让你的Bot也能看视频。QQ/B站/本地视频可原生多模态或抽帧模式发送相应模型分析并可详细理解。附带B站视频下载功能。",
+   "url": "https://github.com/znq19/KiraAI_video_comprehension_plugin",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 5,
+   "forks": 1,
+   "lang": "Python",
+   "updatedAt": "2026-10-26T15:07:09Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "vincentzyuapps/levilamina-plugin-mclistener-ws-server",
+   "repo": "VincentZyuApps/levilamina-plugin-mclistener-ws-server",
+   "name": "levilamina-plugin-mclistener-ws-server",
+   "desc": "🔗🎮📡 A WebSocket server plugin for LeviLamina to bridge Minecraft Bedrock server with chat platforms like QQ / Kook / Discord / Telegram etc. via a WebSocket client, for example Koishi bot plugin.💬🤖 | 🔗🎮📡 基于 LeviL",
+   "url": "https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 5,
+   "forks": 1,
+   "lang": "C++",
+   "updatedAt": "2026-10-08T18:33:12Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "lvfengfree/koishi-plugin-friend-like-scheduler",
+   "repo": "lvfengfree/koishi-plugin-friend-like-scheduler",
+   "name": "koishi-plugin-friend-like-scheduler",
+   "desc": "一个给指定 QQ 好友每天主页点赞的 Koishi + OneBot/NapCat 自动任务插件。",
+   "url": "https://github.com/lvfengfree/koishi-plugin-friend-like-scheduler",
+   "homepage": "https://github.com/lvfengfree/koishi-plugin-friend-like-scheduler",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 4,
+   "forks": 1,
+   "lang": "JavaScript",
+   "updatedAt": "2026-08-05T15:45:00Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "automation",
+    "koishi",
+    "koishi-plugin",
+    "napcat",
+    "onebot",
+    "qq-bot"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "lonelyion/koishi-plugin-mizuki-bot",
+   "repo": "lonelyion/koishi-plugin-mizuki-bot",
+   "name": "koishi-plugin-mizuki-bot",
+   "desc": "Arknights Mizuki bot, Koishi plugin",
+   "url": "https://github.com/lonelyion/koishi-plugin-mizuki-bot",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 4,
+   "forks": 1,
+   "lang": "TypeScript",
+   "updatedAt": "2026-06-01T10:09:09Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "arknights",
+    "koishi",
+    "koishi-plugin",
+    "mizuki"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "manipego/koishi-plugin-bangumi-onair",
+   "repo": "manipEgo/koishi-plugin-bangumi-onair",
+   "name": "koishi-plugin-bangumi-onair",
+   "desc": "Query bangumi that is onair today/this season.",
+   "url": "https://github.com/manipEgo/koishi-plugin-bangumi-onair",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 4,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2024-09-08T08:44:25Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "bangumi",
+    "koishi-plugin"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "lipraty/koishi-plugin-eula",
+   "repo": "Lipraty/koishi-plugin-eula",
+   "name": "koishi-plugin-eula",
+   "desc": "为你的 Koishi bot 添加一个 EULA(End-user licence agreement, 最终用户许可协议)",
+   "url": "https://github.com/Lipraty/koishi-plugin-eula",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 4,
+   "forks": 1,
+   "lang": "TypeScript",
+   "updatedAt": "2023-10-31T07:21:38Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "eula",
+    "koishi",
+    "koishi-plugin",
+    "koishijs"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "dgck81lnn/koishi-plugin-miniplug",
+   "repo": "DGCK81LNN/koishi-plugin-miniplug",
+   "name": "koishi-plugin-miniplug",
+   "desc": "在 Koishi 控制台中编写简单 JavaScript 插件 Code simple JavaScript plugins in your Koishi console",
+   "url": "https://github.com/DGCK81LNN/koishi-plugin-miniplug",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 4,
+   "forks": 0,
+   "lang": "Vue",
+   "updatedAt": "2026-10-20T23:37:26Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "codemirror6",
+    "koishi",
+    "koishi-plugin",
+    "koishijs",
+    "koishijs-plugin"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "79887143/koishi-plugin-tmp-bot",
+   "repo": "79887143/koishi-plugin-tmp-bot",
+   "name": "koishi-plugin-tmp-bot",
+   "desc": "欧卡TMP查询机器人",
+   "url": "https://github.com/79887143/koishi-plugin-tmp-bot",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 4,
+   "forks": 0,
+   "lang": "JavaScript",
+   "updatedAt": "2026-06-10T08:11:30Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "euro-truck-simulator",
+    "koishi",
+    "koishi-plugin",
+    "qqbot",
+    "truckersmp"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "vincentzyuapps/koishi-plugin-get-qq-bot-transfer-link",
+   "repo": "VincentZyuApps/koishi-plugin-get-qq-bot-transfer-link",
+   "name": "koishi-plugin-get-qq-bot-transfer-link",
+   "desc": "利用NapCat获取官bot的uid，然后获取本群的 开放官bot的全量和主动的配置链接，然后群主用手机qq打开就可以配置了捏。前面说的链接是灰度阶段的，现有阶段可以直接在手机qq的ui中配置捏，本插件也增加了引导配置的图片捏。",
+   "url": "https://github.com/VincentZyuApps/koishi-plugin-get-qq-bot-transfer-link",
+   "homepage": "https://forum.koishi.xyz/t/topic/12558/5",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 4,
+   "forks": 2,
+   "lang": "TypeScript",
+   "updatedAt": "2026-10-10T13:49:51Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "samjij/qqframe-bot-plugins",
+   "repo": "SamJij/QQframe-Bot-Plugins",
+   "name": "QQframe-Bot-Plugins",
+   "desc": "插件化农场（功能未完全实现）",
+   "url": "https://github.com/SamJij/QQframe-Bot-Plugins",
+   "homepage": "",
+   "platform": "QQ 机器人",
+   "sourceId": "qqbot",
+   "sourceName": "QQ 机器人插件（通用）",
+   "stars": 4,
+   "forks": 0,
+   "lang": "JavaScript",
+   "updatedAt": "2026-03-19T01:37:43Z",
+   "archived": true,
+   "fork": false,
+   "license": "MIT",
+   "topics": [],
+   "sources": [
+    "qqbot"
+   ]
+  },
+  {
+   "id": "ltxhhz/koishi-plugin-skia-canvas",
+   "repo": "ltxhhz/koishi-plugin-skia-canvas",
+   "name": "koishi-plugin-skia-canvas",
+   "desc": "基于 skia-canvas 提供 koishi 的 skia 服务",
+   "url": "https://github.com/ltxhhz/koishi-plugin-skia-canvas",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 2,
+   "forks": 2,
+   "lang": "TypeScript",
+   "updatedAt": "2025-08-08T03:20:14Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "canvas-api",
+    "koishi",
+    "koishi-plugin",
+    "skia"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "eric2788/koishi-plugin-random-source-selector",
+   "repo": "eric2788/koishi-plugin-random-source-selector",
+   "name": "koishi-plugin-random-source-selector",
+   "desc": "透过扫描API链接返回的数据随机抽出一条作为图片或文案发送，支援自定义指令",
+   "url": "https://github.com/eric2788/koishi-plugin-random-source-selector",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 2,
+   "forks": 1,
+   "lang": "TypeScript",
+   "updatedAt": "2024-01-19T02:46:53Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "koishi",
+    "koishi-plugin",
+    "setu"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "dgck81lnn/koishi-plugin-adapter-minecraft-console-client",
+   "repo": "DGCK81LNN/koishi-plugin-adapter-minecraft-console-client",
+   "name": "koishi-plugin-adapter-minecraft-console-client",
+   "desc": "Minecraft-Console-Client adapter for koishi",
+   "url": "https://github.com/DGCK81LNN/koishi-plugin-adapter-minecraft-console-client",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 2,
+   "forks": 1,
+   "lang": "TypeScript",
+   "updatedAt": "2024-11-10T09:43:19Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "koishi",
+    "koishi-plugin",
+    "koishijs",
+    "koishijs-plugin",
+    "minecraft",
+    "minecraft-console-client"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "bestbcz/koishi-cs2-update-log",
+   "repo": "BestBcz/koishi-cs2-update-log",
+   "name": "koishi-cs2-update-log",
+   "desc": "监控 CS2 更新日志和官方公告，并自动推送到指定 QQ 群的现代化koishi插件",
+   "url": "https://github.com/BestBcz/koishi-cs2-update-log",
+   "homepage": "https://www.npmjs.com/package/koishi-plugin-cs2-update-log",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 2,
+   "forks": 1,
+   "lang": "TypeScript",
+   "updatedAt": "2026-10-23T00:55:34Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "counter-strike",
+    "cs2",
+    "cs2-update-log",
+    "koishi",
+    "koishi-plugin",
+    "qq",
+    "qqbot",
+    "steam"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "napukettodev/adapter-koishi",
+   "repo": "NapukettoDev/Adapter-Koishi",
+   "name": "Adapter-Koishi",
+   "desc": "将NapukettoQQ以插件的形式内嵌到Koishi框架",
+   "url": "https://github.com/NapukettoDev/Adapter-Koishi",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 2,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2026-10-25T13:21:40Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "bot",
+    "framework",
+    "koishi",
+    "koishi-ce",
+    "koishi-plugin",
+    "napuketto",
+    "plugin"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "summonhim/koishi-plugin-bili-parser",
+   "repo": "SummonHIM/koishi-plugin-bili-parser",
+   "name": "koishi-plugin-bili-parser",
+   "desc": "A koishi plugin use to parse bilibili links.",
+   "url": "https://github.com/SummonHIM/koishi-plugin-bili-parser",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 2,
+   "forks": 1,
+   "lang": "TypeScript",
+   "updatedAt": "2025-08-10T02:24:21Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "bilibili-api",
+    "koishi",
+    "koishi-plugin",
+    "koishijs",
+    "koishijs-plugin"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "uyloal/koishi-plugin-api-service",
+   "repo": "uyloal/koishi-plugin-api-service",
+   "name": "koishi-plugin-api-service",
+   "desc": "使用 API 发送消息的插件，for koishi",
+   "url": "https://github.com/uyloal/koishi-plugin-api-service",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 2,
+   "forks": 0,
+   "lang": "JavaScript",
+   "updatedAt": "2023-04-08T17:19:20Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "koishi-plugin"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "wikitteam/koishi-plugin-wikit-querier",
+   "repo": "WikitTeam/koishi-plugin-wikit-querier",
+   "name": "koishi-plugin-wikit-querier",
+   "desc": "向wikit查询并返回文本的插件，自用",
+   "url": "https://github.com/WikitTeam/koishi-plugin-wikit-querier",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 2,
+   "forks": 1,
+   "lang": "TypeScript",
+   "updatedAt": "2026-10-05T13:58:26Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "koishi",
+    "koishi-plugin",
+    "wikidot",
+    "wikit"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "lectwolf/koishi-plugin-star-security",
+   "repo": "LectWolf/koishi-plugin-star-security",
+   "name": "koishi-plugin-star-security",
+   "desc": "Koishi插件 进群审批&人机验证",
+   "url": "https://github.com/LectWolf/koishi-plugin-star-security",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 2,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2025-03-04T10:19:55Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "koishi",
+    "koishi-plugin"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "kitai19019/koishi-plugin-openai-provenance",
+   "repo": "KITAI19019/koishi-plugin-openai-provenance",
+   "name": "koishi-plugin-openai-provenance",
+   "desc": "Koishi plugin for OpenAI-generated image verification and AI image detection using C2PA and SynthID provenance signals.",
+   "url": "https://github.com/KITAI19019/koishi-plugin-openai-provenance",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 2,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2026-08-17T12:53:21Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "ai-generated-images",
+    "ai-image-detection",
+    "c2pa",
+    "content-provenance",
+    "koishi",
+    "koishi-plugin",
+    "openai",
+    "qq-bot"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "fumiama/go-onebot-agent",
+   "repo": "fumiama/go-onebot-agent",
+   "name": "go-onebot-agent",
+   "desc": "OneBot 11 协议 QQ Agent, 以 Golang 编写",
+   "url": "https://github.com/fumiama/go-onebot-agent",
+   "homepage": "",
+   "platform": "OneBot v11/v12",
+   "sourceId": "onebot",
+   "sourceName": "OneBot 生态",
+   "stars": 2,
+   "forks": 0,
+   "lang": "Go",
+   "updatedAt": "2026-04-25T09:48:09Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "golang",
+    "golang-cli",
+    "golang-library",
+    "golang-module",
+    "golang-package",
+    "large-language-models",
+    "llm",
+    "llm-agent"
+   ],
+   "sources": [
+    "onebot"
+   ]
+  },
+  {
+   "id": "klrohias/boteleven",
+   "repo": "Klrohias/BotEleven",
+   "name": "BotEleven",
+   "desc": "一个机器人框架",
+   "url": "https://github.com/Klrohias/BotEleven",
+   "homepage": "",
+   "platform": "OneBot v11/v12",
+   "sourceId": "onebot",
+   "sourceName": "OneBot 生态",
+   "stars": 2,
+   "forks": 1,
+   "lang": "C#",
+   "updatedAt": "2025-09-30T08:56:07Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "bot-framework",
+    "lagrange",
+    "onebot",
+    "onebot-plugin",
+    "onebot-sdk",
+    "onebot11",
+    "qq-bot",
+    "qqbot"
+   ],
+   "sources": [
+    "onebot"
+   ]
+  },
+  {
+   "id": "ltxhhz/koishi-plugin-give-you-some-color",
+   "repo": "ltxhhz/koishi-plugin-give-you-some-color",
+   "name": "koishi-plugin-give-you-some-color",
+   "desc": "给你点颜色看看 | 发送颜色图片",
+   "url": "https://github.com/ltxhhz/koishi-plugin-give-you-some-color",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 1,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2025-08-15T03:02:27Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "image",
+    "koishi",
+    "koishi-plugin"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "firedrakeovo/koishi-plugin-giveaway",
+   "repo": "firedrakeovo/koishi-plugin-giveaway",
+   "name": "koishi-plugin-giveaway",
+   "desc": "群抽奖插件 / A versatile giveaway plugin for Koishi: interactive giveaway creation, scheduled auto-draw, reminders, i18n",
+   "url": "https://github.com/firedrakeovo/koishi-plugin-giveaway",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 1,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2026-09-17T12:17:58Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "chatbot",
+    "giveaway",
+    "koishi",
+    "koishi-plugin",
+    "lottery",
+    "qqbot"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "koishi-ce/services",
+   "repo": "Koishi-CE/services",
+   "name": "services",
+   "desc": "Koishi-CE 服务型插件的 monorepo，向其他插件提供基础服务的插件集合",
+   "url": "https://github.com/Koishi-CE/services",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 1,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2026-10-26T11:49:35Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "bot",
+    "chatbot",
+    "cron",
+    "framework",
+    "implement",
+    "koishi",
+    "koishi-ce",
+    "koishi-plugin"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "wncf/koishi-plugin-mc-status-bot",
+   "repo": "wncf/koishi-plugin-mc-status-bot",
+   "name": "koishi-plugin-mc-status-bot",
+   "desc": "轻松获取我的世界服务器信息",
+   "url": "https://github.com/wncf/koishi-plugin-mc-status-bot",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 1,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2026-07-28T06:26:21Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "koishi-plugin",
+    "minecraft",
+    "tcp-ping"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "kokoro-js/koishi-plugin-r6s",
+   "repo": "Kokoro-js/koishi-plugin-r6s",
+   "name": "koishi-plugin-r6s",
+   "desc": "",
+   "url": "https://github.com/Kokoro-js/koishi-plugin-r6s",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 1,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2023-08-01T13:16:53Z",
+   "archived": false,
+   "fork": false,
+   "license": "AGPL-3.0",
+   "topics": [
+    "koishi-plugin",
+    "r6s"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "floraaurella/koishi-plugin-adapter-harness",
+   "repo": "FloraAurella/koishi-plugin-adapter-harness",
+   "name": "koishi-plugin-adapter-harness",
+   "desc": "Bridge Koishi conversations to DeepSeek Harness through an isolated JSON-RPC runtime.",
+   "url": "https://github.com/FloraAurella/koishi-plugin-adapter-harness",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 1,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2026-10-18T19:28:52Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "agent",
+    "chatbot",
+    "deepseek",
+    "deepseek-harness",
+    "json-rpc",
+    "koishi",
+    "koishi-plugin",
+    "typescript"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "401u/koishi-plugin-mollyai",
+   "repo": "401U/koishi-plugin-mollyai",
+   "name": "koishi-plugin-mollyai",
+   "desc": "为 koishi 调用茉莉机器人API",
+   "url": "https://github.com/401U/koishi-plugin-mollyai",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 1,
+   "forks": 1,
+   "lang": "TypeScript",
+   "updatedAt": "2024-09-10T00:00:13Z",
+   "archived": true,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "koishi",
+    "koishi-plugin",
+    "plugin",
+    "robot"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "mingmoe/koishi-plugin-qq-ban",
+   "repo": "mingmoe/koishi-plugin-qq-ban",
+   "name": "koishi-plugin-qq-ban",
+   "desc": "Koishi plugin that mutes and unmutes QQ group members through the QQ official bot adapter.",
+   "url": "https://github.com/mingmoe/koishi-plugin-qq-ban",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 1,
+   "forks": 0,
+   "lang": "JavaScript",
+   "updatedAt": "2026-10-12T10:50:32Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "koishi",
+    "koishi-plugin",
+    "mute",
+    "qq"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "koishi-ce/tools",
+   "repo": "Koishi-CE/tools",
+   "name": "tools",
+   "desc": "Koishi-CE 维护的工具型插件的 monorepo，同时向Koishi官方版和社区版提供一些有用、有趣的功能",
+   "url": "https://github.com/Koishi-CE/tools",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 1,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2026-10-25T04:20:12Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "bot",
+    "koishi",
+    "koishi-ce",
+    "koishi-plugin",
+    "plugin",
+    "tool",
+    "tools"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "cyans-nya/k2345-security",
+   "repo": "cyans-nya/k2345-security",
+   "name": "k2345-security",
+   "desc": "k2345 安全 - Koishi 2345 Security: 保护您的 Koishi 不受侵害(确信)",
+   "url": "https://github.com/cyans-nya/k2345-security",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 1,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2023-07-26T11:15:51Z",
+   "archived": true,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "2345",
+    "category-extension",
+    "chatbot",
+    "extension",
+    "hook",
+    "injection",
+    "insecure",
+    "javascript"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "kuro-bridge/adapter-koishi",
+   "repo": "Kuro-Bridge/Adapter-koishi",
+   "name": "Adapter-koishi",
+   "desc": "kurobridge-ws 官方参考对端:Koishi v4 插件,MC 服务器↔聊天平台群服互通(WS 客户端)",
+   "url": "https://github.com/Kuro-Bridge/Adapter-koishi",
+   "homepage": "https://www.npmjs.com/package/koishi-plugin-kurobridge",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 1,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2026-10-25T05:21:55Z",
+   "archived": false,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "chat-bridge",
+    "chatbot",
+    "koishi",
+    "koishi-plugin",
+    "kurobridge",
+    "minecraft",
+    "minecraft-server",
+    "typescript"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "lipraty/koishi-plugin-mikan",
+   "repo": "Lipraty/koishi-plugin-mikan",
+   "name": "koishi-plugin-mikan",
+   "desc": "mikan project for koishi",
+   "url": "https://github.com/Lipraty/koishi-plugin-mikan",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 1,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2023-09-19T07:20:06Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "chatbot",
+    "koishi",
+    "koishi-plugin",
+    "koishijs",
+    "mikanproject"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "ltxhhz/koishi-plugin-imagify-skia",
+   "repo": "ltxhhz/koishi-plugin-imagify-skia",
+   "name": "koishi-plugin-imagify-skia",
+   "desc": "koishi 插件，使用 skia-canvas 的图形化输出，性能优于 puppeteer",
+   "url": "https://github.com/ltxhhz/koishi-plugin-imagify-skia",
+   "homepage": "",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 1,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2023-12-08T10:16:53Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "canvas",
+    "koishi",
+    "koishi-plugin",
+    "koishijs"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "montmorill/koishi-plugin-nmc-radar",
+   "repo": "montmorill/koishi-plugin-nmc-radar",
+   "name": "koishi-plugin-nmc-radar",
+   "desc": "气象台雷达图插件",
+   "url": "https://github.com/montmorill/koishi-plugin-nmc-radar",
+   "homepage": "https://www.npmjs.com/package/koishi-plugin-nmc-radar",
+   "platform": "Koishi",
+   "sourceId": "koishi",
+   "sourceName": "Koishi 插件",
+   "stars": 1,
+   "forks": 0,
+   "lang": "TypeScript",
+   "updatedAt": "2026-08-22T10:26:10Z",
+   "archived": false,
+   "fork": false,
+   "license": "",
+   "topics": [
+    "koishi-plugin",
+    "nmc",
+    "radar"
+   ],
+   "sources": [
+    "koishi"
+   ]
+  },
+  {
+   "id": "coloryr/mcsmbot",
+   "repo": "Coloryr/MCSMBot",
+   "name": "MCSMBot",
+   "desc": "用于MCSManager与QQ群交互的OneBot机器人插件",
+   "url": "https://github.com/Coloryr/MCSMBot",
+   "homepage": "",
+   "platform": "OneBot v11/v12",
+   "sourceId": "onebot",
+   "sourceName": "OneBot 生态",
+   "stars": 0,
+   "forks": 0,
+   "lang": "C#",
+   "updatedAt": "2024-05-31T08:16:00Z",
+   "archived": false,
+   "fork": false,
+   "license": "Apache-2.0",
+   "topics": [
+    "mcsmanager",
+    "onebot",
+    "onebot-plugin",
+    "onebot11"
+   ],
+   "sources": [
+    "onebot"
+   ]
+  },
+  {
+   "id": "haykam821/trivia",
+   "repo": "haykam821/Trivia",
+   "name": "Trivia",
+   "desc": "Small trivia game for Onebot that allows using custom trivia sets",
+   "url": "https://github.com/haykam821/Trivia",
+   "homepage": "",
+   "platform": "OneBot v11/v12",
+   "sourceId": "onebot",
+   "sourceName": "OneBot 生态",
+   "stars": 0,
+   "forks": 0,
+   "lang": "",
+   "updatedAt": "2017-05-23T12:45:27Z",
+   "archived": true,
+   "fork": false,
+   "license": "MIT",
+   "topics": [
+    "discord",
+    "discord-api",
+    "discord-bot",
+    "obp",
+    "onebot",
+    "onebot-plugin"
+   ],
+   "sources": [
+    "onebot"
+   ]
+  }
+ ]
+}
