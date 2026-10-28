@@ -691,6 +691,14 @@
     font-size: 14px; color: var(--dim-2); background: transparent; border-color: transparent;
   }
   .modal-head .x:hover { color: var(--text); background: rgba(255,255,255,.07); }
+
+  /* 调音台内嵌容器：撑满剩余高度，iframe 不塌陷 */
+  .lab-wrap { position: relative; flex: 1 1 auto; min-height: 0; display: flex; }
+  .lab-wrap iframe { flex: 1 1 auto; width: 100%; height: 100%; min-height: 0; border: 0; background: #0d1014; display: block; }
+  .lab-load {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    font-size: 12.5px; color: var(--dim-2); pointer-events: none;
+  }
   .modal-body { padding: 16px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
   .modal-intro { margin: -2px 0 2px; font-size: 11.5px; color: var(--dim-2); line-height: 1.7; }
   .group-label { font-size: 10px; letter-spacing: 1.3px; color: var(--dim-2); margin-top: 3px; }
@@ -1537,21 +1545,27 @@ async function startInstall(target, params, title) {
 /* 调音台：在当前页内嵌打开（不用另开标签，预览面板/iframe 环境也能用） */
 function openLab(ev) {
   if (ev) ev.preventDefault();
+  /* 自己就在 iframe/预览面板里时，再嵌一层 iframe 容易被沙箱拦掉：
+     直接整页跳到 /lab/，调音台页面右下角有代理注入的「← 返回市场」按钮 */
+  if (window.self !== window.top) { location.assign('/lab/'); return; }
   const old = document.getElementById('labModal');
   if (old) old.remove();
   const d = document.createElement('div');
   d.className = 'modal';
   d.id = 'labModal';
-  d.innerHTML = `<div class="modal-in" style="width:min(1100px,95vw);height:88vh;max-height:88vh">
+  d.style.padding = '0';
+  d.innerHTML = `<div class="mask" onclick="this.parentNode.remove()"></div>
+  <div class="modal-in" style="position:relative;width:min(1180px,96vw);height:90vh;max-height:90vh;box-shadow:var(--shadow-3)">
     <div class="modal-head">
       <b>调音台 · Voice Lab</b>
       <span style="font-size:11px;color:var(--dim-2)">本机 3120 · 市场代理 /lab/</span>
       <a class="btn-ghost" style="margin-left:auto;text-decoration:none" href="/lab/" target="_blank" rel="noopener">新窗口打开 ↗</a>
       <button class="x" style="background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer;padding:2px 8px" title="关闭" onclick="document.getElementById('labModal').remove()">×</button>
     </div>
-    <iframe src="/lab/" title="调音台" style="flex:1;width:100%;border:0;background:#0d1014"></iframe>
+    <div class="lab-wrap"><div class="lab-load">正在连接本机调音台…</div>
+      <iframe src="/lab/" title="调音台" onload="this.previousElementSibling.remove()"></iframe>
+    </div>
   </div>`;
-  d.addEventListener('click', (e) => { if (e.target === d) d.remove(); });
   document.body.appendChild(d);
 }
 
@@ -1901,6 +1915,8 @@ if (new URLSearchParams(location.search).has('noreveal')) {
 }
 const __only = new URLSearchParams(location.search).get('only');
 if (__only) document.querySelectorAll('section.sec, section.hero, .topbar').forEach((s) => { if (s.id !== __only) s.style.display = 'none'; });
+/* ?open=lab：直接打开调音台弹窗（无头截图 / 分享直达用） */
+if (new URLSearchParams(location.search).get('open') === 'lab') setTimeout(() => openLab(), 300);
 countUp();
 load().then(() => { spy(); });
 loadStars();

@@ -330,6 +330,10 @@ const LAB_PATHS = [
 ];
 const isLabPath = (p) => LAB_PATHS.some((re) => re.test(p));
 
+/* 注入到调音台页面右下角的「返回市场」浮标 */
+const LAB_BACK_SNIPPET = `<div id="__labBack" style="position:fixed;right:14px;bottom:46px;z-index:9999;display:flex;gap:8px">
+<a href="/" style="background:#1c232c;color:#9fb3c8;border:1px solid #2b3542;border-radius:8px;padding:6px 12px;font:12px/1.4 system-ui,'Microsoft YaHei';text-decoration:none">← 返回市场</a></div>`;
+
 function labDownPage() {
   const t = labTarget();
   return `<!doctype html><meta charset="utf-8"><title>调音台没启动</title>
@@ -351,6 +355,7 @@ function proxyTo(target, req, res, stripPrefix = '') {
   const headers = Object.assign({}, req.headers, { host: target.host });
   delete headers.cookie;                       // 市场的登录口令不带给调音台
   delete headers['accept-encoding'];           // 让上游回明文，省得我们解压
+  const isHtmlPage = (stripPrefix === '/lab') && (p === '/' || p === '/index.html');
   const up = http.request({
     hostname: target.hostname,
     port: target.port || (target.protocol === 'https:' ? 443 : 80),
@@ -362,6 +367,19 @@ function proxyTo(target, req, res, stripPrefix = '') {
     const out = Object.assign({}, r.headers);
     delete out['transfer-encoding'];
     delete out.connection;
+    /* 给调音台首页注入「返回市场」浮标（小页面整体缓存后再回，不影响其它请求） */
+    if (isHtmlPage && String(out['content-type'] || '').includes('text/html')) {
+      const parts = [];
+      r.on('data', (c) => parts.push(c));
+      r.on('end', () => {
+        let html = Buffer.concat(parts).toString('utf8');
+        html = html.replace(/<\/body>/i, LAB_BACK_SNIPPET + '</body>');
+        out['content-length'] = Buffer.byteLength(html);
+        res.writeHead(r.statusCode || 502, out);
+        res.end(html);
+      });
+      return;
+    }
     res.writeHead(r.statusCode || 502, out);
     r.pipe(res);
   });
