@@ -87,5 +87,6 @@ qqbot-plugins/mcp-server.mjs
 
 1. DSH 里发一句话有回复（本体可用）；
 2. SnowLuma WebUI 显示 QQ 已登录、3000/3001 开启；
-3. `node scripts/doctor.mjs` 全绿；
+3. `node scripts/doctor.mjs` 全绿 —— 其中「② 协议端身份」会直接报出实现名、昵称、QQ 号和心跳延迟
+   （如 `SnowLuma 1.14.20-node · 「白渡」· QQ 3996086451 · 19ms`），这行绿了才说明 Token 也是对的；
 4. 重启 DSH 后新建会话，搜 `mcp__qqbot__` 能看到已装插件的工具。

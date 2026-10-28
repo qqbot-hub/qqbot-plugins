@@ -150,6 +150,13 @@
   .stat-row .vl { margin-left: auto; font-size: 11px; color: var(--dim-2); font-variant-numeric: tabular-nums; }
   .stat-row .vl.ok { color: var(--ok); }
   .stat-row .vl.bad { color: var(--bad); }
+  /* 协议端那行下面的一小行：昵称 · QQ 号 · 心跳延迟 */
+  .stat-sub {
+    font-size: 10.5px; line-height: 1.5; color: var(--dim-2);
+    padding-left: 15px; margin: -1px 0 1px; letter-spacing: .1px;
+    font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .stat-sub.bad { color: var(--bad); opacity: .82; }
   .hr { height: 1px; background: var(--line); margin: 7px 0; }
   .stat-total { display: flex; align-items: baseline; gap: 5px; font-size: 11.5px; color: var(--dim-2); }
   .stat-total b { font-size: 17px; color: var(--text); font-variant-numeric: tabular-nums; letter-spacing: -.3px; }
@@ -871,17 +878,40 @@ async function copyGroup() {
 }
 
 /* ============ 侧栏状态 ============ */
+/* 协议端那一行下面补一小行：昵称 · QQ 号 · 心跳延迟
+   数据来自 /api/status（只做心跳，不逐个加载插件，适合每 20 秒轮询一次） */
+function statRow(ok, name, right, title) {
+  const cls = ok ? 'ok' : 'bad';
+  return `<div class="stat-row"${title ? ` title="${esc(title)}"` : ''}><span class="dot ${cls}"></span>`
+    + `<span class="nm">${name}</span><span class="vl ${cls}">${right || (ok ? '在线' : '未连接')}</span></div>`;
+}
+function onebotSub(o) {
+  if (!o) return '';
+  if (!o.online) {
+    const why = String(o.error || '').replace(/^\S+ 失败：/, '');
+    return why ? `<div class="stat-sub bad" title="${esc(o.error)}">${esc(why.slice(0, 30))}</div>` : '';
+  }
+  const bits = [];
+  if (o.nickname) bits.push('「' + esc(o.nickname) + '」');
+  if (o.selfId) bits.push('QQ ' + esc(o.selfId));
+  if (o.latencyMs != null && o.latencyMs >= 0) bits.push('心跳 ' + o.latencyMs + 'ms');
+  return bits.length ? `<div class="stat-sub" title="${bits.join(' · ')}">${bits.join(' · ')}</div>` : '';
+}
 async function loadHealth() {
   const box = $('#statusCard');
   try {
-    const r = await (await fetch('/api/health')).json();
-    const row = (ok, name) => `<div class="stat-row"><span class="dot ${ok ? 'ok' : 'bad'}"></span><span class="nm">${name}</span><span class="vl ${ok ? 'ok' : 'bad'}">${ok ? '在线' : '未连接'}</span></div>`;
+    const r = await (await fetch('/api/status')).json();
+    const o = r.onebot || {};
+    const obOk = o.online === true;
+    const appName = o.app ? esc(o.app) : 'OneBot v11';
+    const verTitle = o.version ? `${appName} ${o.version} · ${o.httpUrl || ''}` : (o.httpUrl || '');
     box.innerHTML =
-      row(r.dsh, 'DSH 3080') +
-      row(r.onebot ? r.onebot.ok : r.snowluma, (r.onebot && r.onebot.app) ? ('协议端 · ' + r.onebot.app) : '协议端 OneBot') +
-      row(r.bridge, '桥接 3100') +
+      statRow(!!(r.dsh && r.dsh.ok), 'DSH 3080') +
+      statRow(obOk, '协议端 · ' + appName, obOk ? '在线' : '未连接', verTitle) +
+      onebotSub(o) +
+      statRow(!!(r.bridge && r.bridge.ok), '桥接 3100') +
       '<div class="hr"></div>' +
-      `<div class="stat-total"><b>${r.installed}</b> 个已装<span class="sp">${r.tools} 工具</span></div>`;
+      `<div class="stat-total"><b>${r.installed || 0}</b> 个已装<span class="sp">${r.tools || 0} 工具</span></div>`;
   } catch {
     box.innerHTML = '<div class="stat-row"><span class="dot bad"></span><span class="nm">市场服务异常</span></div>';
   }
@@ -1240,6 +1270,9 @@ document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
 countUp();
 load().then(() => { spy(); });
 loadStars();
+/* 心跳：每 20 秒刷新一次侧栏状态；页面切回前台时立刻补一次 */
+setInterval(() => { if (!document.hidden) loadHealth(); }, 20000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) loadHealth(); });
 </script>
 </body>
 </html>

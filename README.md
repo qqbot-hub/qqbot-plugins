@@ -327,12 +327,15 @@ qqbot-plugins/
 - 桥接是 qq-bridge 还是 SurfCore —— 不影响
 - 协议端是 SnowLuma / NapCat / LLOneBot / Lagrange / go-cqhttp —— 都支持
 
-适配层（`plugins/_bridge.mjs`）已经吃掉三种差异：响应格式（`status` / `retcode` / 裸数据）、
-鉴权方式（Header / query token / 不鉴权）、以及个别动作名不同（如群公告）。
+适配层（`plugins/_bridge.mjs`）已经吃掉四种差异：响应格式（`status` / `retcode` / 裸数据）、
+鉴权方式（Header / query token / 不鉴权）、个别动作名不同（如群公告，且**学会就记住**），
+以及心跳探测（自动认出是哪个实现、哪个 QQ、延迟多少）。
+
+装好后网页侧栏会显示「协议端 · SnowLuma」，下面一行是「昵称 · QQ 号 · 心跳 24ms」，每 20 秒刷一次。
 
 在网页「连接设置 → 协议端」里选一下就行，**改完不用重启 DSH**。
 
-详见 [docs/PROTOCOLS.md](docs/PROTOCOLS.md)。自测：`node scripts/test-bridge.mjs`（11 项）。
+详见 [docs/PROTOCOLS.md](docs/PROTOCOLS.md)。自测：`node scripts/test-bridge.mjs`（19 项）。
 
 ## 与 SurfCore 共存
 

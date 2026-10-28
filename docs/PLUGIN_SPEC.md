@@ -70,14 +70,15 @@ export default {
 
 | 成员 | 用途 |
 | --- | --- |
-| `ctx.onebot(action, params)` | 调 SnowLuma 的 OneBot v11 HTTP API。例：`await ctx.onebot('set_group_ban', { group_id, user_id, duration: 600 })`。失败会抛错（含 action 名）。 |
+| `ctx.bridge` | **推荐**：协议端语义接口，见 [PROTOCOLS.md](PROTOCOLS.md)。例：`await ctx.bridge.banMember(gid, uid, 10)`、`ctx.bridge.sendText({ groupId }, '好')`、`ctx.bridge.heartbeat()`。动作名差异、鉴权、超时都已收敛在适配层，插件里不要写协议端判断。 |
+| `ctx.onebot(action, params)` | 低层逃生舱：直接调 OneBot v11 HTTP API。例：`await ctx.onebot('set_group_ban', { group_id, user_id, duration: 600 })`。失败会抛错（含 action 名）。 |
 | `ctx.cfg` | 本插件在市场里填的配置对象（`config.json` 的 `plugins.<id>`），没配就是 `{}` |
 | `ctx.config` | 整份 `config.json`（含 `snowluma.httpUrl` 等连接渠道） |
 
 ## 持久化（直接从共享库导入，不经过 ctx）
 
 ```js
-import { storage, sessionOf, todayKey } from './_lib.js';
+import { storage, sessionOf, todayKey } from './_lib.mjs';
 
 const st = storage('hello');           // 存到 data/store/hello/
 st.set('db', { a: 1 });

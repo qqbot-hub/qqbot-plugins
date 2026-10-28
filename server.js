@@ -227,53 +227,45 @@ async function httpProbe(url, timeoutMs = 2000) {
     return r.ok || (r.status >= 300 && r.status < 400);
   } catch { return false; } finally { clearTimeout(t); }
 }
-/* 识别当前协议端实现：探测 get_login_info，再按版本号/端口猜名字 */
-async function probeOnebot() {
+/* 识别协议端：**复用适配层**（plugins/_bridge.mjs），
+   保证「网页显示的协议端」和「插件实际说话的协议端」是同一套判断，
+   差异（动作名/鉴权/响应格式）只在适配层维护一份。 */
+let bridgeMod = null;
+async function bridgeModule() {
+  if (!bridgeMod) bridgeMod = await import(pathToFileURL(path.join(ROOT, 'plugins', '_bridge.mjs')).href);
+  return bridgeMod;
+}
+function onebotCfg() {
   const ob = cfg.onebot || {};
   const sl = cfg.snowluma || {};
-  const httpUrl = String(ob.httpUrl || sl.httpUrl || 'http://127.0.0.1:3000').replace(/\/+$/, '');
-  const token = String(ob.accessToken != null && ob.accessToken !== '' ? ob.accessToken : (sl.accessToken || ''));
-  const authMode = String(ob.authMode || 'header');
-  const call = async (action) => {
-    let url = httpUrl + '/' + action;
-    const headers = { 'Content-Type': 'application/json' };
-    if (token && authMode === 'header') headers.Authorization = 'Bearer ' + token;
-    if (token && authMode === 'query') url += '?access_token=' + encodeURIComponent(token);
-    const t = setTimeout(() => {}, 1);
-    try {
-      const r = await fetch(url, { method: 'POST', headers, body: '{}', signal: AbortSignal.timeout(2500) });
-      if (!r.ok) return { ok: false, status: r.status };
-      return { ok: true, data: await r.json().catch(() => null) };
-    } catch (e) { return { ok: false, error: e.message }; } finally { clearTimeout(t); }
-  };
-  const login = await call('get_login_info');
-  if (!login.ok) {
-    return { ok: false, httpUrl, impl: 'unknown', hint: login.status === 401 ? 'AccessToken 不对' : '协议端没响应' };
-  }
-  const ver = await call('get_version_info');
-  const appName = (ver.ok && ver.data && (ver.data.data && (ver.data.data.app_name || ver.data.data.app_full_name))) || '';
-  const verStr = (ver.ok && ver.data && (ver.data.data && ver.data.data.version)) || '';
-  const blob = String(appName + ' ' + verStr).toLowerCase();
-  const impl = /snowluma/.test(blob) ? 'snowluma'
-    : /napcat/.test(blob) ? 'napcat'
-    : /lagrange/.test(blob) ? 'lagrange'
-    : /llonebot|llob/.test(blob) ? 'llonebot'
-    : /go-cqhttp|gocq/.test(blob) ? 'gocqhttp'
-    : 'onebot';
-  const info = (login.data && login.data.data) || {};
   return {
-    ok: true, httpUrl, impl,
-    app: appName || impl, version: verStr,
-    selfId: info.user_id || info.uin || null,
-    nickname: info.nickname || '',
+    impl: String(ob.impl || 'auto'),
+    httpUrl: String(ob.httpUrl || sl.httpUrl || 'http://127.0.0.1:3000').replace(/\/+$/, ''),
+    accessToken: String(ob.accessToken != null && ob.accessToken !== '' ? ob.accessToken : (sl.accessToken || '')),
+    authMode: String(ob.authMode || 'header'),
+    pathPrefix: String(ob.pathPrefix || ''),
+    timeoutMs: 2500,          // 体检要快，不能卡住页面
   };
+}
+/* 3 秒缓存：页面轮询 /api/health 时不至于每次都去打协议端 */
+let hbCache = { key: '', at: 0, value: null };
+async function probeOnebot(force = false) {
+  const c = onebotCfg();
+  const key = JSON.stringify(c);
+  if (!force && hbCache.value && hbCache.key === key && Date.now() - hbCache.at < 3000) return hbCache.value;
+  const { createOneBot } = await bridgeModule();
+  const hb = await createOneBot(c).heartbeat({ force: true, ttlMs: 0 });
+  hbCache = { key, at: Date.now(), value: hb };
+  return hb;
 }
 
 async function doctor() {
-  const sl = Object.assign({ httpUrl: 'http://127.0.0.1:3000', wsPort: 3001 }, cfg.snowluma);
+  const ob = onebotCfg();
+  const sl = Object.assign({ wsPort: 3001 }, cfg.snowluma);
   const dsh = Object.assign({ baseUrl: 'http://127.0.0.1:3080' }, cfg.dsh);
   const bg = Object.assign({ consoleUrl: 'http://127.0.0.1:3100' }, cfg.bridge);
-  const httpHost = new URL(sl.httpUrl);
+  let httpHost;
+  try { httpHost = new URL(ob.httpUrl); } catch { httpHost = new URL('http://127.0.0.1:3000'); }
   const [snowlumaHttp, snowlumaWs, dshOk, bridgeOk] = await Promise.all([
     tcpProbe(httpHost.hostname, Number(httpHost.port) || 80),
     tcpProbe('127.0.0.1', Number(sl.wsPort) || 3001),
@@ -281,11 +273,11 @@ async function doctor() {
     tcpProbe('127.0.0.1', Number(new URL(bg.consoleUrl).port) || 3100),
   ]);
   const tools = await installedTools();
-  const ob = await probeOnebot();
+  const hb = await probeOnebot();
   return {
-    onebot: ob,
+    onebot: hb,
     dsh: { ok: dshOk, url: dsh.baseUrl },
-    snowluma: { ok: snowlumaHttp && snowlumaWs, http: snowlumaHttp, ws: snowlumaWs, httpUrl: sl.httpUrl },
+    snowluma: { ok: snowlumaHttp && snowlumaWs, http: snowlumaHttp, ws: snowlumaWs, httpUrl: ob.httpUrl },
     bridge: { ok: bridgeOk, url: bg.consoleUrl },
     mcp: { tools: tools.length },
     installed: currentPlugins().filter((p) => p.installed).length,
@@ -395,10 +387,33 @@ const server = http.createServer(async (req, res) => {
     }
     if (method === 'GET' && p === '/api/health') {
       const d = await doctor();
+      const o = d.onebot || {};
       return sendJson(res, 200, {
         ok: true, bridge: d.bridge.ok, snowluma: d.snowluma.ok, dsh: d.dsh.ok,
-        onebot: { ok: d.onebot.ok, impl: d.onebot.impl, app: d.onebot.app || '', selfId: d.onebot.selfId || null },
+        onebot: {
+          ok: !!o.online, impl: o.impl || 'unknown', app: o.app || '', version: o.version || '',
+          selfId: o.selfId ?? null, nickname: o.nickname || '',
+          latencyMs: o.latencyMs ?? null, checkedAt: o.checkedAt || '', error: o.error || '',
+        },
         installed: d.installed, tools: d.mcp.tools, uptime: d.uptime, node: d.node, port: d.port,
+      });
+    }
+    /* 轻量状态：只做心跳，不逐个 import 插件 —— 页面定时刷新用这个 */
+    if (method === 'GET' && p === '/api/status') {
+      const force = new URL(req.url, 'http://x').searchParams.get('force') === '1';
+      const [hb, dshOk, bridgeOk] = await Promise.all([
+        probeOnebot(force),
+        httpProbe(String((cfg.dsh || {}).baseUrl || 'http://127.0.0.1:3080').replace(/\/$/, '') + '/'),
+        tcpProbe('127.0.0.1', Number(new URL(String((cfg.bridge || {}).consoleUrl || 'http://127.0.0.1:3100')).port) || 3100),
+      ]);
+      const installed = currentPlugins().filter((pl) => pl.installed);
+      return sendJson(res, 200, {
+        ok: true,
+        onebot: hb,
+        dsh: { ok: dshOk },
+        bridge: { ok: bridgeOk },
+        installed: installed.length,
+        tools: installed.reduce((n, pl) => n + (pl.toolCount || 0), 0),
       });
     }
     if (method === 'GET' && p === '/api/doctor') return sendJson(res, 200, { ok: true, ...(await doctor()) });
