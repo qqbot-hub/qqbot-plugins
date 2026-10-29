@@ -1792,12 +1792,17 @@ function copyMsgUrl() {
 /* 数据全部来自 /api/monitor 的真实探测：
  *   端口通不通用 TCP 探，认不认得出用内容指纹（NoneBot 看 openapi.json、Koishi 看页面、Satori 看协议文本）
  *   端口被别的程序占着时，running=false 并写清原因，不给假绿灯 */
+/* MON 是「协议端在不在」的唯一事实源：监控区、侧栏状态卡、主链路卡片都读它。
+ * 以前主链路卡片读的是 /api/components 的「端口通不通」，端口被别的程序占着时它照样报
+ * 在跑，于是监控区写「离线」、卡片写「在线」，一个状态两个说法。现在统一走心跳探测。 */
+let MON = null;
 async function loadMonitor() {
   loadMessages();          // 与端口探测并行，互不阻塞
   let j;
   try {
     j = await (await fetch('/api/monitor')).json();
   } catch { return; }
+  MON = j;
   const badge = $('#monBadge');
   if (badge) {
     const t = new Date(j.checkedAt || Date.now()).toLocaleTimeString('zh-CN', { hour12: false });
@@ -1851,6 +1856,8 @@ async function loadMonitor() {
       }).join('')
       : '';
   }
+  /* 探测结果变了，主链路那几张卡的状态跟着刷新（它们读的就是上面这份 MON） */
+  renderPrimary();
 }
 
 const PROTOCOL_FIELDS = [
@@ -2059,14 +2066,18 @@ function render() {
  * 这几项跟主链路绑得最紧：空间动态、语音调音、群管理、群信息。
  * 状态只报探测到的事实——协议端没起来就说没起来，不为了让卡片好看而写"已就绪"。 */
 function protocolOnline() {
-  const proto = (COMPS || []).filter((c) => c.role === 'protocol' && !c.alternativeTo);
-  if (!proto.length) return null;             /* 组件还没加载完：未知，不猜 */
-  return proto.some((c) => c.running);
+  /* 唯一事实源是 /api/monitor 的心跳探测（MON），跟监控区、侧栏状态卡同一份。
+   * 这里不读 /api/components：那个只判断端口通不通，端口被别的程序占着会给假绿灯。 */
+  const p = MON && MON.protocol;
+  if (!p || typeof p.online !== 'boolean') return null;   /* 还没探测完：未知，不猜 */
+  return p.online;
 }
 
 function renderPrimary() {
   const box = $('#pList');
   if (!box) return;
+  /* 探测往往比插件清单先回来：清单还没到就别动 DOM，否则卡片区会闪一下「没加载出来」 */
+  if (!PLUGINS || !PLUGINS.length) return;
   const online = protocolOnline();
   const items = PRIMARY_PICKS.map((pick) => {
     const p = (PLUGINS || []).find((x) => x.id === pick.id);
@@ -2781,7 +2792,8 @@ async function loadComponents() {
     const r = await (await fetch('/api/components')).json();
     COMPS = (r.components || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
     renderDeploy();
-    renderPrimary();     /* 协议端起没起来，直接影响主链专区那几张卡的状态 */
+    /* 组件清单变了（装/卸了一环）要重画卡片；卡上的「协议端在不在」不读 COMPS，走 MON */
+    renderPrimary();
   } catch (e) {
     const box = $('#depList');
     if (box) box.innerHTML = `<div class="hub-empty">读不到组件清单：${esc(e.message)}</div>`;
