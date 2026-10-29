@@ -1,7 +1,7 @@
 {
   "name": "qqbot-plugins",
-  "version": "1.2.0",
-  "description": "AI QQ 机器人插件市场：46 个插件 / 75 个工具，一键装进 SnowLuma + qq-bridge + DSH（大肥鱼），作为 MCP 工具供 AI 调用（含记忆 / 语音 / AI 画画）",
+  "version": "1.3.0",
+  "description": "AI QQ 机器人插件市场：50 个插件 / 84 个工具，一键装进 SnowLuma + qq-bridge + DSH（大肥鱼），作为 MCP 工具供 AI 调用（含记忆 / 语音 / AI 画画）",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
@@ -9,9 +9,10 @@
     "doctor": "node scripts/doctor.mjs",
     "register-dsh": "node scripts/register-dsh.mjs",
     "verify": "node scripts/verify-plugins.mjs",
-    "test": "node scripts/verify-plugins.mjs && node scripts/test-bridge.mjs && node scripts/test-hub.mjs && node scripts/test-installer.mjs",
+    "test": "node scripts/verify-plugins.mjs && node scripts/test-bridge.mjs && node scripts/test-hub.mjs && node scripts/test-installer.mjs && node scripts/test-state.mjs",
     "test:bridge": "node scripts/test-bridge.mjs",
     "test:hub": "node scripts/test-hub.mjs",
+    "test:state": "node scripts/test-state.mjs",
     "hub:sync": "node scripts/hub-sync.mjs",
     "install:list": "node scripts/installer.mjs list",
     "install": "node scripts/installer.mjs run",
@@ -34,6 +35,6 @@
   ],
   "license": "MIT",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }

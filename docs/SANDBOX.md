@@ -40,7 +40,7 @@
 ```
 
 - **没有任何 `--allow-fs-write`**：哪怕在 `meta.permissions` 里声明了 `file:write` 也不给。
-- **`--allow-child-process` 只在权限表扫出 `exec` 时才加**。当前 47 个插件没有一个需要。
+- **`--allow-child-process` 只在权限表扫出 `exec` 时才加**。当前 50 个插件没有一个需要。
 - `--allow-worker`、`--allow-addons` 一律不加。
 
 顺带堵住的两条侧门：
@@ -57,7 +57,7 @@
 ### 插件存数据怎么办
 
 插件的 `storage()` 是**同步 API**（`get` / `set` / `update`），跨进程做异步 IPC 会逼着
-47 个插件全改写。所以反过来做：
+50 个插件全改写。所以反过来做：
 
 1. 父进程把该插件的数据整个读出来，随任务下发；
 2. 子进程里 `_lib.mjs` 检测到 `__QQBOT_SANDBOX__`，`storage()` 切成内存实现，读写都是同步的；
@@ -86,7 +86,7 @@
 | 抛异常 | 只影响这一次调用 |
 | `pluginId = '../evil'` | 两处都拒绝（启动参数校验 + 落盘路径校验） |
 
-76 个真实工具在沙箱里跑一遍（`node scripts/verify-plugins.mjs`，默认就是沙箱模式）：
+84 个真实工具在沙箱里跑一遍（`node scripts/verify-plugins.mjs`，默认就是沙箱模式）：
 **0 项失败**。
 
 ---

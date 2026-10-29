@@ -66,11 +66,17 @@ export default {
         const settings = (mod.default && mod.default.settings) || null;
         if (!settings || !Array.isArray(settings.fields)) return { status: 'ok', detail: '不需要配置' };
         const values = (ctx.cfg().plugins || {})[ctx.state.id] || {};
-        const missing = settings.fields
-          .filter((f) => f.required && !String(values[f.key] ?? '').trim())
+        const requiredFields = settings.fields.filter((f) => f.required);
+        const missing = requiredFields
+          .filter((f) => !String(values[f.key] ?? '').trim())
           .map((f) => f.label || f.key);
         if (missing.length) return { status: 'manual', detail: `还差必填项：${missing.join('、')}` };
-        return { status: 'ok', detail: `${settings.fields.length} 项配置齐全` };
+        /* 没有必填项时不能说「N 项配置齐全」——那是在暗示已经配好了。
+         * 装得上 ≠ 配好了：接口 Key 这类留空的插件，装完调用时会自己提示去填。 */
+        if (!requiredFields.length) {
+          return { status: 'ok', detail: `没有必填项（另有 ${settings.fields.length} 项可选，可在「⚙ 配置」里填）` };
+        }
+        return { status: 'ok', detail: `${requiredFields.length} 项必填已填` };
       },
     },
     {

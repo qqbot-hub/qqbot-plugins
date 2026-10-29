@@ -80,6 +80,22 @@ const compat = await ml.buildCompat();
 ok(compat.methods.length === 10, 'buildCompat 输出 10 条');
 ok(compat.methods.every((m) => typeof m.ready === 'boolean' && Array.isArray(m.missing)), '每条方法都给出本机可用性');
 
+console.log('\n[3b] 主链路标记（SnowLuma + qq-bridge + DSH）');
+const primaries = methods.filter((m) => m.primary);
+ok(primaries.length === 1 && primaries[0].id === 'snowluma-dsh',
+  '只有一条主链路，而且是 snowluma-dsh', primaries.map((m) => m.id).join(','));
+ok(!!(primaries[0] && String(primaries[0].primaryNote || '').length > 10),
+  '主链路写清了「为什么是主推」，不是空口推荐');
+ok(compat.primaryMethodId === 'snowluma-dsh', 'buildCompat 暴露 primaryMethodId', compat.primaryMethodId);
+ok(compat.methods[0].primary === true && compat.methods[0].id === 'snowluma-dsh',
+  '主链路永远排第一（不依赖 JSON 书写顺序）', compat.methods[0].id);
+ok(compat.methods.filter((m) => !m.primary).length === 9,
+  '其他 9 条路线一条没少（只是排到后面）', `实际 ${compat.methods.filter((m) => !m.primary).length}`);
+ok(bridgeCase.primary === true && localCase.primary === true,
+  '兼容性结果带 primary 标记，插件卡片据此显示为主链路直连');
+const officialOnly = ml.pluginCompatMethods({ needsBridge: false }, methods.filter((m) => m.account === 'official'));
+ok(officialOnly.primary === false, '只走官方通道时不算主链路（不冒充）');
+
 console.log('\n[4] secrets 加密与脱敏');
 const sec = await import('../scripts/lib/secrets.mjs');
 const plain = 'sk-test-1234567890-abcdef';

@@ -108,6 +108,18 @@ const SAMPLES = {
   qq_memory_forget: { subject_id: U, index: 1 },
   qq_tts: { text: '你好呀，这是一条测试语音', group_id: G },
   qq_imagine: { prompt: '赛博朋克风格的小猫，霓虹灯', group_id: G },
+
+  /* 识图 / 表情包 / 认视频：样例都指向长期存在的公开资源。
+   * 没配 Key 时它们会回「还没配置」，被判成 cfg（配置问题）而不是失败——这是设计如此。
+   * 图片用 QQ 头像 CDN：国内外都通，且和本项目的使用场景一致。 */
+  qq_see: { image: 'https://q1.qlogo.cn/g?b=qq&nk=10001&s=640', question: '图里是什么' },
+  qq_ocr: { image: 'https://q1.qlogo.cn/g?b=qq&nk=10001&s=640' },
+  qq_sticker_save: { image: 'https://q1.qlogo.cn/g?b=qq&nk=10001&s=640', name: '测试表情', tags: '测试,头像' },
+  qq_sticker_send: { keyword: '测试', group_id: G },
+  qq_sticker_list: {},
+  qq_sticker_remove: { name: '不存在的表情' },
+  qq_video_see: { url: 'https://www.bilibili.com/video/BV1GJ411x7h7', question: '这段视频是什么' },
+  qq_video_probe: { url: 'https://www.bilibili.com/video/BV1GJ411x7h7' },
 };
 
 /* 需要 QQ 在线的工具：报这些错算环境问题 */
@@ -123,6 +135,13 @@ function classify(err) {
   if (CFG_ERRORS.test(msg)) return 'cfg';
   if (NET_ERRORS.test(msg)) return 'net';
   return 'fail';
+}
+
+/* 把插件返回的多行文案压成一行再截断。
+ * 注意是 \s 不是 s —— 之前这里漏了反斜杠，把所有字母 s 换成了空格，
+ * 结果「DashScope」被打印成「Da hScope」，看着像文字坏了。 */
+function oneLine(s, n) {
+  return String(s == null ? '' : s).replace(/\s+/g, ' ').trim().slice(0, n);
 }
 
 async function main() {
@@ -188,9 +207,14 @@ async function main() {
         }
         if (!text.trim()) { rows.push({ plugin: meta.id, tool: t.name, status: 'fail', msg: '返回空内容' }); continue; }
         /* 插件自己提示「还没配置」：算配置问题，不算失败 */
-        if (/还没配置|需要 API Key|去「⚙ 配置」/.test(text)) { rows.push({ plugin: meta.id, tool: t.name, status: 'cfg', msg: text.replace(/s+/g, ' ').slice(0, 80) }); continue; }
+        if (/还没配置|需要 API Key|去「⚙ 配置」/.test(text)) { rows.push({ plugin: meta.id, tool: t.name, status: 'cfg', msg: oneLine(text, 80) }); continue; }
+        /* 插件自己把失败写成了文案（没抛异常）。这一档必须按真实原因归类，
+         * 否则「发送失败：协议端没开」会被算成通过 —— 那就是假绿灯。 */
+        if (/发送失败|没能发出|协议端是否在线|协议端没开/.test(text)) { rows.push({ plugin: meta.id, tool: t.name, status: 'bot', msg: oneLine(text, 90) }); continue; }
+        if (/下载失败|下载超时/.test(text)) { rows.push({ plugin: meta.id, tool: t.name, status: 'net', msg: oneLine(text, 90) }); continue; }
+        if (/没存下|存不下/.test(text)) { rows.push({ plugin: meta.id, tool: t.name, status: 'fail', msg: oneLine(text, 90) }); continue; }
         /* 返回了内容但明确是「服务限流/没画出来」：算外部服务问题 */
-        if (/没画出来|繁忙|限流|暂时不可用/.test(text)) { rows.push({ plugin: meta.id, tool: t.name, status: 'net', msg: text.replace(/s+/g, ' ').slice(0, 80) }); continue; }
+        if (/没画出来|繁忙|限流|暂时不可用/.test(text)) { rows.push({ plugin: meta.id, tool: t.name, status: 'net', msg: oneLine(text, 80) }); continue; }
         rows.push({ plugin: meta.id, tool: t.name, status: 'pass', ms: Date.now() - started, sample: text.replace(/\s+/g, ' ').slice(0, 70) });
       } catch (e) {
         const kind = classify(e);

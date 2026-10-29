@@ -21,6 +21,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { execFileSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 import { ROOT, DATA } from './paths.mjs';
 import { parseVer } from './version.mjs';
 
@@ -197,7 +198,22 @@ export function versions(pluginId) {
 }
 
 /** 把通过审核的代码落到 plugins/ 并登记进市场 */
-function publishToCatalog(sub) {
+/** 落盘后真读一次模块，把工具名/说明写进市场目录。
+ *  以前这里写死 tools: []，结果新插件在市场卡片上显示"0 个工具"，
+ *  而 MCP 那边明明能调 —— 页面与实际能力对不上，属于瞎标，所以改成真读。
+ *  读不出来（模块加载报错）就是空数组，不编。 */
+async function readToolsFromFile(file) {
+  try {
+    const mod = await import(pathToFileURL(file).href + '?pub=' + Date.now());
+    const def = mod.default || {};
+    const list = Array.isArray(def.tools) ? def.tools : (Array.isArray(mod.tools) ? mod.tools : []);
+    return list.map((t) => ({ name: String(t.name || ''), description: String(t.description || '') })).filter((t) => t.name);
+  } catch {
+    return [];
+  }
+}
+
+async function publishToCatalog(sub) {
   if (!sub.hasCode || !sub.code) {
     return { ok: true, deployed: false, detail: '没有提交代码，只登记状态；市场里不会出现这个插件' };
   }
@@ -221,7 +237,7 @@ function publishToCatalog(sub) {
     name: sub.name,
     description: sub.description,
     category: sub.category,
-    tools: [],
+    tools: await readToolsFromFile(file),
     source: { label: `${sub.author} 提交 · v${sub.version}`, url: sub.homepage || '' },
     origin: 'submitted',
     version: sub.version,
@@ -251,8 +267,9 @@ function publishToCatalog(sub) {
   };
 }
 
-/** 审核：approve 会真的落地代码；reject 只记原因 */
-export function review(id, action, note) {
+/** 审核：approve 会真的落地代码；reject 只记原因。
+ *  异步是因为落地后要真读一次模块把工具列表填进市场目录。 */
+export async function review(id, action, note) {
   const doc = load();
   const sub = doc.submissions.find((s) => s.id === id);
   if (!sub) return { ok: false, error: '没有这条提交' };
@@ -261,15 +278,19 @@ export function review(id, action, note) {
   if (!['approve', 'reject'].includes(act)) return { ok: false, error: 'action 只能是 approve 或 reject' };
 
   if (act === 'reject') {
+    /* 拒绝必须写原因：作者拿到的只有这一句话，写"不通过"等于没说。
+     * 以前空着也能提交，默认塞一句"（没有写原因）"，那是在帮审核偷懒。 */
+    const why = String(note || '').trim();
+    if (why.length < 4) return { ok: false, error: '拒绝要写清楚原因（至少 4 个字），作者要靠它改' };
     sub.status = 'rejected';
     sub.reviewedAt = nowIso();
-    sub.reviewNote = String(note || '').slice(0, 500) || '（没有写原因）';
+    sub.reviewNote = why.slice(0, 500);
     save(doc);
     return { ok: true, status: 'rejected', detail: '已拒绝，原因已记录（作者能看到）' };
   }
 
   /* 通过：先落地，落地失败就不改状态 —— 否则会出现"显示已上架但市场里没有" */
-  const pub = publishToCatalog(sub);
+  const pub = await publishToCatalog(sub);
   if (!pub.ok) return { ok: false, error: pub.error, hint: '修好再点通过，或者先改成拒绝并写明原因' };
   sub.status = 'approved';
   sub.reviewedAt = nowIso();

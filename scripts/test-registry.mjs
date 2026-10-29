@@ -107,7 +107,7 @@ let subId = '';
 
 /* ---- 9. 审核通过 = 真的落盘 ---- */
 {
-  const r = reg.review(subId, 'approve', '看起来没问题');
+  const r = await reg.review(subId, 'approve', '看起来没问题');
   ok(r.ok, '通过审核', r.error);
   eq(r.deployed, true, '标记为已生成文件');
 
@@ -120,12 +120,17 @@ let subId = '';
   ok(!!entry, '市场目录里登记了新插件');
   eq(entry.origin, 'submitted', '来源标为 submitted');
   eq(entry.version, '1.0.0', '目录里带版本号');
+  /* 以前这里写死 tools: []，卡片上显示 0 个工具但 MCP 能调，属于瞎标。
+   * 现在落盘后真读模块，工具列表必须对得上。 */
+  ok(Array.isArray(entry.tools) && entry.tools.length === 1, '目录里带上了工具列表（不是空数组）');
+  eq(entry.tools[0].name, 'qq_demo_hello', '工具名读对了');
+  eq(entry.tools[0].description, '打招呼', '工具说明读对了');
   ok(cat.some((p) => p.id === 'existing'), '原有插件没被覆盖掉');
 }
 
 /* ---- 10. 不能重复审核 ---- */
 {
-  const r = reg.review(subId, 'approve', '再审一次');
+  const r = await reg.review(subId, 'approve', '再审一次');
   ok(!r.ok, '已审核的不能再审');
   ok(/已经/.test(r.error), '错误说明当前状态');
 }
@@ -145,7 +150,7 @@ let subId = '';
 {
   const r = reg.submit({ pluginId: 'existing', name: '覆盖测试', version: '9.9.9', author: 'me', description: '试图覆盖一个没有提交代码的同名插件，应该被文件冲突或代码缺失拦住', code: '' });
   ok(r.ok, '无代码提交可以入库');
-  const rv = reg.review(r.id, 'approve', '');
+  const rv = await reg.review(r.id, 'approve', '');
   ok(rv.ok, '无代码也能通过（只是不落地）');
   eq(rv.deployed, false, '无代码不写文件');
 }
@@ -154,7 +159,7 @@ let subId = '';
 {
   const s = reg.submit({ pluginId: 'demo-no', name: '会被拒的', version: '0.1.0', author: 'me', description: '这条会被拒绝，用来验证拒绝原因能存下来并回给作者', code: CODE.replace(/demo-hello/g, 'demo-no') });
   ok(s.ok, '提交成功');
-  const r = reg.review(s.id, 'reject', '简介太笼统，说清楚到底做什么再来');
+  const r = await reg.review(s.id, 'reject', '简介太笼统，说清楚到底做什么再来');
   ok(r.ok, '拒绝成功');
   eq(r.status, 'rejected', '状态是 rejected');
   const item = reg.get(s.id);
@@ -166,8 +171,22 @@ let subId = '';
 /* ---- 14. 非法 action ---- */
 {
   const s = reg.submit({ pluginId: 'demo-x2', name: 'x', version: '1.0.0', author: 'me', description: '用来测非法审核动作的插件描述文本', code: '' });
-  const r = reg.review(s.id, 'destroy', '');
+  const r = await reg.review(s.id, 'destroy', '');
   ok(!r.ok, '非法 action 被拒');
+}
+
+/* ---- 15. 拒绝必须写原因（作者只有这一句话可用） ---- */
+{
+  const s = reg.submit({ pluginId: 'demo-no-reason', name: '无原因拒绝', version: '1.0.0', author: 'me', description: '用来验证不写原因时拒绝会被挡住的插件描述文本', code: '' });
+  ok(s.ok, '提交成功');
+  const r1 = await reg.review(s.id, 'reject', '');
+  ok(!r1.ok, '空原因拒绝被拦');
+  ok(/原因/.test(r1.error), '给出的错误说明了要写原因');
+  const r2 = await reg.review(s.id, 'reject', '太短');
+  ok(!r2.ok, '原因太短也被拦');
+  const r3 = await reg.review(s.id, 'reject', '简介没说清楚它是干什么的，补一下再提交');
+  ok(r3.ok, '写了原因才能拒绝');
+  eq(reg.get(s.id).status, 'rejected', '状态确实变成了 rejected');
 }
 
 /* ---- 清理 ---- */

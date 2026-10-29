@@ -26,9 +26,22 @@
 - **assisted**：`dsh-official`（DSH 可自动拉起，AppID/Secret 必须人工）
 - **guide**：`llonebot-astrbot`、`napcat-yunzai`、`snowluma-maibot`、`napcat-ncatbot`
 
+## 主链路（站内主推）
+
+`methods.json` 里 `"primary": true` 的那条——`snowluma-dsh`（SnowLuma + qq-bridge + DSH）——
+是站内默认推荐，也是大部分人在用的链路。规则：
+
+- `scripts/lib/methods.mjs` 导出 `PRIMARY_METHOD = 'snowluma-dsh'`，`buildCompat()` 无条件把它排第一
+  （不依赖 JSON 书写顺序），并回传 `primaryMethodId` 与每条方法的 `primary` 字段；
+- `pluginCompatMethods()` 额外回传 `primary`，插件卡片据此显示「主链路直连」；
+  `PRIMARY_PICKS`（空间动态 / 语音调音 / 群管理 / 群信息）用实心绿徽章，其余插件用淡色「主链路 ✓」；
+- **其他 9 条路线一条不砍**，页面上排在「其他路线」分隔行之后，照样能部署；
+- `/api/list` 会带 `primary.ready` 与 `primaryMissing`，缺依赖时徽章写「主链路 · 待补依赖」，
+  不做无条件绿灯（例如本机没装 Python 时，那条路线照样标缺什么）。
+
 ## 兼容性矩阵的口径（不许改成"全兼容"）
 
-1. 本市场 47 个插件是零依赖 `.mjs`，跑在 MCP 的子进程里 → **只有 DSH 宿主的方法能装**；
+1. 本市场 50 个插件是零依赖 `.mjs`，跑在 MCP 的子进程里 → **只有 DSH 宿主的方法能装**；
 2. 插件里凡调协议端动作（发消息/禁言/公告…，由 `build-permissions.mjs` 扫源码得出 `needsBridge`）
    → 还要求方法讲 **OneBot v11**；所以官方通道（`dsh-official`）只能装纯本地工具；
 3. AstrBot / Koishi / NoneBot / Yunzai / MaiBot / NcatBot 的原生插件只在各自框架内可用（`native`），
@@ -61,7 +74,7 @@
 ## 验证方法
 
 ```bash
-# 1. 自检（28 项）
+# 1. 自检（35 项）
 node scripts/test-methods.mjs
 
 # 2. 既有测试回归
@@ -76,8 +89,9 @@ node scripts/installer.mjs run nonebot
 node scripts/installer.mjs run compose --method=napcat-astrbot
 
 # 5. 页面
-#   http://127.0.0.1:3210 → 「部署方法」看 10 张卡与按钮差异
-#   「兼容性矩阵」看 10 × 8 表格；插件卡上有权限 chip 与「兼容 N 种部署方法」
+#   http://127.0.0.1:3210 → 「部署方法」看主推卡 + 10 张卡与按钮差异
+#   「兼容性矩阵」看 10 × 8 表格（主链路那一行有「主链路」标签）
+#   插件卡上有权限 chip，以及「主链路直连」/「主链路 ✓」/「兼容 N 种部署方法」三种徽章
 ```
 
 ## Phase 2 预告（本阶段未实现，不虚标）

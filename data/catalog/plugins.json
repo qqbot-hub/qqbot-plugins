@@ -838,6 +838,37 @@
     "enabled": false
   },
   {
+    "id": "sticker",
+    "name": "sticker",
+    "description": "表情包：把群友发的表情偷进自己的库，之后按关键词一句话发出去",
+    "category": "群互动",
+    "tools": [
+      {
+        "name": "qq_sticker_save",
+        "description": "偷表情包：存进本地表情库"
+      },
+      {
+        "name": "qq_sticker_send",
+        "description": "发表情包：从库里挑一张发到群里"
+      },
+      {
+        "name": "qq_sticker_list",
+        "description": "看表情库里有哪些"
+      },
+      {
+        "name": "qq_sticker_remove",
+        "description": "删掉一张表情"
+      }
+    ],
+    "source": {
+      "label": "本项目原生（表情库 + 协议端发图）",
+      "url": ""
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
     "id": "tarot",
     "name": "tarot",
     "description": "抽一张塔罗牌（大阿卡纳，含正逆位与一句话解读）",
@@ -889,6 +920,52 @@
     "source": {
       "label": "NoneBot: nonebot_plugin_unitconvert",
       "url": "https://github.com/nonebot/nonebot2"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "video",
+    "name": "video",
+    "description": "认视频：把一段视频交给多模态模型看清内容（支持阿里云 qwen-vl 的视频接口）",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_video_see",
+        "description": "看一段视频并说清拍了什么"
+      },
+      {
+        "name": "qq_video_probe",
+        "description": "只查视频标题/简介/时长/封面，不花模型额度"
+      }
+    ],
+    "source": {
+      "label": "本项目原生（DashScope 视频理解）",
+      "url": "https://help.aliyun.com/zh/model-studio/vision"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false
+  },
+  {
+    "id": "vision",
+    "name": "vision",
+    "description": "QQ 识图：看清图片里有什么、读出截图里的文字（多模态模型，支持本机 Ollama）",
+    "category": "工具",
+    "tools": [
+      {
+        "name": "qq_see",
+        "description": "看一张图并说出图里有什么"
+      },
+      {
+        "name": "qq_ocr",
+        "description": "把图片里的文字原样读出来"
+      }
+    ],
+    "source": {
+      "label": "本项目原生（OpenAI 兼容视觉接口 / 本机 Ollama）",
+      "url": "https://platform.openai.com/docs/guides/vision"
     },
     "origin": "catalog",
     "installed": false,

@@ -49,7 +49,7 @@ function pickData(...rels) {
 const PLUGINS_FILE = pickData(path.join('data', 'catalog', 'plugins.json'), path.join('data', 'plugins.json'));
 const COMPANIONS_FILE = pickData(path.join('data', 'catalog', 'companions.json'));
 const COMPONENTS_FILE = pickData(path.join('data', 'catalog', 'components.json'));
-const STATE_FILE = pickData(path.join('data', 'state', 'plugins.json'), path.join('data', 'state.json'));
+const STATE_FILE = process.env.QQBOT_STATE_FILE || pickData(path.join('data', 'state', 'plugins.json'), path.join('data', 'state.json'));
 
 function saveCfg() {
   try {
@@ -61,8 +61,27 @@ function saveCfg() {
 
 /* ---------- 状态 ---------- */
 let STATE = {};
-try { STATE = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8')); } catch (e) { STATE = {}; }
-const saveState = () => { try { fs.mkdirSync(path.dirname(STATE_FILE), { recursive: true }); } catch {} fs.writeFileSync(STATE_FILE, JSON.stringify(STATE, null, 2)); };
+let STATE_MTIME = 0;
+try {
+  STATE = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+  STATE_MTIME = fs.statSync(STATE_FILE).mtimeMs;
+} catch (e) { STATE = {}; }
+const saveState = () => {
+  try { fs.mkdirSync(path.dirname(STATE_FILE), { recursive: true }); } catch { /* 目录已存在 */ }
+  fs.writeFileSync(STATE_FILE, JSON.stringify(STATE, null, 2));
+  try { STATE_MTIME = fs.statSync(STATE_FILE).mtimeMs; } catch { /* 拿不到 mtime 就下次再对 */ }
+};
+/* 安装任务是子模块（recipes/plugin.mjs）直接写 state 文件的，不经过这块内存。
+ * 只信内存会出现「装完了页面还显示未安装、MCP 也列不出工具」——所以读之前先对一次 mtime。 */
+function stateFresh() {
+  try {
+    const m = fs.statSync(STATE_FILE).mtimeMs;
+    if (m === STATE_MTIME) return;
+    const disk = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+    STATE = disk && typeof disk === 'object' && !Array.isArray(disk) ? disk : {};
+    STATE_MTIME = m;
+  } catch { /* 文件读不到或被删了：保留内存副本，不要因为一次读失败把状态清空 */ }
+}
 
 /* ---------- ESM 模块（本仓库的 lib/recipe 都是 ESM，按需加载并缓存） ---------- */
 const esmCache = new Map();
@@ -79,12 +98,16 @@ const secretsLib = () => esm(path.join('scripts', 'lib', 'secrets.mjs'));
 /* cfg.secrets 形如 { "napcat-astrbot.modelApiKey": "enc:v1:..." }，永远不出现在 API 明文里。
  * 解密结果只留在本进程内存（SECRET_CACHE），启动时一次性解出来，之后同步读取。 */
 const SECRET_CACHE = new Map();
+/* secrets 模块是 ESM，只能异步 import 一次；缓存下来给同步路径用 */
+let SEC = null;
+function decryptSync(v) { return SEC ? SEC.decrypt(v) : ''; }
 const secretSlot = (methodId, key) => String(methodId || 'global') + '.' + String(key || '');
 const slotOfOnebot = () => secretSlot('snowluma-dsh', 'onebotToken');
 const slotOfSatori = () => secretSlot('satori', 'token');
 
 async function initSecrets() {
   const { decrypt, encrypt } = await secretsLib();
+  SEC = await secretsLib();
   for (const [slot, enc] of Object.entries(cfg.secrets || {})) {
     const v = decrypt(enc);
     if (v) SECRET_CACHE.set(slot, v);
@@ -258,6 +281,7 @@ function ecoSync() {
 }
 
 function currentPlugins() {
+  stateFresh();
   return catalog().map((p) => {
     const s = STATE[p.id];
     const out = Object.assign({}, p, s ? { installed: !!s.installed, enabled: !!s.enabled } : {});
@@ -270,7 +294,9 @@ function currentPlugins() {
 async function installedTools() {
   const tools = [];
   for (const p of currentPlugins()) {
-    if (!p.installed) continue;
+    /* enabled 也得看：以前只判 installed，结果页面上点了「停用」，群消息确实不回了，
+     * 但 AI 侧的工具列表里它还在——停用变成只管一半，等于骗人。 */
+    if (!p.installed || !p.enabled) continue;
     const file = path.join(ROOT, 'plugins', p.id + '.mjs');
     if (!fs.existsSync(file)) continue;
     try {
@@ -304,6 +330,38 @@ function pluginValues(id) {
   const all = cfg.plugins || {};
   const v = all[id];
   return v && typeof v === 'object' ? v : {};
+}
+
+/* 插件配置里的 password 字段（voice / imagine 的 API Key）以前是明文躺在 config.json
+ * 里的，接口也原样回给页面——和方法级 token（onebot/satori）的加密存储不一致。
+ * 现在统一加密存储，并且拆成两个读法：
+ *   · 给界面：password 字段不回值，只告诉前端"配过没有"
+ *   · 给插件：解密后的真值（插件本来就需要它去请求接口） */
+const SECRET_FIELD = (f) => f && f.type === 'password';
+
+async function pluginValuesForUi(id) {
+  const v = Object.assign({}, pluginValues(id));
+  let schema = null;
+  try { schema = await pluginSchema(id); } catch { /* 插件加载失败就按原样回 */ }
+  const configured = {};
+  for (const f of (schema && schema.fields) || []) {
+    if (!SECRET_FIELD(f)) continue;
+    configured[f.key] = !!v[f.key];
+    v[f.key] = '';           // 明文/密文都不回给浏览器
+  }
+  return Object.assign(v, { __configured: configured });
+}
+
+/* 插件运行时拿到的配置：密文解开再给（认 enc:v1: 前缀，比靠 schema 更稳——
+ * 老配置里可能是明文，decrypt 会原样返回，不会把能用的配置读坏） */
+function pluginValuesForRun(id) {
+  const v = Object.assign({}, pluginValues(id));
+  for (const [k, val] of Object.entries(v)) {
+    if (typeof val === 'string' && val.startsWith('enc:v1:')) {
+      try { v[k] = decryptSync(val); } catch { v[k] = ''; }
+    }
+  }
+  return v;
 }
 
 /* 按 schema 校验并清洗提交上来的值，避免脏数据写进配置文件 */
@@ -533,7 +591,8 @@ async function collectHandlers() {
         if (!h || typeof h.run !== 'function') continue;
         /* 权限在 runHandler 里现查（build-permissions 扫出来的那份），
          * 不在这里缓存，免得换了权限文件还得重启 */
-        out.push({ pluginId: p.id, file, handler: Object.assign({ __cfg: pluginValues(p.id) }, h) });
+        /* 插件运行时拿到的配置要解密过（密钥字段存的是密文） */
+        out.push({ pluginId: p.id, file, handler: Object.assign({ __cfg: await pluginValuesForRun(p.id) }, h) });
       }
     } catch (e) {
       console.log(`[msg] 插件 ${p.id} 的 handler 加载失败：${e.message}`);
@@ -658,14 +717,24 @@ async function fetchText(url, timeoutMs = 1500, opts = {}) {
 }
 
 const VERIFY = {
-  /* NoneBot2 用 FastAPI/uvicorn，必有 openapi.json */
+  /* NoneBot2 用 FastAPI/uvicorn，但**新版默认不开放 docs**，openapi.json 直接 404
+   * （本机实测：20080 上明明跑着 NoneBot，/openapi.json 与 /docs 都是 404，
+   *  于是监控把健康服务报成"离线、端口被别的程序占着"——这是误报，必须两条路都认）。
+   * 退路认 onebot v11 适配器的应答特征：缺 X-Self-ID 头时它固定回这三个词，
+   * 这比"端口开着"可靠得多，又不像 openapi 那样依赖部署方开没开 docs。 */
   nonebot: async (port) => {
     const r = await fetchText(`http://127.0.0.1:${port}/openapi.json`, 1200);
-    if (!r.ok) return null;
-    try {
-      const j = JSON.parse(r.text);
-      return (j.openapi || j.swagger) ? { ok: true, note: 'FastAPI openapi 指纹通过' } : null;
-    } catch { return null; }
+    if (r.ok) {
+      try {
+        const j = JSON.parse(r.text);
+        if (j.openapi || j.swagger) return { ok: true, note: 'FastAPI openapi 指纹通过' };
+      } catch { /* 不是 JSON 就继续往下认 */ }
+    }
+    const p = await fetchText(`http://127.0.0.1:${port}/onebot/v11/`, 1200, { method: 'POST', body: '{}' });
+    if (/X-Self-ID|Authorization|Missing .*[Hh]eader/i.test(p.text || '')) {
+      return { ok: true, note: 'OneBot v11 适配器指纹通过（缺 X-Self-ID 头时的固定应答）' };
+    }
+    return null;
   },
   /* Koishi 控制台页面里带 koishi 字样 */
   koishi: async (port) => {
@@ -992,6 +1061,7 @@ function readBody(req) {
 
 /* ---------- 操作 ---------- */
 function performOp(action, id, extra) {
+  stateFresh();
   const exists = !!id && catalog().some((p) => p.id === id);
   if (!exists) return { ok: false, error: '插件不存在' };
   if (action === 'install') {
@@ -1123,8 +1193,19 @@ const server = http.createServer(async (req, res) => {
       const pmap = permissionsMap();
       const lib = await methodsLib();
       const methods = lib.loadMethods();
+      /* 主链路（SnowLuma + qq-bridge + DSH）本机是否就绪：前端用它决定徽章写
+       * 「主链路直连」还是「主链路 · 待补依赖」，不做无条件绿灯 */
+      const rt = await lib.probeRuntime();
+      const primaryRow = methods.find((m) => m.id === lib.PRIMARY_METHOD) || null;
+      const primaryEval = primaryRow ? lib.evaluate(primaryRow, rt) : { ready: false, missing: [] };
       return sendJson(res, 200, {
         ok: true,
+        primary: {
+          methodId: lib.PRIMARY_METHOD,
+          name: primaryRow ? primaryRow.name : '',
+          ready: !!primaryEval.ready,
+          missing: primaryEval.missing || [],
+        },
         plugins: plugins.map((pl) => {
           const pm = pmap[pl.id] || {};
           const compat = lib.pluginCompatMethods({ needsBridge: pm.needsBridge !== false }, methods);
@@ -1137,7 +1218,13 @@ const server = http.createServer(async (req, res) => {
             permissions: pm.permissions || [],
             confirmRequired: !!pm.confirmRequired,
             needsBridge: pm.needsBridge !== false,
-            compat: { methods: compat.methods, needsBridge: compat.needsBridge },
+            compat: {
+              methods: compat.methods,
+              needsBridge: compat.needsBridge,
+              primary: compat.primary,
+              primaryReady: !!primaryEval.ready,
+              primaryMissing: primaryEval.missing || [],
+            },
           });
         }),
       });
@@ -1211,7 +1298,7 @@ const server = http.createServer(async (req, res) => {
       const mod = await import(pathToFileURL(path.join(ROOT, 'scripts', 'lib', 'registry.mjs')).href);
       const raw = await readBody(req);
       const obj = (() => { try { return JSON.parse(raw || '{}'); } catch { return {}; } })();
-      const r = mod.review(String(obj.id || ''), String(obj.action || ''), obj.note);
+      const r = await mod.review(String(obj.id || ''), String(obj.action || ''), obj.note);
       if (r.ok && r.deployed) {
         /* 新插件落地了：让消息路由和 schema 缓存都重新加载，否则要重启才用得上 */
         schemaCache.clear();
@@ -1411,10 +1498,12 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, {
         ok: true, generatedAt: c.generatedAt, runtime: c.runtime,
         pluginApis: c.pluginApis, matrix: c.matrix,
+        primaryMethodId: c.primaryMethodId,
         methods: c.methods.map((m) => ({
           id: m.id, name: m.name, account: m.account, protocols: m.protocols,
           pluginApi: m.pluginApi, level: m.deploy.level, levelLabel: m.deploy.levelLabel,
           ready: m.ready, missing: m.missing, verified: m.deploy.verified,
+          primary: !!m.primary,
         })),
         plugins: perPlugin,
       });
@@ -1500,7 +1589,7 @@ const server = http.createServer(async (req, res) => {
       const id = new URL(req.url, 'http://x').searchParams.get('id') || '';
       const schema = await pluginSchema(id);
       if (!schema) return sendJson(res, 404, { ok: false, error: '这个插件没有可配置项' });
-      return sendJson(res, 200, { ok: true, id, schema, values: pluginValues(id) });
+      return sendJson(res, 200, { ok: true, id, schema, values: await pluginValuesForUi(id) });
     }
     if (method === 'POST' && p === '/api/plugin-config') {
       const raw = await readBody(req);
@@ -1508,9 +1597,19 @@ const server = http.createServer(async (req, res) => {
       const schema = await pluginSchema(obj.id);
       if (!schema) return sendJson(res, 404, { ok: false, error: '这个插件没有可配置项' });
       cfg.plugins = Object.assign({}, cfg.plugins);
-      cfg.plugins[obj.id] = cleanValues(schema, obj.values);
+      const prev = pluginValues(obj.id);
+      const vals = cleanValues(schema, obj.values);
+      /* 密钥字段：填了就加密存；留空表示沿用原来的（界面上本来也不回值，
+       * 否则用户只想改个模型名就得把 Key 再抄一遍） */
+      const lib = await secretsLib();
+      for (const f of schema.fields) {
+        if (!SECRET_FIELD(f)) continue;
+        const typed = String(vals[f.key] || '').trim();
+        vals[f.key] = typed ? lib.encrypt(typed) : String(prev[f.key] || '');
+      }
+      cfg.plugins[obj.id] = vals;
       saveCfg();
-      return sendJson(res, 200, { ok: true, id: obj.id, values: cfg.plugins[obj.id], msg: '配置已保存，立即生效' });
+      return sendJson(res, 200, { ok: true, id: obj.id, values: await pluginValuesForUi(obj.id), msg: '配置已保存，立即生效' });
     }
 
     /* 调音台的接口（/api/state、/api/synth、/api/voices…）：市场没有同名的，原样转给它 */

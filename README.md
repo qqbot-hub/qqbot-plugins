@@ -7,23 +7,24 @@
 **它会说话，但没有生活。** 你让它"禁言这个人十分钟"，它只能回你一句解释；
 你跟它聊三天，它转头就忘了你是谁。
 
-这个市场就是它的人生补丁：**47 个插件 / 76 项能力**，网页上点一下安装，
+这个市场就是它的人生补丁：**50 个插件 / 84 项能力**，网页上点一下安装，
 就变成 AI 能自己调用的工具（`mcp__qqbot__*`）。从此它**记得住你**（长期记忆）、
-**开得了口**（语音合成）、**画得了画**（文生图）、**管得了群**（禁言/踢人/公告），
+**开得了口**（语音合成）、**画得了画**（文生图）、**看得懂图**（识图/OCR）、
+**存得下表情包**（偷图/发表情）、**认得视频**（多模态视频理解）、**管得了群**（禁言/踢人/公告），
 还会查天气、记账、发提醒、陪人玩成语接龙。
 
 ```
 QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
                                         │
                                         └── ⇄  qqbot-plugins（MCP 插件层）
-                                                47 个插件 / 76 个工具
+                                                50 个插件 / 84 个工具
 ```
 
 零第三方依赖 · 一个命令启动 · 网页里配置 · MIT 开源
 
 ![qqbot-plugins 插件市场界面](docs/screenshot.png)
 
-[![Node](https://img.shields.io/badge/node-%E2%89%A518-blue)](https://nodejs.org)
+[![Node](https://img.shields.io/badge/node-%E2%89%A520-blue)](https://nodejs.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![Plugins](https://img.shields.io/badge/插件-46%20个%20%2F%2075%20工具-orange)](#插件一览)
 [![Verified](https://img.shields.io/badge/实测-59%20项通过%20%2F%200%20失败-brightgreen)](#插件来源与实测)
@@ -49,8 +50,14 @@ QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
 只是在 DSH 的 `cordis.patch.yml` 里并列追加一个 MCP 服务器——和官方
 `mcp__snowluma__` 用的是同一份文件、同一种格式，互不冲突。
 
-- **市场侧**：登录 → 浏览/搜索 47 个插件 → 一键安装/卸载/启停/配置，实时探测链路状态
-- **部署方法**：10 条路线（NapCat+AstrBot / NapCat+Koishi / NapCat+NoneBot2 / SnowLuma+DSH / 官方通道等），
+- **市场侧**：登录 → 浏览/搜索 50 个插件 → 一键安装/卸载/启停/配置，实时探测链路状态
+- **主链路直连**：把 SnowLuma + qq-bridge + DSH 这条（大部分人用的那条）单独提到首页第一屏，
+  七张卡（QQ 识图 / 发表情包·偷表情包 / 识别视频 / 空间动态 / 语音调音 / 群管理 / 群信息）
+  点「一键接入」就走完整流水线
+  （校验插件 → 查必填配置 → 写状态 → 确认已注册进 DSH → 自检）。其他路线照常保留，只排序靠后。
+  识图和认视频只调模型接口，不开协议端也能用；其余五项要协议端在线。
+- **部署方法**：10 条路线（SnowLuma+DSH 排第一并标「站内主推」，另有 NapCat+AstrBot / NapCat+Koishi /
+  NapCat+NoneBot2 / 官方通道等），
   每条都标清：个人号还是官方号、要不要桌面 QQ、Node/Python/Docker 依赖、端口、关键配置；
   本机能自动的才给「部署」按钮，只给步骤的绝不放假按钮（详见 [docs/METHODS.md](docs/METHODS.md)）
 - **兼容性矩阵**：10 种方法 × 8 类插件生态，按真实能力标注，不写「全兼容」；
@@ -59,6 +66,8 @@ QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
 - **配置侧**：连接渠道（OneBot 地址/Token）、群管理白名单、默认城市等，全部在网页里填，改完立即生效
 - **安全侧**：踢人/全体禁言等危险操作必须 `confirm=true`；群管理还支持管理员 QQ 白名单与「只允许操作的群」双重护栏；
   API Key / AppSecret 用 AES-256-GCM 加密存储，日志自动打码，不收集 QQ 密码（一律扫码）
+
+![主链路直连专区：七张卡，点「一键接入」就走完整安装流水线](docs/primary.png)
 
 ### 「装到 QQ 上」到底是什么意思
 
@@ -69,6 +78,10 @@ QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
 - 卸载 = 点「卸载」再重启，工具就从 AI 手里消失了
 
 ## 快速开始
+
+**环境要求**：Node.js **≥ 20**（插件沙箱用的是 Node 权限模型 `--permission`，20 以下没有这个开关，
+市场能起但插件全部无法执行——所以别用 18）。Windows / macOS / Linux 都能跑，`start.bat` 只是
+Windows 的快捷方式，其他平台直接 `node server.js`。**零第三方依赖**，不用 `npm install`。
 
 **推荐方式（一键部署）**：启动本站后，打开侧栏「部署链路」——协议端、桥接、DSH 注册、插件，
 每一环都能在那里点「部署」，真的检查、下载、启动、自检；能自动的全自动，只有「登录 QQ」
@@ -131,17 +144,42 @@ node scripts/doctor.mjs
 > 白名单是"防误操作"的护栏，不是绝对安全边界——`operator_id` 由 AI 传入。真正兜底的是机器人自己的群权限（SnowLuma 侧）和只在可信群里使用。要加新的可配置插件，看 [docs/PLUGIN_SPEC.md](docs/PLUGIN_SPEC.md) 里的 `settings` 声明方式。
 
 
-## 插件一览（47 个）
+## 安全：这个面板谁能打开
+
+默认**只监听 `127.0.0.1`**，局域网里别人扫不到；也**不设口令**，本机上谁打开浏览器都能进。
+这两条是配套的——只在本机用就没有问题，但如果你做了端口转发、或者把它放到有别人的机器上，
+先设口令：
+
+```json
+// config.json
+{ "password": "换成你自己的口令" }
+```
+
+设了之后打开页面会跳登录页，登录后种一个 HttpOnly Cookie（30 天）。口令不对不给进，
+API 也一样（`/api/onebot/event` 例外，那是协议端上报入口，只收本机来源 + 可选的 AccessToken）。
+
+密钥怎么存：
+
+- 方法级令牌（OneBot AccessToken / Satori token）和插件级 API Key（voice / imagine）
+  都是 **AES-256-GCM 加密后写进 `config.json`**，形如 `enc:v1:...`；接口只回"配过没有"，不回值。
+- 加密用的 key 在 `data/state/.secrets.key`，**这个文件丢了就解不回来**，要备份就跟 `config.json` 一起备份。
+- `config.json`、`data/state/`、`runtimes/` 都在 `.gitignore` 里，别手滑提交上去。
+
+插件本身跑在独立子进程里，写文件 / 起子进程由 Node 权限模型直接拒绝，边界写在
+[docs/SANDBOX.md](docs/SANDBOX.md)（包括它**拦不住**什么：网络出站、CPU 配额、代码签名）。
+
+
+## 插件一览（50 个）
 
 | 分类 | 数量 | 插件 |
 | --- | --- | --- |
-| 工具 | 22 | calc 计算 · weather 天气 · translate 翻译 · exchange 汇率 · unit 单位换算 · baseconv 进制 · morse 摩斯电码 · passgen 密码 · abbr 缩写解释 · remind 定时提醒(主动消息) · memo 群备忘 · ledger 群记账 · birthday 生日倒计时 · clock 报时 · jukebox 点歌链接 · pomodoro 番茄钟(主动消息) · coin 抛硬币 · color 颜色卡 · bilihot B站热门 · bingimg 必应每日图 · **voice 语音合成(TTS)** · ping 测活(收消息示例) |
+| 工具 | 24 | calc 计算 · weather 天气 · translate 翻译 · exchange 汇率 · unit 单位换算 · baseconv 进制 · morse 摩斯电码 · passgen 密码 · abbr 缩写解释 · remind 定时提醒(主动消息) · memo 群备忘 · ledger 群记账 · birthday 生日倒计时 · clock 报时 · jukebox 点歌链接 · pomodoro 番茄钟(主动消息) · coin 抛硬币 · color 颜色卡 · bilihot B站热门 · bingimg 必应每日图 · **voice 语音合成(TTS)** · **vision 识图/OCR(多模态)** · **video 认视频(多模态)** · ping 测活(收消息示例) |
 | 娱乐 | 14 | fortune 今日运势 · dice 骰子/多选一 · draw 抽签 · sensoji 赛博浅草寺 · tarot 塔罗 · zodiac 星座 · meihua 梅花易数 · hitokoto 一言 · joke 冷笑话 · quote 毒鸡汤 · riddle 脑筋急转弯 · poem 古诗 · gacha 抽群友卡 · **imagine AI 画画** |
 | 小游戏 | 6 | blackjack 21点 · guess 猜数字 · bombgame 数字炸弹 · idiom 成语接龙 · wordle 猜单词 · roulette 轮盘点名 |
 | 群管理 | 2 | group_admin 禁言/踢人/撤回/名片/头衔/公告 · group_info 群资料/成员列表 |
-| 群互动 | 3 | signin 群签到积分榜 · qzone QQ空间说说 · **memory 长期记忆/好感度** |
+| 群互动 | 4 | signin 群签到积分榜 · qzone QQ空间说说 · **sticker 表情包(偷图/发表情)** · **memory 长期记忆/好感度** |
 
-合计 **47 个插件 / 76 个工具**。分类与数量由 `data/catalog/plugins.json` 统一驱动，市场页面按此分组筛选。
+合计 **50 个插件 / 84 个工具**。分类与数量由 `data/catalog/plugins.json` 统一驱动，市场页面按此分组筛选。
 
 另有 1 个**配套桌面程序**（dsh-pet 桌面宠物），单独成区、不占 MCP 工具位，详见下文。
 
@@ -153,14 +191,14 @@ node scripts/doctor.mjs
 
 | 内容 | 真实来源 |
 | --- | --- |
-| 47 个插件的**名称、功能描述、工具名、参数说明** | 抓取自公开的 QQ 插件市场站点的插件目录数据 |
+| 50 个插件的**名称、功能描述、工具名、参数说明** | 抓取自公开的 QQ 插件市场站点的插件目录数据 |
 | 每张卡片上的「源自 xxx」 | 该插件的上游出处（AstrBot / NoneBot / Koishi / Yunzai 社区的同名插件），附仓库链接 |
 | **每个插件的可执行代码** | 本项目重新实现。原站的插件依赖它自己的加载器，公开数据里不含实现代码；这里全部改写为**零依赖的 MCP 工具**，跑在 Node 上 |
 
 所以准确的说法是：**目录来自网络社区，实现由本项目重写**——不是"把网上的插件原样搬过来"。
 好处是全部零依赖、直接能跑、不受上游框架版本影响；代价是行为细节以本项目实现为准。
 
-### 实测：76 个工具全部跑过一遍
+### 实测：84 个工具全部跑过一遍
 
 ```bash
 node scripts/verify-plugins.mjs          # 跑全部插件
@@ -171,9 +209,9 @@ node scripts/verify-plugins.mjs --json   # 输出机器可读结果
 
 | 结果 | 数量 | 含义 |
 | --- | --- | --- |
-| ✅ 实测通过 | **59** | 真实调用并正常返回（含天气、汇率、B站、翻译等联网插件，拿的是真实数据） |
-| 🔌 需 QQ 在线 | 15 | group_admin(8) + group_info(3) + qzone(4)，本机没开 SnowLuma 所以发不出去，属于环境问题 |
-| 🔑 需配置 | 1 | voice 语音合成：没填 TTS 接口的 Key，填上即可用 |
+| ✅ 实测通过 | **64** | 真实调用并正常返回（含天气、汇率、B站、翻译等联网插件，拿的是真实数据） |
+| 🔌 需 QQ 在线 | 16 | group_admin(8) + group_info(3) + qzone(4) + sticker 发表情(1)，本机没开 SnowLuma 所以发不出去，属于环境问题 |
+| 🔑 需配置 | 4 | voice 语音合成 1 项、vision 识图 2 项、video 认视频 1 项：没填对应接口的 Key，填上即可用 |
 | ❌ 失败 | **0** | — |
 
 脚本会自动把存储重定向到临时目录，不会污染你的真实数据；你可以随时自己跑一遍复核。
@@ -281,7 +319,7 @@ node scripts/installer.mjs run koishi-plugin  --package=koishi-plugin-dataview
 
 ## 市场里的生态插件（1368 个真实条目）
 
-市场顶部有一条「来源」，可以在**本平台 47 个**和**三种生态的真实商店**之间切换：
+市场顶部有一条「来源」，可以在**本平台 50 个**和**三种生态的真实商店**之间切换：
 
 | 来源 | 数量 | 数据来自 | 安装方式 |
 |---|---|---|---|
@@ -332,7 +370,7 @@ node scripts/sync-ecosystem.mjs --status   # 只看缓存状态，不联网
 qqbot-plugins/
 ├─ server.js            市场服务端（登录/API/体检/搭桥/安装任务，零依赖）
 ├─ mcp-server.mjs       MCP stdio 服务器（暴露插件工具给 DSH）
-├─ plugins/             47 个插件（每个 .mjs 自包含）+ _template/ 开发模板 + _router.mjs 消息路由
+├─ plugins/             50 个插件（每个 .mjs 自包含）+ _template/ 开发模板 + _router.mjs 消息路由
 ├─ recipes/             每个可安装对象一份安装脚本（协议端/桥/DSH/插件/三生态插件…）
 ├─ data/
 │  ├─ catalog/          清单：plugins（插件）/ companions（配套）/ components（链路组件）/ methods（部署方法）/ permissions（权限）
@@ -460,7 +498,7 @@ node scripts/build-permissions.mjs --check   # 权限表是否与源码一致
 
 ## 全网插件源（平台模式）
 
-市场不只陈列自己写的 47 个插件，还像外卖平台一样把**各家店摆上同一张桌**：
+市场不只陈列自己写的 50 个插件，还像外卖平台一样把**各家店摆上同一张桌**：
 `data/sources/external.json` 定义了 Yunzai / NoneBot / Koishi / AstrBot / OneBot 生态的真实查询源，
 `node scripts/hub-sync.mjs` 一键抓成统一目录（截至 2026-10-28：6 个源、204 个仓库），
 网页「全网插件源」板块可以直接搜索、按平台筛选、按星数排序。
@@ -535,7 +573,7 @@ breeze-server breeze-tts-2-q8_0.gguf --host 127.0.0.1 --port 8080
 | 内容 | 来源 |
 | --- | --- |
 | 界面（HTML/CSS）、图标、Logo | 本仓库原创手写，仅使用纯 CSS 与手绘 SVG，**未使用任何第三方 UI 框架、图标库、字体或图片素材** |
-| 47 个插件的代码 | 本仓库原创实现，零第三方依赖 |
+| 50 个插件的代码 | 本仓库原创实现，零第三方依赖 |
 | 插件目录里的「源自 xxx」标签 | 仅是对同类功能上游项目的**文字致谢**（AstrBot / NoneBot / Koishi / Yunzai 社区），不包含、不复制其任何代码；这些项目各自遵循其自身许可 |
 | 联网插件调用的接口 | Open-Meteo、er-api、nbnhhsh、一言、B 站公开接口、必应每日图等公开接口，按其公开使用条款调用，无需 Key |
 

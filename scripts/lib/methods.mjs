@@ -9,7 +9,7 @@
  *   3. 它能不能承载本市场的统一插件 —— 取决于宿主是不是 DSH、插件要不要 OneBot 动作
  *
  * 兼容性矩阵的口径（重要，别改成"全兼容"）：
- *   · 本市场 46 个插件是零依赖 .mjs，跑在市场的 MCP 进程里，只对 **DSH 宿主** 有效；
+ *   · 本市场 50 个插件是零依赖 .mjs，跑在市场的 MCP 进程里，只对 **DSH 宿主** 有效；
  *   · 其中凡是调用协议端动作（发消息/禁言/公告…）的，还要求该方法讲 OneBot v11；
  *   · AstrBot / Koishi / NoneBot / Yunzai / MaiBot / NcatBot 的原生插件，只在各自框架内可用，
  *     矩阵里如实标 native，跨框架一律 no —— 跨框架要靠 Phase 2 的适配层，现在没有就是没有。
@@ -22,6 +22,15 @@ import { execFile } from 'node:child_process';
 import { ROOT } from './paths.mjs';
 
 const METHODS_FILE = path.join(ROOT, 'data', 'catalog', 'methods.json');
+
+/**
+ * 主链路：SnowLuma + qq-bridge + DSH。
+ * 这不是"唯一支持"，而是"默认推荐"——站内 50 个插件的能力都按它调好的接口写，
+ * 空间动态 / 语音调音 / 群管理这些尤其如此。别的方法照样列全、照样能部署，
+ * 只是前端把它们排到后面，并且不假装它们也是原生链路。
+ */
+export const PRIMARY_METHOD = 'snowluma-dsh';
+
 
 export const LEVEL_LABEL = {
   oneclick: '可一键部署',
@@ -149,7 +158,7 @@ export function pluginCompatMethods(plugin, methods) {
     }
     ok.push(m.id);
   }
-  return { methods: ok, reasons, needsBridge };
+  return { methods: ok, reasons, needsBridge, primary: ok.includes(PRIMARY_METHOD) };
 }
 
 export async function buildCompat({ methods } = {}) {
@@ -193,8 +202,12 @@ export async function buildCompat({ methods } = {}) {
       ready: ev.ready,
       missing: ev.missing,
       requiresDesktopQQ: ev.requiresDesktopQQ,
+      primary: !!m.primary || m.id === PRIMARY_METHOD,
+      primaryNote: m.primaryNote || '',
     };
   });
+  /* 主链路永远排第一：不依赖 data 里的书写顺序，谁改文件都不会把它挤下去 */
+  rows.sort((a, b) => (b.primary ? 1 : 0) - (a.primary ? 1 : 0));
 
   /* 插件生态 × 方法：native 表示该框架的原生插件能直接装进去 */
   const matrix = {};
@@ -219,6 +232,7 @@ export async function buildCompat({ methods } = {}) {
     generatedAt: new Date().toISOString(),
     levelLabels: LEVEL_LABEL,
     pluginApis: PLUGIN_APIS,
+    primaryMethodId: PRIMARY_METHOD,
     matrix,
     methods: rows,
   };

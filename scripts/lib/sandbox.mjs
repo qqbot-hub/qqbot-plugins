@@ -17,7 +17,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { spawn } from 'node:child_process';
+import { spawn, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const DEFAULT_TIMEOUT = 20000;
@@ -50,9 +50,41 @@ export function permsFor(hubRoot, pluginId, metaOrDef) {
   return [...new Set([...permsFromCatalog(hubRoot, pluginId), ...permissionsOf(metaOrDef || {})])];
 }
 
+/** 权限开关在不同 Node 版本上叫法不一样：22+ 叫 --permission，20.x 叫 --experimental-permission，
+ *  18 及以下根本没有这套模型。别人把仓库下载到自己的机器上，Node 版本不由我们决定，
+ *  所以先真跑一次探一下，探不到就明确报错——否则子进程会死在 "bad option" 上，
+ *  用户看到的是「插件全坏了」，根本猜不到是 Node 太旧。 */
+let permFlagCache;
+export function permissionFlag() {
+  if (permFlagCache !== undefined) return permFlagCache;
+  for (const f of ['--permission', '--experimental-permission']) {
+    try {
+      execFileSync(process.execPath, [f, '-e', '0'], {
+        stdio: 'ignore',
+        windowsHide: true,
+        timeout: 5000,
+        /* 探测这一步自己也会被 NODE_OPTIONS 里的 --require 注入拖死（注入的 shim 不在白名单里），
+           那会被误判成"这台机器不支持权限模型"。先把注入项剔掉再探。 */
+        env: Object.assign({}, process.env, { NODE_OPTIONS: cleanNodeOptions(process.env.NODE_OPTIONS) }),
+      });
+      permFlagCache = f;
+      return f;
+    } catch { /* 这个版本不认，试下一个 */ }
+  }
+  permFlagCache = '';
+  return '';
+}
+
 /** 按声明拼启动参数。没声明就什么都不给。 */
 export function permissionArgs(hubRoot, perms = []) {
-  const args = ['--permission'];
+  const flag = permissionFlag();
+  if (!flag) {
+    throw new Error(
+      `当前 Node ${process.version} 不支持权限模型（需要 20 以上）。` +
+      '插件必须在沙箱里跑，请升级 Node；临时应急可用环境变量 QQBOT_SANDBOX=0 关闭隔离（不推荐，插件将直接读写本机文件）',
+    );
+  }
+  const args = [flag];
   /* 只读：插件自己的代码目录 + 共享库。故意不含 data/ 和 config.json，
    * 插件拿不到配置里的密钥密文，也读不到别的插件存的数据。 */
   args.push('--allow-fs-read=' + path.join(hubRoot, 'plugins'));

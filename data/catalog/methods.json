@@ -1,12 +1,14 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-28",
+  "updatedAt": "2026-10-29T04:47:33.241Z",
   "note": "每条部署方法的字段都要求可核对：端口/版本取各自官方文档的默认值，拿不准的写 note 让人去官方看，不编数字。deploy.level 决定前端给什么按钮：oneclick=真跑脚本，compose=真跑 docker compose，assisted=能自动的部分自动、剩下给步骤，guide=只给可执行的步骤清单，不放假按钮。",
   "methods": [
     {
       "id": "snowluma-dsh",
       "name": "SnowLuma + qq-bridge + DeepSeek Harness",
       "tagline": "本市场原生链路：协议端登录一次，后面插件即插即用",
+      "primary": true,
+      "primaryNote": "站内主推，也是大部分人现在用的那条：空间动态、语音调音、表情包、群管理这些能力都按它调好的接口写的，接入一次就能用；识图和认视频只调模型接口，开不开协议端都能用。其他路线照常支持，只是这几项要先确认协议端也在讲 OneBot v11",
       "account": "personal",
       "accountNote": "SnowLuma 走个人号协议，务必用小号",
       "os": [
@@ -18,7 +20,7 @@
         "note": "SnowLuma 不需要安装桌面 QQ"
       },
       "runtime": {
-        "node": ">=18",
+        "node": ">=20",
         "python": null,
         "docker": false
       },
@@ -204,7 +206,7 @@
         "note": "同样依赖 QQNT + NapCat；NapCat 的版本要跟当前 QQNT 匹配"
       },
       "runtime": {
-        "node": ">=18",
+        "node": ">=20",
         "python": null,
         "docker": false
       },
@@ -454,7 +456,7 @@
         "note": "依赖 QQNT + NapCat 提供 OneBot 接口"
       },
       "runtime": {
-        "node": ">=18",
+        "node": ">=20",
         "python": null,
         "docker": false,
         "redis": true
@@ -536,7 +538,7 @@
         "note": "MaiBot 本身不需要桌面 QQ，但需要 OneBot 协议端（本项目用 SnowLuma）"
       },
       "runtime": {
-        "node": ">=18",
+        "node": ">=20",
         "python": ">=3.10",
         "mongo": true
       },
@@ -692,7 +694,7 @@
         "note": "官方通道完全不需要 QQ 客户端"
       },
       "runtime": {
-        "node": ">=18",
+        "node": ">=20",
         "python": null,
         "docker": false
       },

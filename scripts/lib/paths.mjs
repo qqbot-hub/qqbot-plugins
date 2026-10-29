@@ -7,7 +7,7 @@
  *   老部署升级上来不会因为文件搬家而读不到数据。
  *
  * 目录结构（data/）：
- *   catalog/plugins.json      46 个自有插件（能装进机器人，走 MCP 暴露工具）
+ *   catalog/plugins.json      50 个自有插件（能装进机器人，走 MCP 暴露工具）
  *   catalog/companions.json   3 个配套程序（桌面宠物 / TTS 引擎 / 调音台，独立运行）
  *   catalog/components.json   链路上的运行时组件（协议端 / 桥 / DSH / 市场本体）
  *   sources/external.json     外部插件源定义（GitHub 查询式）
@@ -37,8 +37,18 @@ const MAP = {
   astrbotPlugins: ['state/astrbot-plugins.json'],
 };
 
-/** 返回某个逻辑数据文件的真实路径（不存在时返回首选新路径，便于首次写入） */
+/** 返回某个逻辑数据文件的真实路径（不存在时返回首选新路径，便于首次写入）
+ *
+ * 两个环境变量可以把「本机运行时状态」重定向到别处：
+ *   QQBOT_STATE_FILE  安装状态（server.js 本来就用它）
+ *   QQBOT_JOBS_FILE   安装任务记录
+ * 这样「装一遍试试」的测试不会把任务历史写进用户的 data/state，
+ * 也不会顺手把 clock 装到用户机器上。 */
+const ENV_OVERRIDE = { state: 'QQBOT_STATE_FILE', jobs: 'QQBOT_JOBS_FILE' };
+
 export function dataPath(key) {
+  const envName = ENV_OVERRIDE[key];
+  if (envName && process.env[envName]) return path.resolve(process.env[envName]);
   const list = MAP[key] || [key];
   for (const rel of list) {
     const p = path.join(DATA, rel);

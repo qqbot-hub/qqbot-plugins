@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T15:23:04.873Z",
+  "generatedAt": "2026-10-29T05:01:12.704Z",
   "method": "静态扫描 plugins/*.mjs 的 API 使用情况（见 scripts/build-permissions.mjs）",
   "sourceHashes": {
     "abbr": "aaf2b0777f4d",
@@ -43,9 +43,12 @@
     "roulette": "69ad07c70fea",
     "sensoji": "238a160fc290",
     "signin": "e202f0da411f",
+    "sticker": "0988d1f7b005",
     "tarot": "10a32071232e",
     "translate": "ecea05d38891",
     "unit": "4e7c4f180b3f",
+    "video": "cc903a0f2e6e",
+    "vision": "ad62a930bc0a",
     "voice": "41ae45f66e07",
     "weather": "b318eef485aa",
     "wordle": "cf74ed61f333",
@@ -598,6 +601,34 @@
       "language": "JavaScript (ESM)",
       "loc": 56
     },
+    "sticker": {
+      "permissions": [
+        {
+          "key": "file:write",
+          "label": "写入本地文件",
+          "level": "warn",
+          "why": "会往磁盘写数据（缓存、配置、下载的文件）"
+        },
+        {
+          "key": "message:send",
+          "label": "以机器人身份发消息 / 管理群",
+          "level": "warn",
+          "why": "会在群里说话、发图、禁言或踢人（受机器人自身群权限限制）"
+        },
+        {
+          "key": "network",
+          "label": "访问网络",
+          "level": "info",
+          "why": "数据会发到本机之外的接口"
+        }
+      ],
+      "confirmRequired": true,
+      "needsBridge": true,
+      "hasSettings": false,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 298
+    },
     "tarot": {
       "permissions": [],
       "confirmRequired": false,
@@ -631,6 +662,38 @@
       "framework": "mcp",
       "language": "JavaScript (ESM)",
       "loc": 53
+    },
+    "video": {
+      "permissions": [
+        {
+          "key": "network",
+          "label": "访问网络",
+          "level": "info",
+          "why": "数据会发到本机之外的接口"
+        }
+      ],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": true,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 292
+    },
+    "vision": {
+      "permissions": [
+        {
+          "key": "network",
+          "label": "访问网络",
+          "level": "info",
+          "why": "数据会发到本机之外的接口"
+        }
+      ],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": true,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 261
     },
     "voice": {
       "permissions": [

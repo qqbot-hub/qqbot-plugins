@@ -26,6 +26,10 @@ import { dataPath } from './scripts/lib/paths.mjs';
 import { runSandboxed, sanitizeConfig, permsFor } from './scripts/lib/sandbox.mjs';
 
 const HUB_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)));
+const PKG_VERSION = (() => {
+  try { return JSON.parse(fs.readFileSync(path.join(HUB_ROOT, 'package.json'), 'utf8')).version || '0.0.0'; }
+  catch { return '0.0.0'; }
+})();
 const DATA_DIR = path.join(HUB_ROOT, 'data');
 const CONFIG_FILE = path.join(HUB_ROOT, 'config.json');
 
@@ -78,7 +82,16 @@ function onebotCfg() {
 function pluginCfg(id) {
   const all = loadConfig().plugins || {};
   const v = all[id];
-  return v && typeof v === 'object' ? v : {};
+  if (!v || typeof v !== 'object') return {};
+  /* 插件级密钥（voice/imagine 的 apiKey）现在是密文存的，交给插件前解开。
+   * 认 enc:v1: 前缀而不是靠字段名——老配置里的明文会原样返回，不会读坏。 */
+  const out = {};
+  for (const [k, val] of Object.entries(v)) {
+    out[k] = (typeof val === 'string' && val.startsWith('enc:v1:'))
+      ? (() => { try { return decrypt(val) || ''; } catch { return ''; } })()
+      : val;
+  }
+  return out;
 }
 
 /* ---------- 协议端客户端（每次调用都读最新配置，改地址/Token 不用重启） ---------- */
@@ -116,7 +129,9 @@ async function loadPlugins() {
   const fireDues = [];
   for (const meta of catalog) {
     const s = state[meta.id];
-    if (!s || !s.installed) continue;
+    /* 停用(status.enabled=false)必须真的不暴露工具，否则页面上点了停用，
+     * AI 那边还能调——与市场显示的状态对不上。 */
+    if (!s || !s.installed || !s.enabled) continue;
     const file = path.join(HUB_ROOT, 'plugins', meta.id + '.mjs');
     if (!fs.existsSync(file)) continue;
     try {
@@ -133,6 +148,9 @@ async function loadPlugins() {
             _file: file,
             /* 插件声明了哪些能力，决定沙箱给不给 --allow-child-process 之类的开关 */
             _perm: permsFor(HUB_ROOT, meta.id, def),
+            /* 个别工具天然慢（认视频要等模型逐帧看完），插件可用 meta.timeoutMs 申请更长时间。
+             * 上限压在 180 秒：再长就不像"一次工具调用"了，客户端多半先超时。 */
+            _timeout: Math.min(Math.max(Number(def.meta && def.meta.timeoutMs) || 0, 0), 180000),
           });
         }
       }
@@ -220,7 +238,8 @@ async function main() {
         return reply({
           protocolVersion: '2024-11-05',
           capabilities: { tools: {} },
-          serverInfo: { name: 'qqbot-plugins', version: '1.1.0' },
+          /* 版本号从 package.json 读，别写死——写死过一次，改了包版本这里还报旧号 */
+          serverInfo: { name: 'qqbot-plugins', version: PKG_VERSION },
         });
       case 'notifications/initialized':
       case 'notifications/cancelled':
@@ -254,7 +273,7 @@ async function main() {
               config: sanitizeConfig(loadConfig()),
               permissions: tool._perm || [],
               host: sandboxHost,
-              timeoutMs: 25000,
+              timeoutMs: tool._timeout > 25000 ? tool._timeout : 25000,
             });
             return reply({ content: [{ type: 'text', text: r.text }], isError: false });
           }
