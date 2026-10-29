@@ -1311,7 +1311,7 @@ async function componentsWithState() {
 }
 
 /* ---------- 静态文件 ---------- */
-const STATIC = { '/': 'public/index.html', '/login': 'public/login.html' };
+const STATIC = { '/': 'public/index.html', '/index.html': 'public/index.html', '/login': 'public/login.html' };
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml', '.ico': 'image/x-icon' };
 
 /* ---------- 服务器 ---------- */

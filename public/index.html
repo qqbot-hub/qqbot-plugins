@@ -167,6 +167,7 @@
   .stat-total { display: flex; align-items: baseline; gap: 5px; font-size: 11.5px; color: var(--dim-2); }
   .stat-total b { font-size: 17px; color: var(--text); font-variant-numeric: tabular-nums; letter-spacing: -.3px; }
   .stat-total .sp { margin-left: auto; font-variant-numeric: tabular-nums; }
+  .stat-note { margin-top: 7px; font-size: 10.5px; line-height: 1.6; color: var(--dim); }
 
   /* 交流群 */
   .join {
@@ -1909,10 +1910,16 @@ async function openProtocolCfg() {
   });
 }
 
+/* 页面是不是跑在公网演示机上（相对于访客自己电脑）。localhost / 局域网 IP 都算「自己机器」 */
+function isPublicHost() {
+  const h = location.hostname;
+  return !(h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === '[::1]'
+    || /^192\.168\./.test(h) || /^10\./.test(h) || /^172\.(1[6-9]|2\d|3[01])\./.test(h));
+}
+
 async function loadHealth() {
   const box = $('#statusCard');
-  try {
-    const r = await (await fetch('/api/status')).json();
+  try {    const r = await (await fetch('/api/status')).json();
     const o = r.onebot || {};
     const obOk = o.online === true;
     const appName = o.app ? esc(o.app) : 'OneBot v11';
@@ -1923,7 +1930,13 @@ async function loadHealth() {
       onebotSub(o) +
       statRow(!!(r.bridge && r.bridge.ok), '桥接 3100') +
       '<div class="hr"></div>' +
-      `<div class="stat-total"><b>${r.installed || 0}</b> 个已装<span class="sp">${r.tools || 0} 工具</span></div>`;
+      `<div class="stat-total"><b>${r.installed || 0}</b> 个已装<span class="sp">${r.tools || 0} 工具</span></div>` +
+      /* 这里探测的是「跑这个页面的那台机器」的状态。公网演示机上没有 DSH、
+       * 没有协议端、也没有桥接，三项全灭是它本来的样子，不是坏了——
+       * 但访客不知道这一点，会以为市场自己出了问题，所以明说。 */
+      (isPublicHost() && !(r.dsh && r.dsh.ok) && !obOk && !(r.bridge && r.bridge.ok)
+        ? '<div class="stat-note">这里探测的是部署这台页面的机器——公网演示机上没跑机器人，所以全灭。装到自己电脑上启动后，这里会逐项亮起来。</div>'
+        : '');
   } catch {
     box.innerHTML = '<div class="stat-row"><span class="dot bad"></span><span class="nm">市场服务异常</span></div>';
   }
