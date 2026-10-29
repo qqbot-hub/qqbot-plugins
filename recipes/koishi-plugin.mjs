@@ -3,7 +3,7 @@
  * 参数：{ package: 'koishi-plugin-dataview' }
  *
  * 为什么单独一份脚本：
- *   市场里 46 个插件是本市场自己的插件（跑在 DSH 宿主里）。
+ *   市场里 50 个插件是本市场自己的插件（跑在 DSH 宿主里）。
  *   Koishi 生态那一万多个插件是另一套东西 —— 它们必须装进 Koishi 自己的
  *   node_modules，并在 koishi.yml 里登记才会被加载。这两件事不能混为一谈，
  *   混了就会出现"装了但没生效"的假成功。
@@ -79,15 +79,8 @@ export default {
         }
         ctx.state.pkg = pkg;
         ctx.state.key = shortName(pkg);
-        const r = await ctx.httpGet(`${REGISTRY}/${encodeURIComponent(pkg).replace('%2F', '%2F')}`, 15000);
-        if (!r.ok) {
-          return { status: 'fail', detail: `registry 上没有 ${pkg}（HTTP ${r.status}）`, hint: '包名拼错了，或者它不在 npm 上' };
-        }
-        let meta = null;
-        try { meta = JSON.parse(r.text); } catch { /* 解析失败下面会兜住 */ }
-        const latest = meta && meta['dist-tags'] && meta['dist-tags'].latest;
-        if (!latest) return { status: 'fail', detail: `${pkg} 查不到最新版本号` };
-        ctx.state.version = latest;
+        /* removing 必须在查 registry 之前定下来：卸载不需要 registry 点头 */
+        ctx.state.removing = String(ctx.params.action || '') === 'remove';
         /* 已装版本读 node_modules 里的 package.json —— 那是 npm 真正落盘的东西 */
         let installed = '';
         try {
@@ -95,12 +88,34 @@ export default {
           if (fs.existsSync(pj)) installed = JSON.parse(fs.readFileSync(pj, 'utf8')).version || '';
         } catch { /* 读不到就当没装 */ }
         ctx.state.installedVersion = installed;
+        const r = await ctx.httpGet(`${REGISTRY}/${encodeURIComponent(pkg).replace('%2F', '%2F')}`, 15000);
+        if (!r.ok) {
+          /* 卸载时不拦：包名本来就是本机登记表里的，registry 抽风不该挡着人卸载 */
+          if (ctx.state.removing) {
+            ctx.state.version = installed || '';
+            ctx.state.upToDate = true;
+            return {
+              status: 'ok',
+              detail: `registry 这次没答上来（HTTP ${r.status}）；卸载只用本地包名 ${pkg}${installed ? `（本地 v${installed}）` : ''}，继续`,
+            };
+          }
+          return { status: 'fail', detail: `registry 上没有 ${pkg}（HTTP ${r.status}）`, hint: '包名拼错了，或者它不在 npm 上' };
+        }
+        let meta = null;
+        try { meta = JSON.parse(r.text); } catch { /* 解析失败下面会兜住 */ }
+        const latest = meta && meta['dist-tags'] && meta['dist-tags'].latest;
+        if (!latest) {
+          if (ctx.state.removing) { ctx.state.version = installed || ''; ctx.state.upToDate = true; return { status: 'ok', detail: `查不到最新版本号，但卸载不需要版本号（本地 ${installed || '未装'}）` }; }
+          return { status: 'fail', detail: `${pkg} 查不到最新版本号` };
+        }
+        ctx.state.version = latest;
         ctx.state.upToDate = !!installed && !isNewer(latest, installed);
-        ctx.state.removing = String(ctx.params.action || '') === 'remove';
         const desc = (meta.description || '').slice(0, 60);
-        const tail = installed
-          ? (ctx.state.upToDate ? `（已装 v${installed}，就是最新）` : `（本地 v${installed}，可升级）`)
-          : '（本机还没装）';
+        const tail = ctx.state.removing
+          ? (installed ? `（本机 v${installed}，即将卸载）` : '（本机没装，卸载只会清理残留登记）')
+          : installed
+            ? (ctx.state.upToDate ? `（已装 v${installed}，就是最新）` : `（本地 v${installed}，可升级）`)
+            : '（本机还没装）';
         return { status: 'ok', detail: `${pkg}@${latest} ${desc ? '· ' + desc : ''}${tail}` };
       },
     },
@@ -109,6 +124,26 @@ export default {
       title: 'npm 安装到 Koishi',
       hint: '装不动通常是网络问题，脚本会自动换源重试一次',
       async run(ctx) {
+        /* 卸载分支必须排在 upToDate 跳过之前：
+         * 之前写成「已装最新版本就 skip」放前面，结果卸载一个最新版的插件时
+         * 这一步直接跳过，包纹丝不动地留在 node_modules 里 —— 假成功。 */
+        if (ctx.state.removing) {
+          const npm = ctx.isWin ? 'npm.cmd' : 'npm';
+          const dir = path.join(ctx.state.dir, 'node_modules', ctx.state.pkg);
+          if (!fs.existsSync(dir)) return { status: 'skip', detail: `${ctx.state.pkg} 本来就不在 node_modules 里` };
+          ctx.log(`npm uninstall ${ctx.state.pkg}`);
+          const r = await ctx.exec(npm, ['uninstall', '--no-audit', '--no-fund', '--save', ctx.state.pkg],
+            { cwd: ctx.state.dir, timeoutMs: 300000 });
+          if (r.code !== 0) return { status: 'fail', detail: 'npm uninstall 失败：' + String(r.stderr || r.stdout).slice(-300) };
+          if (fs.existsSync(dir)) {
+            return {
+              status: 'fail',
+              detail: `npm uninstall 返回成功，但 ${ctx.state.pkg} 还在 node_modules 里`,
+              hint: '手动执行：cd ' + ctx.state.dir + ' && npm uninstall ' + ctx.state.pkg,
+            };
+          }
+          return { status: 'ok', detail: `已从 node_modules 卸掉 ${ctx.state.pkg}` };
+        }
         if (ctx.state.upToDate) {
           return { status: 'skip', detail: `${ctx.state.pkg} 已是 v${ctx.state.installedVersion}（最新版），不重复安装` };
         }
@@ -143,6 +178,14 @@ export default {
       hint: '只追加一行，不动你已有的配置',
       async run(ctx) {
         const ymlFile = path.join(ctx.state.dir, 'koishi.yml');
+        if (ctx.state.removing) {
+          if (!fs.existsSync(ymlFile)) return { status: 'skip', detail: `${ctx.state.dir} 下没有 koishi.yml，无需清理` };
+          const before = fs.readFileSync(ymlFile, 'utf8');
+          const { yml, changed } = removePlugin(before, ctx.state.key);
+          if (!changed) return { status: 'skip', detail: `${ctx.state.key} 本来就不在 koishi.yml 的启用清单里` };
+          fs.writeFileSync(ymlFile, yml);
+          return { status: 'ok', detail: `已从 koishi.yml 移除 ${ctx.state.key}:qqhub` };
+        }
         const before = fs.existsSync(ymlFile) ? fs.readFileSync(ymlFile, 'utf8') : 'plugins:\n';
         const { yml, changed } = upsertPlugin(before, ctx.state.key, ctx.params.config);
         if (!changed) return { status: 'skip', detail: `${ctx.state.key} 已在配置里，不重复添加` };
@@ -158,8 +201,9 @@ export default {
       title: '重启 Koishi 让其生效',
       hint: '重启后控制台应该还能打开；起来了又掉下去说明插件把它弄坏了',
       async run(ctx) {
-        /* 版本没变就不重启：重启一次 Koishi 会让机器人掉线重连 */
-        if (ctx.state.upToDate) {
+        /* 版本没变就不重启：重启一次 Koishi 会让机器人掉线重连。
+         * 但卸载必须重启 —— 从 yml 里删掉只有重启后才真正卸载，否则一直在跑。 */
+        if (ctx.state.upToDate && !ctx.state.removing) {
           return { status: 'skip', detail: `${ctx.state.pkg} 已是最新版，不重启 Koishi` };
         }
         /* 先停：按端口找进程，避免误杀别的 node */
@@ -207,26 +251,36 @@ export default {
         const again = await ctx.httpGet(`http://127.0.0.1:${CONSOLE_PORT}/`, 2500);
         const tail = (() => { try { return fs.readFileSync(logFile, 'utf8'); } catch { return ''; } })();
         const recent = tail.slice(-4000);
-        const loaded = new RegExp('apply plugin ' + ctx.state.key + ':').test(recent);
+        const loaded = new RegExp('apply plugin ' + ctx.state.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ':').test(recent);
         if (!again.ok) {
           return {
             status: 'fail',
             detail: `控制台曾起来但 8 秒后掉线（自检探到 200，之后不可用）`,
-            hint: '说明进程崩了，多半是新插件不兼容。日志尾部：' + (recent.slice(-400) || '（空）'),
+            hint: ctx.state.removing
+              ? '进程崩了，不一定是卸载引起的。日志尾部：' + (recent.slice(-400) || '（空）')
+              : '说明进程崩了，多半是新插件不兼容。日志尾部：' + (recent.slice(-400) || '（空）'),
           };
         }
         /* 适配器崩溃是另一回事：Koishi 本身没问题，但 QQ 连不上，必须说清楚 */
         const adapterBroken = /Cannot read properties of undefined \(reading 'extend'\)/.test(recent);
         const detail = [
           `Koishi 已重启并稳定运行（控制台 ${CONSOLE_PORT}，pid ${started.pid}）`,
-          loaded ? `日志确认已加载 ${ctx.state.key}` : `日志里没看到 ${ctx.state.key} 的加载记录，插件可能未生效`,
+          ctx.state.removing
+            ? (loaded ? `注意：日志里还能看到 ${ctx.state.key} 的加载记录，它可能被别的配置引入了` : `日志里已无 ${ctx.state.key} 的加载记录`)
+            : (loaded ? `日志确认已加载 ${ctx.state.key}` : `日志里没看到 ${ctx.state.key} 的加载记录，插件可能未生效`),
         ].join('；');
+        /* 适配器不兼容是本机既有的老问题，跟这次操作无关。
+         * 安装时降级成 manual 让用户确认没问题；但卸载时被它拦住不合理——
+         * manual 会 blocked 掉后面的步骤，插件都卸掉了登记表却清不掉。
+         * 这里照旧把情况写在 detail 里让你看见，但不挡流程。 */
+        const blockUser = adapterBroken && !ctx.state.removing;
+        const note = adapterBroken
+          ? '；另外这台机器的 OneBot 适配器启动报错，QQ 这边没连上（已知：adapter-onebot 与 Koishi 4.18 的 @satorijs/core 版本冲突，该适配器官方已弃用，与本次操作无关）'
+          : '';
         return {
-          status: adapterBroken ? 'manual' : 'ok',
-          detail: adapterBroken
-            ? detail + '；但 OneBot 适配器启动报错，QQ 这边没连上（已知：adapter-onebot 与 Koishi 4.18 的 @satorijs/core 版本冲突，该适配器官方已弃用）'
-            : detail,
-          hint: adapterBroken ? 'Koishi 控制台能进，但机器人不会收消息；要连 QQ 需换用其它 Koishi 适配器或改走 OneBot 直连' : '',
+          status: blockUser ? 'manual' : 'ok',
+          detail: detail + note,
+          hint: blockUser ? 'Koishi 控制台能进，但机器人不会收消息；要连 QQ 需换用其它 Koishi 适配器或改走 OneBot 直连' : '',
         };
       },
     },
@@ -236,6 +290,13 @@ export default {
       async run(ctx) {
         const file = 'koishiPlugins';
         const all = readJson(file, {}) || {};
+        /* 之前卸载时也照样往登记表里写，还刷新了 installedAt ——
+         * 等于「点了卸载，记录反而更新了一次」，页面顶部一直显示已装。 */
+        if (ctx.state.removing) {
+          delete all[ctx.state.pkg];
+          writeJson(file, all);
+          return { status: 'ok', detail: `已从登记表移除（剩余 ${Object.keys(all).length} 个 Koishi 插件）` };
+        }
         all[ctx.state.pkg] = {
           package: ctx.state.pkg,
           version: ctx.state.version,

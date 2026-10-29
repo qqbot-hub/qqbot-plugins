@@ -11,6 +11,8 @@
 'use strict';
 
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { runInstall, loadRecipe, getJob, recentJobs, recipeIds } from './installer.mjs';
 import { dataPath } from './lib/paths.mjs';
 
@@ -19,6 +21,13 @@ const ok = (n, extra = '') => { pass++; console.log('✅', n, extra); };
 const bad = (n, why) => { fail++; console.log('❌', n, '→', why); };
 
 async function main() {
+  /* 状态隔离：这套测试会真的跑安装流程（包括把一个插件装上、把失败记账）。
+   * 不隔离的话，跑一次测试就会把 clock 装到用户机器上，还会在「运行监控」里
+   * 留下一堆 red 的失败任务 —— 那些是测试喂的非法输入，不是真故障。 */
+  const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'qqbot-install-test-'));
+  process.env.QQBOT_STATE_FILE = path.join(TMP, 'plugins.json');
+  process.env.QQBOT_JOBS_FILE = path.join(TMP, 'jobs.json');
+
   /* 1. recipe 能被枚举与加载 */
   const ids = recipeIds();
   const want = ['node', 'snowluma', 'napcat', 'qqbridge', 'dsh', 'market', 'voicelab', 'plugin'];
@@ -127,6 +136,28 @@ async function main() {
     ? ok('httpJson 返回包装对象（数据在 .data 里）')
     : bad('httpJson 返回包装对象（数据在 .data 里）', JSON.stringify(got).slice(0, 160));
 
+  /* 探测一个没人监听的端口 / 不存在的域名，必须返回 { ok:false }，绝不抛异常。
+   * 「刚重启的服务还没起来」和「网络抖一下」都会让 fetch reject，
+   * 以前会一路冒到 installer，把整条流水线打成 fail、后续步骤全 blocked
+   * （实测过：卸载 Koishi 插件时这一步炸了，登记清理没跑，记录残留）。 */
+  const { httpGet } = await import('./installer.mjs');
+  let deadRes = null, threw = '';
+  const deadSock = http.createServer(() => {});
+  await new Promise((r) => deadSock.listen(0, '127.0.0.1', r));
+  const deadPort = deadSock.address().port;
+  deadSock.close();
+  try { deadRes = await httpGet(`http://127.0.0.1:${deadPort}/`, 1500); } catch (e) { threw = String(e.message || e); }
+  (!threw && deadRes && deadRes.ok === false && deadRes.status === 0)
+    ? ok('httpGet 连不上时不抛错，返回 ok:false')
+    : bad('httpGet 连不上时不抛错，返回 ok:false', threw || JSON.stringify(deadRes));
+
+  let dnsRes = null, dnsErr = '';
+  try { dnsRes = await httpGet('http://no-such-host.invalid/x', 1500); } catch (e) { dnsErr = String(e.message || e); }
+  (!dnsErr && dnsRes && dnsRes.ok === false)
+    ? ok('httpGet 域名解析失败时也不抛错')
+    : bad('httpGet 域名解析失败时也不抛错', dnsErr || JSON.stringify(dnsRes));
+
+  try { fs.rmSync(TMP, { recursive: true, force: true }); } catch { /* 临时目录删不掉不影响结论 */ }
   console.log('\n──────────────────────────────');
   console.log(`通过 ${pass} · 失败 ${fail}`);
   process.exit(fail ? 1 : 0);

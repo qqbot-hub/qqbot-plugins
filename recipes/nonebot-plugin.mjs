@@ -310,8 +310,14 @@ export default {
         const text = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
         const before = readNonebotPlugins(text);
         const mod = ctx.state.module;
+        /* 卸载时「清单里没有它」正是我们想要的结果，不能算失败：
+         * 装坏自动撤下过的插件必然走到这里，判成 fail 会把重启和登记一起 blocked，
+         * 结果包卸了、记录还赖着不走（hammer 就是这么卡住的）。 */
         if (ctx.state.removing && !before.includes(mod)) {
-          return { status: 'fail', detail: `${mod} 本来就不在启动清单里（现在只有：${before.join('、') || '空'}）`, hint: '它可能早已被移除；如果还想删包，用 pip uninstall ' + ctx.state.pkg };
+          return {
+            status: 'skip',
+            detail: `${mod} 已不在启动清单里${before.length ? `（还剩：${before.join('、')}）` : '（清单已是空的）'}；pip 已卸掉包，这里无需再动`,
+          };
         }
         const next = ctx.state.removing
           ? before.filter((x) => x !== mod)
@@ -352,8 +358,10 @@ export default {
       hint: '日志里要出现 Succeeded to load plugin 才算数；只看到端口起来不算',
       async run(ctx) {
         /* 版本没变就别重启 —— 重启一次机器人意味着群里的对话全断一次，
-         * 点「更新」结果什么也没更新，用户没有理由承担这个代价 */
-        if (ctx.state.upToDate) {
+         * 点「更新」结果什么也没更新，用户没有理由承担这个代价。
+         * 但卸载必须例外：正在跑的 NoneBot 早就把插件 import 进内存了，
+         * 不重启它照样在跑 —— 必须重启才算卸完。 */
+        if (ctx.state.upToDate && !ctx.state.removing) {
           return {
             status: 'skip',
             detail: `${ctx.state.pkg} 已是 v${ctx.state.installedVersion}（最新版），不重启 NoneBot`,

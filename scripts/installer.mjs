@@ -78,9 +78,21 @@ export function portOpen(host, port, timeoutMs = 1200) {
   });
 }
 
+/* 与 exec / portOpen 同一套约定：永不抛错，让调用方自己判断。
+ * 之前这里直接 await fetch 且不包 try——目标端口还没起来（ECONNREFUSED）、
+ * 网络抖动、DNS 抽风时 fetch 会 reject，异常一路冒到 installer，
+ * 把整个任务打成 fail、后续步骤全部 blocked。典型受害场景：
+ * 「卸载 → 改配置 → 重启 Koishi → 探测控制台」，刚重启那一刻必然连不上，
+ * 本该是「还没起来，继续等」，却被当成致命错误，卸载半途而废。 */
 export async function httpGet(url, timeoutMs = 4000) {
-  const r = await fetch(url, { signal: AbortSignal.timeout(timeoutMs), headers: { 'User-Agent': 'qqbot-plugins-installer' } });
-  const text = await r.text();
+  let r;
+  try {
+    r = await fetch(url, { signal: AbortSignal.timeout(timeoutMs), headers: { 'User-Agent': 'qqbot-plugins-installer' } });
+  } catch (e) {
+    return { status: 0, ok: false, text: '', json: null, error: String(e && e.message ? e.message : e) };
+  }
+  let text = '';
+  try { text = await r.text(); } catch (e) { /* 读body失败不算致命 */ }
   let json = null;
   try { json = JSON.parse(text); } catch { /* 不是 JSON 就算了 */ }
   return { status: r.status, ok: r.ok, text, json };

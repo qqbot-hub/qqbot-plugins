@@ -15,10 +15,31 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createOneBot, classifyError } from '../plugins/_bridge.mjs';
 import { dataPath } from './lib/paths.mjs';
+import { decrypt, isEncrypted } from './lib/secrets.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let cfg = {};
 try { cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'config.json'), 'utf8')); } catch {}
+
+/* AccessToken 在 1.1 之后是加密存进 cfg.secrets 的（市场进程启动时解密到内存）。
+ * 这里如果只读明文，就会对着一个其实能用的协议端报 401——所以体检必须自己解一次。 */
+function storedToken() {
+  const slots = [
+    (cfg.secrets || {})['snowluma-dsh.onebotToken'],
+    (cfg.onebot || {}).accessToken,
+    (cfg.snowluma || {}).accessToken,
+  ];
+  for (const v of slots) {
+    if (!v) continue;
+    if (isEncrypted(v)) {
+      const plain = decrypt(v);
+      if (plain) return plain;
+      continue;                       /* 密文解不出来就跳过，别把密文当 token 发出去 */
+    }
+    return String(v);
+  }
+  return '';
+}
 
 const tcp = (host, port, timeoutMs = 1500) => new Promise((resolve) => {
   const s = net.connect({ host, port });
@@ -35,7 +56,7 @@ const ob = cfg.onebot || {};
 const client = createOneBot({
   impl: ob.impl || 'auto',
   httpUrl: ob.httpUrl || slHttp,
-  accessToken: String(ob.accessToken != null && ob.accessToken !== '' ? ob.accessToken : (cfg.snowluma?.accessToken || '')),
+  accessToken: storedToken(),
   authMode: ob.authMode || 'header',
   pathPrefix: ob.pathPrefix || '',
   timeoutMs: 2500,
