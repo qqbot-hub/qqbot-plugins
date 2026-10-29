@@ -797,6 +797,25 @@ async function monitor() {
     };
   }));
   const hb = await probeOnebot();
+  /* 协议端那一栏不能只认端口。
+   * 端口通但心跳不通时（典型现场：3000 端口挂着别的程序，返回 HTML 404），
+   * services 会把它标成"在跑"亮绿灯，同一屏里协议端卡却写着"离线"、主链路卡片
+   * 写着"未启动"——一个画面三种说法。这里统一以心跳探测为准，跟另外两处同一份结论。 */
+  const protoSvcId = hb.protocol === 'satori' ? 'satori' : 'snowluma';
+  for (const s of services) {
+    if (s.id !== protoSvcId) continue;
+    if (hb.online) {
+      s.running = true;
+      s.verified = true;
+      s.note = `${hb.app || s.label} 心跳正常${hb.latencyMs != null ? ` · ${hb.latencyMs}ms` : ''}`;
+    } else {
+      s.running = false;
+      s.verified = false;
+      /* 原因不在这里重复一遍：同一区块上方的协议端卡已经把完整原因写出来了，
+       * 再拼一段就变成「端口通但心跳失败：get_login_info 失败：HTTP 404：…」的三层套娃 */
+      s.note = '端口通但心跳失败，原因见「协议端」那一行';
+    }
+  }
   let jobs = [];
   try {
     const mod = await installer();
@@ -1260,7 +1279,7 @@ const ECO_UPDATING = new Set();
 
 /* 组件的实时状态：端口开没开，页面用来显示「已运行 / 未安装」 */
 async function componentsWithState() {
-  return Promise.all(components().map(async (c) => {
+  const list = await Promise.all(components().map(async (c) => {
     /* 端口是动态的组件（DSH）：用它自己探测出来、记在配置里的端口来判断，
        不然会一直拿写死的默认端口去试，永远显示「未运行」 */
     if (c.dynamicPort) {
@@ -1276,6 +1295,19 @@ async function componentsWithState() {
     const running = ports.length ? Object.values(portsOpen).some(Boolean) : null;
     return Object.assign({}, c, { portsOpen, running });
   }));
+  /* 协议端组件同理，也不能只认端口：端口被别的程序占着时这里会亮「● 运行中」（绿），
+   * 而监控区、主链路卡片按心跳判「离线 / 未启动」——同一页三种说法。统一走心跳；
+   * 探测拿不到结果就保留端口判定，降级而不是报错。 */
+  try {
+    const hb = await probeOnebot();
+    if (hb && typeof hb.online === 'boolean') {
+      for (const c of list) {
+        if (c.role !== 'protocol' || c.alternativeTo) continue;
+        c.running = hb.online;
+      }
+    }
+  } catch { /* 探测失败：保留端口判定的结果 */ }
+  return list;
 }
 
 /* ---------- 静态文件 ---------- */

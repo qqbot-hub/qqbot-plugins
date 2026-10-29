@@ -39,6 +39,11 @@ function mockServer(opts = {}) {
 
         if (opts.hang) return;                       // 永不响应：用来测超时
         if (opts.status === 401) { res.writeHead(401); return res.end('unauthorized'); }
+        /* 端口被别的程序占着时最常见的样子：回一个 HTML 404 页面，而不是 OneBot 响应 */
+        if (opts.html404) {
+          res.writeHead(404, { 'Content-Type': 'text/html' });
+          return res.end('<!doctype html><meta charset="utf-8"><h1>404</h1><p>Not Found</p>');
+        }
         /* 登录信息 / 版本：探测用，固定返回标准形态，和报文格式用例解耦 */
         if (action === 'get_login_info') return send(res, { user_id: opts.selfId || 10001, nickname: opts.nickname || '测试号' });
         if (action === 'get_version_info') return send(res, { app_name: opts.appName || 'NapCatQQ', app_version: '1.0.0', protocol_version: 'v11' });
@@ -134,6 +139,20 @@ async function main() {
   {
     try { await createBridge({ httpUrl: 'http://127.0.0.1:9' }).sendText({ groupId: 1 }, 'x'); bad('连接失败提示', '没有抛错'); }
     catch (e) { /协议端|连不上/.test(e.message) ? ok('连接失败提示', '→ ' + e.message.slice(0, 40)) : bad('连接失败提示', e.message); }
+  }
+
+  /* ⑦-2 端口被别的程序占着：返回 HTML 404 时，错误文案不能再糊一段 HTML 给用户。
+   * 以前这里是 `返回 404：<!doctype html>…`，页面上一片标签，看不出真正原因。 */
+  {
+    const m = await mockServer({ html404: true });
+    try { await createBridge({ httpUrl: m.url }).sendText({ groupId: 1 }, 'x'); bad('HTML 404 提示', '没有抛错'); }
+    catch (e) {
+      const hasTag = /<[a-z!\/]/i.test(e.message) || /doctype/i.test(e.message);
+      (!hasTag && /不是 OneBot 响应/.test(e.message))
+        ? ok('HTML 404 提示', '→ ' + e.message)
+        : bad('HTML 404 提示', '错误文案里仍有 HTML：' + e.message);
+    }
+    stop(m);
   }
 
   /* ⑧ 群公告动作名兜底 */

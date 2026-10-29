@@ -148,7 +148,18 @@ export function createOneBot(cfg = {}) {
     }
     let data;
     try { data = JSON.parse(text); } catch {
-      if (!res.ok) throw fail(action, `返回 ${res.status}：` + text.slice(0, 120), { status: res.status });
+      if (!res.ok) {
+        const head = text.slice(0, 200).replace(/\s+/g, ' ').trim();
+        /* 返回的是 HTML：这个端口上挂的不是协议端，多半被别的程序占着
+         * （平台、代理、管理后台都爱把自己挂在 3000 上）。
+         * 以前这里把 <!doctype html> 那一坨原样拼进错误里，页面上就糊成一团标签，
+         * 用户看不懂，也看不出"原来是端口被占"这个真正的原因。 */
+        if (/^\s*<!doctype|<html[\s>]/i.test(head)) {
+          throw fail(action, `HTTP ${res.status}：这个端口上返回的不是 OneBot 响应，而是一段 HTML 页面——多半被别的程序占着`,
+            { status: res.status, kind: 'occupied' });
+        }
+        throw fail(action, `返回 ${res.status}：` + head.slice(0, 80), { status: res.status });
+      }
       return text;
     }
     return unwrap(data, action);
