@@ -1182,8 +1182,8 @@
           它会记得你不吃辣，会用语音回你，会按描述画图，会在群里禁言、记账、发提醒，还能陪人玩一整天成语接龙。
         </p>
         <div class="stats">
-          <div class="stat-box"><b data-count="50">0</b><span>插件</span></div>
-          <div class="stat-box"><b data-count="84">0</b><span>可调用工具</span></div>
+          <div class="stat-box"><b data-count="50" id="statPlugins">0</b><span>插件</span></div>
+          <div class="stat-box"><b data-count="84" id="statTools">0</b><span>可调用工具</span></div>
           <div class="stat-box"><b data-count="64" id="statPass">0</b><span>项已实测通过</span></div>
           <div class="stat-box"><b data-count="0">0</b><span>第三方依赖</span></div>
         </div>
@@ -1437,7 +1437,7 @@
             <div class="prov-tag">实测</div>
             <b><span id="provPass">64</span> 项当场跑通，0 项报错</b>
             <p class="prov-env" id="provEnv" hidden></p>
-            <p>仓库自带 <code>node scripts/verify-plugins.mjs</code>，用真实参数把 <span id="provTotal">84</span> 个工具全跑一遍：<span id="provPass2">64</span> 项直接通过；<span id="provBot">16</span> 项因为本机没开 QQ 显示「需在线」（群管理 8、群信息 3、空间动态 4、表情包发送 1）、<span id="provCfg">4</span> 项因为没填接口 Key 显示「需配置」（语音 1 项、识图 2 项、认视频 1 项）——都是环境问题，不是插件坏了。<b>这几个数字是页面打开时刚跑出来的真实结果</b>（30 分钟内复用）：QQ 开着就是 64，没开就少一项，看到 63 是正常的，不是数错了。</p>
+            <p>仓库自带 <code>node scripts/verify-plugins.mjs</code>，用真实参数把 <span id="provTotal">84</span> 个工具全跑一遍：<span id="provPass2">64</span> 项直接通过；<span id="provBot">16</span> 项因为本机没开 QQ 显示「需在线」；<span id="provCfg">4</span> 项因为没填接口 Key 显示「需配置」。这些数字由页面打开时的真实结果更新（30 分钟内复用），具体类别和数量以当前检测结果为准。</p>
           </div>
           <div class="prov">
             <div class="prov-tag">隔离</div>
@@ -2009,6 +2009,12 @@ async function load() {
   loadMethods();
   const r = await (await fetch('/api/list')).json();
   PLUGINS = r.plugins || [];
+  const ownPlugins = PLUGINS.filter((p) => !p.external);
+  const ownTools = ownPlugins.reduce((n, p) => n + (Array.isArray(p.tools) ? p.tools.length : 0), 0);
+  const statPlugins = $('#statPlugins');
+  const statTools = $('#statTools');
+  if (statPlugins) { statPlugins.removeAttribute('data-count'); statPlugins.textContent = String(ownPlugins.length); }
+  if (statTools) { statTools.removeAttribute('data-count'); statTools.textContent = String(ownTools); }
   if (r.primary) PRIMARY = Object.assign({}, PRIMARY, r.primary);
   const mcpPlugins = PLUGINS.filter((p) => !p.external);
   const counts = {};

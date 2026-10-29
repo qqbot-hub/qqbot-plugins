@@ -26,8 +26,8 @@ QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
 
 [![Node](https://img.shields.io/badge/node-%E2%89%A520-blue)](https://nodejs.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
-[![Plugins](https://img.shields.io/badge/插件-46%20个%20%2F%2075%20工具-orange)](#插件一览)
-[![Verified](https://img.shields.io/badge/实测-59%20项通过%20%2F%200%20失败-brightgreen)](#插件来源与实测)
+[![Plugins](https://img.shields.io/badge/插件-50%20个%20%2F%2084%20工具-orange)](#插件一览)
+[![Verified](https://img.shields.io/badge/实测-动态结果-brightgreen)](#插件来源与实测)
 
 ---
 
