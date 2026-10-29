@@ -531,7 +531,9 @@ async function collectHandlers() {
       const list = (mod.default && mod.default.handlers) || [];
       for (const h of [].concat(list)) {
         if (!h || typeof h.run !== 'function') continue;
-        out.push({ pluginId: p.id, handler: Object.assign({ __cfg: pluginValues(p.id) }, h) });
+        /* 权限在 runHandler 里现查（build-permissions 扫出来的那份），
+         * 不在这里缓存，免得换了权限文件还得重启 */
+        out.push({ pluginId: p.id, file, handler: Object.assign({ __cfg: pluginValues(p.id) }, h) });
       }
     } catch (e) {
       console.log(`[msg] 插件 ${p.id} 的 handler 加载失败：${e.message}`);
@@ -568,6 +570,29 @@ async function messageRuntime() {
     listHandlers: () => handlerCache,
     send: sendViaProtocol,
     log: (m) => console.log('[msg] ' + m),
+    /* 插件的 handler 也进沙箱：它跟工具调用一样是第三方代码，
+     * 一条群消息就能触发，没理由比 AI 调工具多一份信任。 */
+    runHandler: async (item, h, msg, api) => {
+      const { runSandboxed, permsFor, sanitizeConfig } = await import(pathToFileURL(path.join(ROOT, 'scripts', 'lib', 'sandbox.mjs')).href);
+      if (String(process.env.QQBOT_SANDBOX || '1') === '0') { await h.run(msg, api); return; }
+      await runSandboxed({
+        hubRoot: ROOT,
+        pluginId: item.pluginId,
+        pluginFile: item.file,
+        kind: 'handler',
+        handlerId: h.id || '',
+        msg,
+        cfg: h.__cfg || {},
+        config: sanitizeConfig(cfg),
+        permissions: permsFor(ROOT, item.pluginId),
+        host: {
+          reply: (text) => sendViaProtocol({ scope: msg.scope, groupId: msg.groupId, userId: msg.userId }, text),
+          sendText: (to, text) => sendViaProtocol(to, text),
+          log: (m) => console.log(`[plugin:${item.pluginId}] ${m}`),
+        },
+        timeoutMs: 20000,
+      });
+    },
   });
   return msgRouter;
 }

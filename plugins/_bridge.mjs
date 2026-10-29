@@ -253,13 +253,15 @@ export function createBridge(cfg = {}) {
   return makeBridge(createOneBot(cfg));
 }
 
-/** 用任意 raw 函数包一层高层接口（测试环境 / 只有 ctx.onebot 时用） */
-export function wrapOnebot(fn) {
-  return makeBridge({
+/** 用任意 raw 函数包一层高层接口（测试环境 / 只有 ctx.onebot 时用）
+ *  extra 可以覆盖 probe / heartbeat —— 沙箱里这两个也要走 IPC 回主进程，
+ *  否则插件测活会永远拿到「未提供探测能力」，把正常链路误报成离线。 */
+export function wrapOnebot(fn, extra = {}) {
+  return makeBridge(Object.assign({
     onebot: fn,
     probe: async () => ({ ok: false, error: '未提供探测能力' }),
     heartbeat: async () => ({ online: false, error: '未提供探测能力', checkedAt: new Date().toISOString() }),
-  });
+  }, extra));
 }
 
 function makeBridge(client) {

@@ -320,7 +320,9 @@ node scripts/sync-ecosystem.mjs --status   # 只看缓存状态，不联网
 4. **版本** —— 同一 id 换版本号再提交，形成版本历史；`live` 是最后一个通过审核的版本
 
 边界要说清楚：这是**单机登记流程**，没有多用户身份认证，审核拦的是明显不合格的提交，
-**不是防恶意投毒**。签名、沙箱、多租户都没有，别当成公共市场的基础设施。
+**不是防恶意投毒**。没有代码签名、没有多租户，别当成公共市场的基础设施。
+运行时沙箱是有的：插件跑在独立子进程里，写文件/起进程由 Node 权限模型直接拒绝，
+见 [docs/SANDBOX.md](docs/SANDBOX.md)。
 
 完整流程与已知不足见 [docs/REGISTRY.md](docs/REGISTRY.md)。自测：`node scripts/test-registry.mjs`（46 项）。
 

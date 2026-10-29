@@ -20,7 +20,14 @@ export const STORE_DIR = process.env.QQBOT_STORE
   : path.join(HUB_ROOT, 'data', 'store');
 
 /* ---------- 存储 ---------- */
+/* 沙箱里没有写权限，也不能让插件直接碰磁盘：
+ * 子进程侧的 storage 由 sandbox-runner 换成「内存读写 + 结束时回传脏数据」，
+ * 由父进程校验 pluginId 后再落盘。插件代码一行都不用改。 */
+const SANDBOX = () => globalThis.__QQBOT_SANDBOX__ || null;
+
 export function storage(pluginId) {
+  const sb = SANDBOX();
+  if (sb && typeof sb.storage === 'function') return sb.storage(pluginId);
   const dir = path.join(STORE_DIR, pluginId);
   fs.mkdirSync(dir, { recursive: true });
   /* Windows 文件名不能含 \ / : * ? " < > |，会话键里的冒号等统一替换 */

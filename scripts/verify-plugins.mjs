@@ -22,9 +22,11 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { wrapOnebot } from '../plugins/_bridge.mjs';
 import { dataPath } from './lib/paths.mjs';
+import { runSandboxed, sanitizeConfig } from './lib/sandbox.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const JSON_OUT = process.argv.includes('--json');
+const USE_SANDBOX = String(process.env.QQBOT_VERIFY_MODE || 'sandbox') !== 'inline';
 
 /* 每个工具的示例参数（贴近真实群聊场景） */
 const G = 888;
@@ -156,8 +158,34 @@ async function main() {
       if (args == null) { rows.push({ plugin: meta.id, tool: t.name, status: 'fail', msg: '缺少示例参数' }); continue; }
       const started = Date.now();
       try {
-        const out = await t.run(JSON.parse(JSON.stringify(args)), ctx(meta.id));
-        const text = String(out == null ? '' : out);
+        /* 默认就在沙箱里跑：线上插件是跑在沙箱子进程里的，
+         * 只在进程内 import 调用等于验了个线上不存在的环境。
+         * 设 QQBOT_VERIFY_MODE=inline 可以退回老方式（排查沙箱本身的问题时用）。 */
+        let text;
+        if (USE_SANDBOX) {
+          const r = await runSandboxed({
+            hubRoot: ROOT,
+            pluginId: meta.id,
+            pluginFile: file,
+            kind: 'tool',
+            toolName: t.name,
+            args,
+            cfg: (config.plugins || {})[meta.id] || {},
+            config: sanitizeConfig(config),
+            permissions: (def.meta && def.meta.permissions) || [],
+            host: {
+              onebot: async (action) => { throw new Error('fetch failed: 测试环境未启用 OneBot（' + action + '）'); },
+              probe: async () => ({ ok: false, error: '测试环境不探测' }),
+              heartbeat: async () => ({ online: false, error: '测试环境不探测' }),
+              log: () => {},
+            },
+            timeoutMs: 40000,
+          });
+          text = r.text;
+        } else {
+          const out = await t.run(JSON.parse(JSON.stringify(args)), ctx(meta.id));
+          text = String(out == null ? '' : out);
+        }
         if (!text.trim()) { rows.push({ plugin: meta.id, tool: t.name, status: 'fail', msg: '返回空内容' }); continue; }
         /* 插件自己提示「还没配置」：算配置问题，不算失败 */
         if (/还没配置|需要 API Key|去「⚙ 配置」/.test(text)) { rows.push({ plugin: meta.id, tool: t.name, status: 'cfg', msg: text.replace(/s+/g, ' ').slice(0, 80) }); continue; }

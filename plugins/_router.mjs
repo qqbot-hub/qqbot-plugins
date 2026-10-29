@@ -148,7 +148,11 @@ export function checkPermission(need, msg) {
  *   listHandlers()  → [{ pluginId, handler }]  每次分发时实时取，插件启停立刻生效
  *   send(target, text) → Promise 发消息（由调用方注入协议客户端）
  */
-export function createRouter({ listHandlers, send, log = () => {} } = {}) {
+/**
+ * runHandler 可选：不传就在本进程里直接调 h.run（测试和轻量场景用）。
+ * 市场里会传一个「丢进沙箱子进程执行」的实现，让插件代码碰不到宿主进程。
+ */
+export function createRouter({ listHandlers, send, log = () => {}, runHandler = null } = {}) {
   const stats = {
     received: 0,
     matched: 0,
@@ -219,7 +223,8 @@ export function createRouter({ listHandlers, send, log = () => {} } = {}) {
         log: (m) => log(`[${item.pluginId}${h.id ? '/' + h.id : ''}] ${m}`),
       };
       try {
-        await h.run(msg, api);
+        if (runHandler) await runHandler(item, h, msg, api);
+        else await h.run(msg, api);
         stats.handled += 1;
         note({ plugin: item.pluginId, handler: h.id || '', scope: msg.scope, user: msg.userId, ok: true });
       } catch (e) {

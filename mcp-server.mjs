@@ -20,9 +20,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createBridge, createOneBot } from './plugins/_bridge.mjs';
-import { createProtocol } from './plugins/_protocol.mjs';
+import { createProtocol, createProbe } from './plugins/_protocol.mjs';
 import { decrypt } from './scripts/lib/secrets.mjs';
 import { dataPath } from './scripts/lib/paths.mjs';
+import { runSandboxed, sanitizeConfig, permsFor } from './scripts/lib/sandbox.mjs';
 
 const HUB_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)));
 const DATA_DIR = path.join(HUB_ROOT, 'data');
@@ -92,6 +93,18 @@ function bridge() {
 /* 每次工具调用构造独立 ctx：插件私有配置放在 ctx.cfg */
 const ctxFor = (pluginId) => ({ onebot, bridge: bridge(), config: loadConfig(), cfg: pluginCfg(pluginId) });
 
+/* 沙箱里插件能用的宿主能力：都在这边执行，插件进程自己没有发消息/调 API 的本事 */
+const sandboxHost = {
+  onebot,
+  probe: () => createProbe(onebotCfg()).probe(),
+  heartbeat: () => createProbe(onebotCfg()).heartbeat(),
+  log: (m) => logErr('[plugin] ' + m),
+};
+
+/* 沙箱开关：万一某个插件在沙箱里跑不动，可以 QQBOT_SANDBOX=0 临时退回进程内执行。
+ * 默认开。 */
+const USE_SANDBOX = String(process.env.QQBOT_SANDBOX || '1') !== '0';
+
 /* ---------- 插件加载：data/catalog/plugins.json + data/state/plugins.json ---------- */
 async function loadPlugins() {
   let catalog = [];
@@ -117,11 +130,14 @@ async function loadPlugins() {
             inputSchema: t.inputSchema || { type: 'object', properties: {} },
             _run: t.run,
             _plugin: meta.id,
+            _file: file,
+            /* 插件声明了哪些能力，决定沙箱给不给 --allow-child-process 之类的开关 */
+            _perm: permsFor(HUB_ROOT, meta.id, def),
           });
         }
       }
       const due = def.fireDue || mod.fireDue;
-      if (typeof due === 'function') fireDues.push({ id: meta.id, fn: due });
+      if (typeof due === 'function') fireDues.push({ id: meta.id, fn: due, file, perm: permsFor(HUB_ROOT, meta.id, def) });
     } catch (e) {
       logErr('加载插件 ' + meta.id + ' 失败: ' + e.message);
     }
@@ -134,6 +150,21 @@ function startFireDue(fireDues) {
   if (!fireDues.length) return () => {};
   const tick = () => {
     for (const f of fireDues) {
+      /* 到点提醒也在沙箱里跑：它同样会发消息，不该比工具调用多一份信任 */
+      if (USE_SANDBOX) {
+        runSandboxed({
+          hubRoot: HUB_ROOT,
+          pluginId: f.id,
+          pluginFile: f.file,
+          kind: 'fireDue',
+          cfg: pluginCfg(f.id),
+          config: sanitizeConfig(loadConfig()),
+          permissions: f.perm || [],
+          host: sandboxHost,
+          timeoutMs: 20000,
+        }).catch((e) => logErr('fireDue[' + f.id + ']: ' + e.message));
+        continue;
+      }
       try { f.fn(ctxFor(f.id)); } catch (e) { logErr('fireDue[' + f.id + ']: ' + e.message); }
     }
   };
@@ -151,6 +182,10 @@ async function main() {
   logErr(`qqbot-plugins MCP 已启动：${hub.tools.length} 个工具可用`);
 
   let buf = '';
+  /* 沙箱调用是异步的（每次起子进程约 100ms），客户端关掉 stdin 时如果直接 exit，
+   * 正在跑的那次调用结果就丢了 —— 表现为 AI「说调了工具但没反应」。
+   * 所以退出前给在途请求最多 3 秒把结果写完。 */
+  let inflight = 0;
   process.stdin.setEncoding('utf8');
   process.stdin.on('data', (chunk) => {
     buf += chunk;
@@ -159,10 +194,19 @@ async function main() {
       const line = buf.slice(0, idx).trim();
       buf = buf.slice(idx + 1);
       if (!line) continue;
-      handle(line).catch((e) => logErr('处理请求出错: ' + e.message));
+      inflight += 1;
+      handle(line)
+        .catch((e) => logErr('处理请求出错: ' + e.message))
+        .finally(() => { inflight -= 1; });
     }
   });
-  process.stdin.on('end', () => process.exit(0));
+  process.stdin.on('end', async () => {
+    const t0 = Date.now();
+    while (inflight > 0 && Date.now() - t0 < 3000) {
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    process.exit(0);
+  });
 
   async function handle(line) {
     let req;
@@ -184,14 +228,37 @@ async function main() {
       case 'ping':
         return reply({});
       case 'tools/list':
-        return reply({ tools: hub.tools.map(({ _run, _plugin, ...t }) => t) });
+        /* 下划线开头的都是内部字段（执行函数、插件 id、文件路径、权限），
+         * 不能漏给客户端 —— 否则会把服务器本地路径暴露出去 */
+        return reply({
+          tools: hub.tools.map((t) => Object.fromEntries(
+            Object.entries(t).filter(([k]) => !k.startsWith('_')),
+          )),
+        });
       case 'tools/call': {
         fireTick();
         const name = params && params.name;
         const tool = hub.tools.find((t) => t.name === name);
         if (!tool) return fail(-32602, `未知工具: ${name}`);
+        const args = (params && params.arguments) || {};
         try {
-          const text = String(await tool._run((params && params.arguments) || {}, ctxFor(tool._plugin)));
+          if (USE_SANDBOX) {
+            const r = await runSandboxed({
+              hubRoot: HUB_ROOT,
+              pluginId: tool._plugin,
+              pluginFile: tool._file,
+              kind: 'tool',
+              toolName: tool.name,
+              args,
+              cfg: pluginCfg(tool._plugin),
+              config: sanitizeConfig(loadConfig()),
+              permissions: tool._perm || [],
+              host: sandboxHost,
+              timeoutMs: 25000,
+            });
+            return reply({ content: [{ type: 'text', text: r.text }], isError: false });
+          }
+          const text = String(await tool._run(args, ctxFor(tool._plugin)));
           return reply({ content: [{ type: 'text', text }], isError: false });
         } catch (e) {
           return reply({ content: [{ type: 'text', text: '工具执行失败: ' + (e && e.message ? e.message : String(e)) }], isError: true });
