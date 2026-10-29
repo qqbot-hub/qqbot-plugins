@@ -679,10 +679,14 @@
   .prov p { margin: 0; font-size: 11.5px; line-height: 1.72; color: var(--dim-2); }
 
   /* 搭桥 */
-  .bridge { margin-top: 46px; border-radius: var(--r-lg); padding: 1px;
-    background: linear-gradient(150deg, rgba(91,140,255,.4), rgba(168,116,255,.28) 46%, rgba(47,220,166,.24)); }
+  /* 侧栏最后一跳也要落到阅读线：它后面只剩 footer + 底部留白（合计约 181px），凑不满一屏，
+     页面已经到底了它却还停在屏幕中间，看着像「点了没跳过去」。给个下限把这一屏撑满，
+     内容垂直居中，正好当成整站的收尾行动区；窄屏下内容本身更高时这条自动失效。 */
+  .bridge { margin-top: 46px; border-radius: var(--r-lg); padding: 1px; min-height: calc(100vh - 277px);
+    background: linear-gradient(150deg, rgba(91,140,255,.4), rgba(168,116,255,.28) 46%, rgba(47,220,166,.24));
+    display: flex; }
   .bridge-in {
-    border-radius: 17px; padding: 24px 26px 22px;
+    border-radius: 17px; padding: 24px 26px 22px; flex: 1; display: flex; flex-direction: column; justify-content: center;
     background: radial-gradient(640px 280px at 100% 0%, rgba(91,140,255,.09), transparent 66%), #0c1119;
   }
   .bridge h2 { margin: 0 0 5px; font-size: 17px; display: flex; align-items: center; gap: 9px; }
@@ -1097,17 +1101,17 @@
 
     <div class="side-label">导航</div>
     <nav class="nav">
-      <a href="#primary" data-nav="primary"><span class="ic">★</span>主链路直连</a>
-      <a href="#monitor" data-nav="monitor"><span class="ic">◎</span>运行监控</a>
-      <a href="#methods" data-nav="methods"><span class="ic">▤</span>部署方法</a>
-      <a href="#market" data-nav="market"><span class="ic">▦</span>插件市场</a>
-      <a href="#registry" data-nav="registry"><span class="ic">↑</span>插件上架</a>
-      <a href="#compat" data-nav="compat"><span class="ic">⊞</span>兼容性矩阵</a>
-      <a href="#deploy" data-nav="deploy"><span class="ic">⤓</span>链路组件</a>
-      <a href="#hub" data-nav="hub"><span class="ic">◇</span>全网插件源</a>
-      <a href="#stack" data-nav="stack"><span class="ic">⇢</span>链路位置</a>
-      <a href="#prov" data-nav="prov"><span class="ic">✓</span>来源与实测</a>
-      <a href="#bridge" data-nav="bridge"><span class="ic">⇄</span>接入 DSH</a>
+      <a href="#primary" data-nav="primary" title="主链路直连"><span class="ic">★</span>主链路直连</a>
+      <a href="#monitor" data-nav="monitor" title="运行监控"><span class="ic">◎</span>运行监控</a>
+      <a href="#methods" data-nav="methods" title="选一种部署方法"><span class="ic">▤</span>部署方法</a>
+      <a href="#deploy" data-nav="deploy" title="部署整条链路"><span class="ic">⤓</span>部署整条链路</a>
+      <a href="#market" data-nav="market" title="插件列表"><span class="ic">▦</span>插件列表</a>
+      <a href="#registry" data-nav="registry" title="插件上架"><span class="ic">↑</span>插件上架</a>
+      <a href="#compat" data-nav="compat" title="兼容性矩阵"><span class="ic">⊞</span>兼容性矩阵</a>
+      <a href="#hub" data-nav="hub" title="全网插件源"><span class="ic">◇</span>全网插件源</a>
+      <a href="#stack" data-nav="stack" title="它在整条链路里的位置"><span class="ic">⇢</span>链路位置</a>
+      <a href="#prov" data-nav="prov" title="插件从哪来、能不能用"><span class="ic">✓</span>来源与实测</a>
+      <a href="#bridge" data-nav="bridge" title="接入 DSH"><span class="ic">⇄</span>接入 DSH</a>
       <a href="javascript:void 0" onclick="openGlobalCfg()"><span class="ic">⚙</span>连接设置</a>
       <a href="https://github.com/qqbot-hub/qqbot-plugins#readme" target="_blank" rel="noopener"><span class="ic">▥</span>使用文档</a>
     </nav>
@@ -1151,7 +1155,7 @@
         </div>
       </div>
 
-      <section class="hero">
+      <section class="hero" id="hero">
         <div class="eyebrow"><span class="pulse"></span>专为 SnowLuma + qq-bridge + DSH（大肥鱼）链路打造</div>
         <h1><span>给你的大肥鱼</span><span class="thin">一个完整的人生</span></h1>
         <p class="lede">
@@ -1172,6 +1176,22 @@
         </div>
       </section>
 
+      <!-- 主链路专区：站内主推的那条（SnowLuma + qq-bridge + DSH） -->
+      <section class="sec" id="primary">
+        <div class="sec-head">
+          <h2>主链路直连</h2>
+          <span class="hub-badge" id="priBadge">SnowLuma + qq-bridge + DSH · 站内主推</span>
+          <span class="ln"></span>
+        </div>
+        <p class="sec-sub">
+          大部分人现在用的就是这条：<b>SnowLuma 登一次 QQ，qq-bridge 中转，DSH 当大脑</b>。
+          下面这几项跟它绑得最紧——<b>识图、表情包（发与偷）、认视频、空间动态、语音调音、群管理、群信息</b>，
+          接口都按这条链路调好；点「一键接入」会真的做三件事：装上插件、写进 DSH 的配置、告诉你要重启。
+          其中<b>识图和认视频只调模型接口，不开协议端也能用</b>（识图要 Key 或本机 Ollama，认视频要支持视频的接口）；
+          其余几项需要协议端讲 OneBot v11。其他路线在下面照样全列着。
+        </p>
+        <div class="pzone" id="pList"></div>
+      </section>
       <section class="sec" id="monitor">
         <div class="sec-head">
           <h2>运行监控</h2>
@@ -1239,26 +1259,6 @@
         <div class="mgrid" id="mList"></div>
       </section>
 
-      <section class="sec reveal" id="stack">
-        <div class="sec-head"><h2>它在整条链路里的位置</h2><span class="ln"></span></div>
-        <p class="sec-sub">教程做到「会聊天」，这里补上记忆、声音、画笔，和一双能干活的手。</p>
-        <div class="pipe">
-          <div class="node"><i>💬</i><b>QQ</b><span>群聊 / 私聊</span></div>
-          <div class="arw">→</div>
-          <div class="node"><i>🌐</i><b>SnowLuma</b><span>OneBot 网关<br>3000 / 3001</span></div>
-          <div class="arw">→</div>
-          <div class="node"><i>🔗</i><b>qq-bridge</b><span>消息中转<br>控制台 3100</span></div>
-          <div class="arw">→</div>
-          <div class="node"><i>🐟</i><b>DSH</b><span>DeepSeek Harness<br>大肥鱼 · 端口自动探测</span></div>
-          <div class="arw">→</div>
-          <div class="node hot"><i>🧰</i><b>本市场</b><span>MCP 插件层<br>mcp__qqbot__*</span></div>
-        </div>
-        <p class="pipe-note">
-          插件跑在本市场的进程里，不需要往 qq-bridge 目录塞任何文件；
-          DSH 启动时通过标准 MCP 协议加载，与官方 <code>mcp__snowluma__</code> 并列共存、互不干扰。
-        </p>
-      </section>
-
       <section class="sec" id="deploy">
         <div class="sec-head">
           <h2>部署整条链路</h2>
@@ -1274,23 +1274,6 @@
           <span class="dep-hint" id="depHint">按依赖顺序逐个装；遇到需要人工的那一步会停下并告诉你做什么</span>
         </div>
         <div class="dep-list" id="depList"></div>
-      </section>
-
-      <!-- 主链路专区：站内主推的那条（SnowLuma + qq-bridge + DSH） -->
-      <section class="sec" id="primary">
-        <div class="sec-head">
-          <h2>主链路直连</h2>
-          <span class="hub-badge" id="priBadge">SnowLuma + qq-bridge + DSH · 站内主推</span>
-          <span class="ln"></span>
-        </div>
-        <p class="sec-sub">
-          大部分人现在用的就是这条：<b>SnowLuma 登一次 QQ，qq-bridge 中转，DSH 当大脑</b>。
-          下面这几项跟它绑得最紧——<b>识图、表情包（发与偷）、认视频、空间动态、语音调音、群管理、群信息</b>，
-          接口都按这条链路调好；点「一键接入」会真的做三件事：装上插件、写进 DSH 的配置、告诉你要重启。
-          其中<b>识图和认视频只调模型接口，不开协议端也能用</b>（识图要 Key 或本机 Ollama，认视频要支持视频的接口）；
-          其余几项需要协议端讲 OneBot v11。其他路线在下面照样全列着。
-        </p>
-        <div class="pzone" id="pList"></div>
       </section>
 
       <section class="sec" id="market">
@@ -1396,6 +1379,26 @@
         </div>
         <div class="hub-grid" id="hubList"></div>
         <div class="hub-more" id="hubMore"></div>
+      </section>
+
+      <section class="sec reveal" id="stack">
+        <div class="sec-head"><h2>它在整条链路里的位置</h2><span class="ln"></span></div>
+        <p class="sec-sub">教程做到「会聊天」，这里补上记忆、声音、画笔，和一双能干活的手。</p>
+        <div class="pipe">
+          <div class="node"><i>💬</i><b>QQ</b><span>群聊 / 私聊</span></div>
+          <div class="arw">→</div>
+          <div class="node"><i>🌐</i><b>SnowLuma</b><span>OneBot 网关<br>3000 / 3001</span></div>
+          <div class="arw">→</div>
+          <div class="node"><i>🔗</i><b>qq-bridge</b><span>消息中转<br>控制台 3100</span></div>
+          <div class="arw">→</div>
+          <div class="node"><i>🐟</i><b>DSH</b><span>DeepSeek Harness<br>大肥鱼 · 端口自动探测</span></div>
+          <div class="arw">→</div>
+          <div class="node hot"><i>🧰</i><b>本市场</b><span>MCP 插件层<br>mcp__qqbot__*</span></div>
+        </div>
+        <p class="pipe-note">
+          插件跑在本市场的进程里，不需要往 qq-bridge 目录塞任何文件；
+          DSH 启动时通过标准 MCP 协议加载，与官方 <code>mcp__snowluma__</code> 并列共存、互不干扰。
+        </p>
       </section>
 
       <section class="sec reveal" id="prov">
