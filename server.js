@@ -33,6 +33,9 @@ const CFG_FILE = path.join(ROOT, 'config.json');
 let cfg = { password: '', port: 3210, snowluma: {}, dsh: {}, bridge: {}, plugins: {} };
 try { cfg = Object.assign(cfg, JSON.parse(read('config.json'))); } catch (e) { /* 首次运行用默认值 */ }
 const PORT = Number(process.env.PORT || cfg.port || 3210);
+/* 监听地址：本机直接跑仍然只听 127.0.0.1（不暴露局域网）；
+ * 部署平台会注入 PORT 环境变量（也可显式给 HOST），这时对外监听 0.0.0.0 才能被反代访问。 */
+const HOST = process.env.HOST || (process.env.PORT ? '0.0.0.0' : '127.0.0.1');
 const PASSWORD = String(cfg.password || '');
 
 /* ---------- 数据文件定位 ----------
@@ -1657,10 +1660,10 @@ const server = http.createServer(async (req, res) => {
 
 /* 先把密钥初始化完再开始监听：避免第一个 /api/health 因为 token 还没解出来而显示未配置 */
 initSecrets().catch((e) => console.log('[secrets] 初始化失败（不影响启动）：' + e.message)).finally(() => {
-  server.listen(PORT, '127.0.0.1', () => {
+  server.listen(PORT, HOST, () => {
     console.log('qqbot-plugins 插件市场已启动');
-    console.log('地址: http://127.0.0.1:' + PORT + (PASSWORD ? '' : '（未设口令，本机开放访问）'));
-    console.log('消息上报: POST http://127.0.0.1:' + PORT + '/api/onebot/event');
+    console.log('地址: http://' + HOST + ':' + PORT + (PASSWORD ? '' : '（未设口令，本机开放访问）'));
+    console.log('消息上报: POST http://' + HOST + ':' + PORT + '/api/onebot/event');
     refreshHandlers().then(() => {
       console.log('消息路由就绪，已挂载 ' + handlerCache.length + ' 个插件处理器');
     }).catch(() => {});
