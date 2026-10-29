@@ -2004,9 +2004,15 @@ function renderUpdBar() {
   if (!j || !j.total) { box.innerHTML = ''; return; }
   const c = j.counts || {};
   if (!c.update) {
-    /* 没有更新就不占地方：只在有「查不到」时给一行灰字，避免天天跳提示 */
+    /* 没有更新就不占地方：只在有「查不到」时给一行灰字，避免天天跳提示。
+       原因直接用后端给的具体原因（可能是仓库没 tag、限流，也可能是本机读不到实际安装版本），
+       不要笼统写成「网络失败」—— 那会把「读不到」误报成「网络问题」。 */
+    const un = (j.items || []).filter((x) => x.state === 'unknown');
+    const why = un.length
+      ? [...new Set(un.map((x) => (x.error || '').replace(/（登记表记的是 [^）]*）/, '').trim()).filter(Boolean))].slice(0, 2).join('；')
+      : '';
     box.innerHTML = c.unknown
-      ? `<div class="upd-bar warn" style="opacity:.75"><span class="ub-t">已装 ${j.total} 个生态插件，都没有新版；其中 ${c.unknown} 个查不到最新版（仓库没打 tag 或网络失败）</span>
+      ? `<div class="upd-bar warn" style="opacity:.75"><span class="ub-t">已装 ${j.total} 个生态插件，都没有新版；其中 ${c.unknown} 个无法确认最新版${why ? `：${esc(why)}` : ''}</span>
          <button class="ghost" onclick="loadUpdates(true)">重新检查</button></div>`
       : '';
     return;

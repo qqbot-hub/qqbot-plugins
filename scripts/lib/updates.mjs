@@ -10,8 +10,13 @@
  * 页面据此显示的三种状态是：有新版 / 已是最新 / 查不到（附原因）。
  * ============================================================ */
 import fs from 'node:fs';
-import { dataPath } from './paths.mjs';
+import path from 'node:path';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { dataPath, RUNTIMES } from './paths.mjs';
 import { isNewer, normalizeVer } from './version.mjs';
+
+const pExecFile = promisify(execFile);
 
 const CACHE_MS = 30 * 60e3;
 let cache = { at: 0, data: null };
@@ -100,7 +105,7 @@ function collect() {
     out.push({
       ecosystem: 'nonebot', key: pkg,
       name: rec.package || pkg,
-      current: normalizeVer(rec.version || ''),
+      recordVersion: normalizeVer(rec.version || ''),
       broken: rec.status === 'broken',
       reason: rec.reason || '',
       query: rec.package || pkg,
@@ -112,7 +117,7 @@ function collect() {
     out.push({
       ecosystem: 'koishi', key: pkg,
       name: rec.package || pkg,
-      current: normalizeVer(rec.version || ''),
+      recordVersion: normalizeVer(rec.version || ''),
       broken: false,
       query: rec.package || pkg,
       install: { target: 'koishi-plugin', params: { package: rec.package || pkg } },
@@ -123,7 +128,7 @@ function collect() {
     out.push({
       ecosystem: 'astrbot', key: name,
       name: rec.displayName || rec.name || name,
-      current: normalizeVer(rec.version || ''),
+      recordVersion: normalizeVer(rec.version || ''),
       broken: false,
       query: rec.repo || '',
       repo: rec.repo || '',
@@ -134,6 +139,67 @@ function collect() {
 }
 
 const FETCHERS = { nonebot: latestNonebot, koishi: latestKoishi, astrbot: latestAstrbot };
+
+/**
+ * 读「本机实际装着的版本」。
+ *
+ * 为什么不信登记表：data/state/*.json 里记的是安装那一刻的版本，之后用户可能手动
+ * pip install -U、npm update，也可能被降级、被卸掉。拿这个旧记账去和远端比，就会把
+ * 「其实早就不是最新」说成「已是最新」—— 那是虚标。
+ * 三条路都是直接问安装现场：venv 里的 pip、node_modules 的 package.json、AstrBot 的 metadata.yaml。
+ * 读不到就返回空版本 + 原因，由调用方降级成「未知」，绝不猜。
+ */
+async function installedVersion(eco, it, root = RUNTIMES) {
+  try {
+    if (eco === 'nonebot') {
+      const py = process.platform === 'win32'
+        ? path.join(root, 'nonebot', '.venv', 'Scripts', 'python.exe')
+        : path.join(root, 'nonebot', '.venv', 'bin', 'python');
+      if (!fs.existsSync(py)) return { ver: '', error: '本机没有 NoneBot 的 venv' };
+      const { stdout } = await pExecFile(py, ['-m', 'pip', 'show', it.key], { timeout: 20000, windowsHide: true });
+      const m = /^Version:\s*(.+)$/m.exec(stdout || '');
+      if (!m) return { ver: '', error: 'pip show 查不到这个包' };
+      return { ver: m[1].trim() };
+    }
+    if (eco === 'koishi') {
+      const p = path.join(root, 'koishi', 'node_modules', it.key, 'package.json');
+      if (!fs.existsSync(p)) return { ver: '', error: 'node_modules 里没有这个包' };
+      return { ver: JSON.parse(fs.readFileSync(p, 'utf8')).version || '' };
+    }
+    if (eco === 'astrbot') {
+      const p = path.join(root, 'astrbot', 'data', 'plugins', it.key, 'metadata.yaml');
+      if (!fs.existsSync(p)) return { ver: '', error: '插件目录里没有 metadata.yaml' };
+      const m = /^version:\s*(.+)$/m.exec(fs.readFileSync(p, 'utf8'));
+      if (!m) return { ver: '', error: 'metadata.yaml 里没写 version' };
+      return { ver: m[1].replace(/#.*$/, '').trim() };
+    }
+  } catch (e) {
+    return { ver: '', error: String(e.message).slice(0, 60) };
+  }
+  return { ver: '', error: '未知生态' };
+}
+
+export { installedVersion };
+
+/**
+ * 单独抽出来的三态判定，方便测试，也避免把「读不到」误判成「已是最新」。
+ * 返回 { state, hasUpdate, error }。
+ */
+export function decideState({ latest, current, fromInstalled, instError, recordVersion, fetchError }) {
+  const L = normalizeVer(latest || '');
+  const C = normalizeVer(current || '');
+  if (!L) return { state: 'unknown', hasUpdate: false, error: fetchError || '' };
+  if (!fromInstalled) {
+    return {
+      state: 'unknown',
+      hasUpdate: false,
+      error: `${instError || '读不到本机安装版本'}（登记表记的是 ${recordVersion || '未知'}）`,
+    };
+  }
+  if (!C) return { state: 'unknown', hasUpdate: false, error: '读不到本机安装版本' };
+  const hasUpdate = isNewer(L, C);
+  return { state: hasUpdate ? 'update' : 'latest', hasUpdate, error: fetchError || '' };
+}
 
 /** 检查全部已装生态插件；force=true 跳过 30 分钟缓存 */
 export async function checkUpdates({ force = false } = {}) {
@@ -147,17 +213,30 @@ export async function checkUpdates({ force = false } = {}) {
   const workers = Array.from({ length: Math.min(5, queue.length || 1) }, async () => {
     while (queue.length) {
       const it = queue.shift();
+      /* 先问安装现场要真实版本，再问远端最新版：拿记账版本去比会虚标 */
+      const inst = await installedVersion(it.ecosystem, it);
+      const current = normalizeVer(inst.ver || it.recordVersion || '');
+      const fromInstalled = !!inst.ver;
       const fn = FETCHERS[it.ecosystem];
       let res = { latest: '', error: '未知生态' };
       try { res = await fn(it.query); } catch (e) { res = { latest: '', error: String(e.message).slice(0, 80) }; }
       const latest = normalizeVer(res.latest || '');
-      const hasUpdate = latest && it.current ? isNewer(latest, it.current) : false;
-      results.push(Object.assign({}, it, {
+      const d = decideState({
         latest,
-        hasUpdate,
-        /* 三种状态必须分得清：有新版 / 已最新 / 查不到 */
-        state: !latest ? 'unknown' : (hasUpdate ? 'update' : 'latest'),
-        error: res.error || '',
+        current,
+        fromInstalled,
+        instError: inst.error,
+        recordVersion: it.recordVersion,
+        fetchError: res.error,
+      });
+
+      results.push(Object.assign({}, it, {
+        current,
+        currentSource: fromInstalled ? 'installed' : 'record',
+        latest,
+        hasUpdate: d.hasUpdate,
+        state: d.state,
+        error: d.error,
       }));
     }
   });
