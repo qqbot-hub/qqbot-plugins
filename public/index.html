@@ -683,7 +683,9 @@
     box-shadow: var(--shadow-3); animation: pop .26s var(--ease) both;
   }
   @keyframes pop { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
-  .modal-in { border-radius: 17px; background: #0d131d; display: flex; flex-direction: column; max-height: 86vh; overflow: hidden; }
+  /* .modal-in 要自己带定位：openSubmit() 直接把它挂在 .modal 下（没裹 .modal-box），
+     否则绝对定位的 .mask 会压在上面——整块被遮罩压暗，且点弹窗内任何位置都会命中 mask 把窗关掉 */
+  .modal-in { position: relative; z-index: 1; border-radius: 17px; background: #0d131d; display: flex; flex-direction: column; max-height: 86vh; overflow: hidden; }
   .modal-head { display: flex; align-items: center; gap: 10px; padding: 16px 20px 13px; border-bottom: 1px solid var(--line); }
   .modal-head b { font-size: 14.5px; letter-spacing: .1px; }
   .modal-head .x {
@@ -1051,7 +1053,7 @@
         <div class="stats">
           <div class="stat-box"><b data-count="47">0</b><span>插件</span></div>
           <div class="stat-box"><b data-count="76">0</b><span>可调用工具</span></div>
-          <div class="stat-box"><b data-count="59">0</b><span>项已实测通过</span></div>
+          <div class="stat-box"><b data-count="60">0</b><span>项已实测通过</span></div>
           <div class="stat-box"><b data-count="0">0</b><span>第三方依赖</span></div>
         </div>
         <div class="cta">
@@ -1262,18 +1264,18 @@
         <div class="prov-grid">
           <div class="prov">
             <div class="prov-tag">目录</div>
-            <b>46 个插件、75 个工具的定义</b>
+            <b>47 个插件、76 个工具的定义</b>
             <p>名称、功能描述、工具名与参数，抓取自公开的 QQ 插件市场站点，并保留了各插件的上游出处（AstrBot / NoneBot / Koishi / Yunzai 社区同名插件），卡片上的「源自 xxx」就是那个链接。</p>
           </div>
           <div class="prov">
             <div class="prov-tag">实现</div>
             <b>每个插件都是可运行的代码</b>
-            <p>原站的插件依赖它自己的加载器，抓不到实现。所以 46 个插件的能力都由本项目重新写成零依赖的 MCP 工具，跑在 Node 上，不装任何第三方包。</p>
+            <p>原站的插件依赖它自己的加载器，抓不到实现。所以 47 个插件的能力都由本项目重新写成零依赖的 MCP 工具，跑在 Node 上，不装任何第三方包。</p>
           </div>
           <div class="prov ok">
             <div class="prov-tag">实测</div>
-            <b>59 项当场跑通，0 项报错</b>
-            <p>仓库自带 <code>node scripts/verify-plugins.mjs</code>，用真实参数把 75 个工具全跑一遍：59 项直接通过；15 项因为本机没开 QQ 显示「需在线」、1 项因为没填语音 Key 显示「需配置」——都是环境问题，不是插件坏了。免费画图接口偶尔限流，脚本会单独标成「需公网」而不是算失败。你可以自己跑一遍复核。</p>
+            <b>60 项当场跑通，0 项报错</b>
+            <p>仓库自带 <code>node scripts/verify-plugins.mjs</code>，用真实参数把 76 个工具全跑一遍：60 项直接通过；15 项因为本机没开 QQ 显示「需在线」、1 项因为没填语音 Key 显示「需配置」——都是环境问题，不是插件坏了。免费画图接口偶尔限流，脚本会单独标成「需公网」而不是算失败。你可以自己跑一遍复核。</p>
           </div>
           <div class="prov">
             <div class="prov-tag">边界</div>

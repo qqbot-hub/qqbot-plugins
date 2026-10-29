@@ -4,7 +4,7 @@
 
 ## 为什么需要这一层
 
-之前 46 个插件只能跑在 OneBot v11 协议端（SnowLuma / NapCat / LLOneBot…）。
+之前 47 个插件只能跑在 OneBot v11 协议端（SnowLuma / NapCat / LLOneBot…）。
 要让同样的插件跑进 Koishi、Chronocat 这些 Satori 生态，就需要第二个协议后端。
 `plugins/_protocol.mjs` 就是统一入口：
 

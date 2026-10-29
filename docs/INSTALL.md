@@ -85,7 +85,7 @@ DSH（DeepSeek Harness）              AI 大脑，决定调哪个工具      HT
 ```
 data/
   catalog/
-    plugins.json      46 个自有插件（能装进机器人、走 MCP 暴露工具）
+    plugins.json      47 个自有插件（能装进机器人、走 MCP 暴露工具）
     companions.json   3 个配套程序（桌面宠物 / TTS 引擎 / 调音台，独立运行）
     components.json   链路上的运行时组件（协议端 / 桥 / DSH / 市场本体），带 recipe 映射
   sources/

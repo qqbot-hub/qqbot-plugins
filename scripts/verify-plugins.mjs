@@ -148,8 +148,12 @@ async function main() {
     if (!Array.isArray(def.tools)) { rows.push({ plugin: meta.id, tool: '-', status: 'fail', msg: '无 tools 数组' }); continue; }
 
     for (const t of def.tools) {
-      const args = SAMPLES[t.name];
-      if (!args) { rows.push({ plugin: meta.id, tool: t.name, status: 'fail', msg: '缺少示例参数' }); continue; }
+      /* 无参工具（inputSchema.properties 为空）本来就不用示例参数，直接空对象调；
+       * 以前这里一律查 SAMPLES，导致 qq_ping 这种零参工具被误判成「缺少示例参数」。 */
+      const props = (t.inputSchema && t.inputSchema.properties) || {};
+      const noArg = Object.keys(props).length === 0;
+      const args = SAMPLES[t.name] ?? (noArg ? {} : null);
+      if (args == null) { rows.push({ plugin: meta.id, tool: t.name, status: 'fail', msg: '缺少示例参数' }); continue; }
       const started = Date.now();
       try {
         const out = await t.run(JSON.parse(JSON.stringify(args)), ctx(meta.id));

@@ -28,7 +28,7 @@
 
 ## 兼容性矩阵的口径（不许改成"全兼容"）
 
-1. 本市场 46 个插件是零依赖 `.mjs`，跑在市场进程的 MCP 里 → **只有 DSH 宿主的方法能装**；
+1. 本市场 47 个插件是零依赖 `.mjs`，跑在市场进程的 MCP 里 → **只有 DSH 宿主的方法能装**；
 2. 插件里凡调协议端动作（发消息/禁言/公告…，由 `build-permissions.mjs` 扫源码得出 `needsBridge`）
    → 还要求方法讲 **OneBot v11**；所以官方通道（`dsh-official`）只能装纯本地工具；
 3. AstrBot / Koishi / NoneBot / Yunzai / MaiBot / NcatBot 的原生插件只在各自框架内可用（`native`），

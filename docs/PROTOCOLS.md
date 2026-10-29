@@ -175,7 +175,7 @@ run: async (a, ctx) => {
 ```bash
 node scripts/test-bridge.mjs      # 适配层 19 项：3 种响应格式 / 3 种鉴权 / 动作名兜底+记忆 /
                                   # 错误分类 5 类 / 登录信息 / 心跳在线离线 / 路径前缀 / 超时
-node scripts/verify-plugins.mjs   # 全部 75 个工具（不碰真实 QQ）
+node scripts/verify-plugins.mjs   # 全部 76 个工具（不碰真实 QQ）
 ```
 
 `test-bridge.mjs` 会起本地假服务器，不需要真的 QQ 账号，也不会往真实群里发东西。
