@@ -677,6 +677,13 @@
   .prov > b { display: block; font-size: 13px; margin-bottom: 5px; }
   .prov p b { display: inline; font-size: inherit; margin: 0; color: #e8f1ff; font-weight: 650; }
   .prov p { margin: 0; font-size: 11.5px; line-height: 1.72; color: var(--dim-2); }
+  /* 环境不完整时的说明：不拿「84 项全失败」吓人，说清楚是这台机器缺东西 */
+  .prov p.prov-env {
+    margin-top: 6px; padding: 7px 10px; border-radius: var(--r-sm);
+    border: 1px solid rgba(255,180,84,.24); background: rgba(255,180,84,.07);
+    color: #f0dcb4; font-size: 11px;
+  }
+  .prov p.prov-env[hidden] { display: none; }
 
   /* 搭桥 */
   /* 侧栏最后一跳也要落到阅读线：它后面只剩 footer + 底部留白（合计约 181px），凑不满一屏，
@@ -1428,6 +1435,7 @@
           <div class="prov ok">
             <div class="prov-tag">实测</div>
             <b><span id="provPass">64</span> 项当场跑通，0 项报错</b>
+            <p class="prov-env" id="provEnv" hidden></p>
             <p>仓库自带 <code>node scripts/verify-plugins.mjs</code>，用真实参数把 <span id="provTotal">84</span> 个工具全跑一遍：<span id="provPass2">64</span> 项直接通过；<span id="provBot">16</span> 项因为本机没开 QQ 显示「需在线」（群管理 8、群信息 3、空间动态 4、表情包发送 1）、<span id="provCfg">4</span> 项因为没填接口 Key 显示「需配置」（语音 1 项、识图 2 项、认视频 1 项）——都是环境问题，不是插件坏了。<b>这几个数字是页面打开时刚跑出来的真实结果</b>（30 分钟内复用）：QQ 开着就是 64，没开就少一项，看到 63 是正常的，不是数错了。</p>
           </div>
           <div class="prov">
@@ -1936,13 +1944,27 @@ async function loadVerify(retry) {
   try {
     const j = await (await fetch('/api/verify')).json();
     if (j && j.ready) {
-      const el = $('#statPass');
-      if (el) { el.dataset.count = j.pass; el.textContent = String(j.pass); }
-      set('#provPass', j.pass);
-      set('#provPass2', j.pass);
-      set('#provTotal', j.total);
-      set('#provBot', j.needBot);
-      set('#provCfg', j.needCfg);
+      /* 只有环境完整时跑出来的结果才算数。公网那份没有 config.json、也没有协议端，
+       * 跑出来是 84 项全失败——把「0 项通过」挂出去等于自曝家丑，还不准。
+       * 那种情况下数字保持不动，改成说明当前环境为什么测不了。 */
+      if (j.credible) {
+        const el = $('#statPass');
+        /* 摘掉 data-count：不然数字滚动动画会拿旧目标值把真实结果盖回去 */
+        if (el) { el.removeAttribute('data-count'); el.textContent = String(j.pass); }
+        set('#provPass', j.pass);
+        set('#provPass2', j.pass);
+        set('#provTotal', j.total);
+        set('#provBot', j.needBot);
+        set('#provCfg', j.needCfg);
+      } else {
+        const e = $('#provEnv');
+        if (e) {
+          e.hidden = false;
+          e.textContent = `当前这台机器环境不完整：${j.fail || 0} 项跑不起来（多半是没填 config.json 或协议端没连）。`
+            + '所以上面这几个数是项目在自己完整环境下实测的结果，真实水平要在你自己机器上跑 '
+            + 'node scripts/verify-plugins.mjs 才算数。';
+        }
+      }
       return;
     }
     if (j && j.running && (retry || 0) < 12) {
@@ -3714,7 +3736,8 @@ if (new URLSearchParams(location.search).get('open') === 'lab') setTimeout(() =>
 countUp();
 load().then(() => { spy(); });
 loadStars();
-loadVerify(0);
+/* 晚 5 秒再问：别和首屏抢带宽，也等数字滚动动画跑完，免得它把真实结果盖回去 */
+setTimeout(() => loadVerify(0), 5000);
 loadHub(false);
 loadComponents();
 /* 心跳：每 20 秒刷新一次侧栏状态；页面切回前台时立刻补一次 */

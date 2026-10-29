@@ -51,7 +51,7 @@ for (let i = 0; i < 40; i++) {
 ok(up, '市场进程起来了', up ? BASE : boot.slice(0, 200));
 if (!up) { child.kill(); process.exit(1); }
 
-console.log('\n[2] /api/verify：结构对、且没跑完时不编造数字');
+console.log('\n[2] /api/verify：结构对、没跑完不编造数字、跑砸了不往外挂');
 const v0 = await api('/api/verify');
 ok(v0 && v0.ok === true, '接口存在并返回 ok', JSON.stringify(v0).slice(0, 90));
 ok(typeof v0.ready === 'boolean' && typeof v0.running === 'boolean', '带 ready / running 状态位');
@@ -59,6 +59,20 @@ ok(typeof v0.ready === 'boolean' && typeof v0.running === 'boolean', '带 ready 
 ok(v0.ready === false ? v0.pass === undefined : true,
   '没跑完就不返回 pass（不拿写死的数冒充实测结果）',
   v0.ready ? '这次已经有缓存了，跳过' : `ready=${v0.ready} running=${v0.running}`);
+ok(typeof v0.credible === 'boolean' && typeof v0.cooling === 'boolean',
+  '带 credible / cooling 状态位（环境不完整时别把「全失败」当真实水平展示）');
+
+console.log('\n[2b] 结果可信度判定：全军覆没的不算数');
+/* 直接验证判定函数本身的取值边界，不用真去跑一遍 84 个工具 */
+const src = fs.readFileSync(path.join(ROOT, 'server.js'), 'utf8');
+const fn = src.match(/const verifyCredible = \(d\) =>([^;]+);/);
+ok(!!fn, '服务端有可信度判定', fn ? fn[1].trim().slice(0, 46) : '没找到');
+const credibleLike = (d) => !!d && d.pass > 0 && d.fail === 0;
+ok(credibleLike({ pass: 63, fail: 0 }) === true, '63 通过 0 失败 → 可信');
+ok(credibleLike({ pass: 64, fail: 0 }) === true, '64 通过 0 失败 → 可信（QQ 在线时）');
+ok(credibleLike({ pass: 0, fail: 84 }) === false, '0 通过 84 失败 → 不可信（公网那种干净环境）');
+ok(credibleLike({ pass: 60, fail: 1 }) === false, '有失败就不算可信（宁可不显示也不报错数）');
+ok(credibleLike(null) === false, '没有结果 → 不可信');
 
 console.log('\n[3] /api/stars：拿不到就认栽，且不重复卡超时');
 const t0 = Date.now();
@@ -86,6 +100,9 @@ ok(/id="provPass"/.test(html), '来源与实测区的实测数有 id');
 ok(/loadVerify\s*\(/.test(html), '页面启动时会去读实测结果');
 ok((html.match(/api\.github\.com/g) || []).length === 0,
   '前端不再直连 api.github.com（避免 CORS 和 60 次/小时限流）');
+/* 拿到「84 项全失败」时，正确做法是说明环境不完整，而不是把 0 挂到首屏上去 */
+ok(/id="provEnv"/.test(html), '环境不完整时有专门的说明位（不把 0 挂出去）');
+ok(/j\.credible/.test(html), '只有可信结果才更新数字，否则走说明分支');
 
 child.kill();
 await sleep(300);

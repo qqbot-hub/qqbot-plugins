@@ -993,6 +993,12 @@ const VERIFY_SCRIPT = path.join(ROOT, 'scripts', 'verify-plugins.mjs');
 const VERIFY_TTL = 30 * 60 * 1000;
 const VERIFY_TIMEOUT = 120000;
 const VERIFY_STATE = { running: false, at: 0, data: null, error: '' };
+/* 环境不完整时（比如公网那份没有 config.json、没有协议端）跑出来是全军覆没，
+ * 这种结果展示出去等于自曝家丑，而且每次访问都重跑一遍纯属浪费。
+ * 一旦跑出「一项都没通过」，就歇 60 分钟别再折腾。 */
+const VERIFY_BAD_COOL = 60 * 60 * 1000;
+let VERIFY_COOL_UNTIL = 0;
+const verifyCredible = (d) => !!d && d.pass > 0 && d.fail === 0;
 
 function runVerify() {
   if (VERIFY_STATE.running) return false;
@@ -1017,6 +1023,9 @@ function runVerify() {
         needBot: j.needBot || 0, needCfg: j.needCfg || 0, needNet: j.needNet || 0, fail: j.fail || 0,
       };
       VERIFY_STATE.at = Date.now();
+      /* 全军覆没说明这台机器缺东西，别再反复跑，也别拿它当真实水平展示 */
+      if (!verifyCredible(VERIFY_STATE.data)) VERIFY_COOL_UNTIL = Date.now() + VERIFY_BAD_COOL;
+      else VERIFY_COOL_UNTIL = 0;
     } else if (!j) {
       VERIFY_STATE.error = '实测脚本没返回可解析的结果';
     }
@@ -1077,11 +1086,23 @@ async function starsCached(force) {
 
 function verifyResult(force) {
   const fresh = VERIFY_STATE.data && Date.now() - VERIFY_STATE.at < VERIFY_TTL;
-  if ((!fresh || force) && !VERIFY_STATE.running) runVerify();
+  if ((!fresh || force) && !VERIFY_STATE.running) {
+    /* 冷却期内不自动重跑；想知道真实水平就显式 start=1 强制来一次 */
+    if (!force && Date.now() < VERIFY_COOL_UNTIL) {
+      return {
+        ok: true, ready: !!VERIFY_STATE.data, running: false, credible: false,
+        cooling: true, fetchedAt: VERIFY_STATE.at ? new Date(VERIFY_STATE.at).toISOString() : '',
+        error: VERIFY_STATE.error || '', ...(VERIFY_STATE.data || {}),
+      };
+    }
+    runVerify();
+  }
   return {
     ok: true,
     ready: !!VERIFY_STATE.data,
     running: VERIFY_STATE.running,
+    credible: verifyCredible(VERIFY_STATE.data),
+    cooling: !force && Date.now() < VERIFY_COOL_UNTIL,
     fetchedAt: VERIFY_STATE.at ? new Date(VERIFY_STATE.at).toISOString() : '',
     stale: !!VERIFY_STATE.data && !fresh,
     error: VERIFY_STATE.error || '',
@@ -1782,7 +1803,5 @@ initSecrets().catch((e) => console.log('[secrets] 初始化失败（不影响启
     refreshHandlers().then(() => {
       console.log('消息路由就绪，已挂载 ' + handlerCache.length + ' 个插件处理器');
     }).catch(() => {});
-    /* 预热实测结果：起服就后台跑一遍，这样头一个进来的访客看到的也是真数 */
-    try { runVerify(); } catch {}
   });
 });
