@@ -984,6 +984,111 @@ async function startHubSync() {
   })();
   return { ok: true, started: true };
 }
+
+/* ============ 实测结果 ============
+ * verify-plugins 会真跑 84 个工具，其中一批要联网、一批要有 QQ 在线，
+ * 所以通过数天生是浮动的（QQ 没开时 63，开了 64）。页面写死任何一个数都会在
+ * 另一种状态下变成假话，这里改成后台跑、缓存 30 分钟、前端拿真实值。 */
+const VERIFY_SCRIPT = path.join(ROOT, 'scripts', 'verify-plugins.mjs');
+const VERIFY_TTL = 30 * 60 * 1000;
+const VERIFY_TIMEOUT = 120000;
+const VERIFY_STATE = { running: false, at: 0, data: null, error: '' };
+
+function runVerify() {
+  if (VERIFY_STATE.running) return false;
+  VERIFY_STATE.running = true;
+  VERIFY_STATE.error = '';
+  let child;
+  try {
+    child = spawn(process.execPath, [VERIFY_SCRIPT, '--json'], { stdio: ['ignore', 'pipe', 'pipe'], cwd: ROOT });
+  } catch (e) {
+    VERIFY_STATE.running = false;
+    VERIFY_STATE.error = String((e && e.message) || e);
+    return false;
+  }
+  let out = '', timer = null;
+  const finish = () => {
+    if (timer) clearTimeout(timer);
+    let j = null;
+    try { j = JSON.parse(out); } catch { /* 输出被日志打断时宁可不算，也不报假数 */ }
+    if (j && Number.isFinite(j.pass)) {
+      VERIFY_STATE.data = {
+        pass: j.pass, total: j.total, plugins: j.plugins,
+        needBot: j.needBot || 0, needCfg: j.needCfg || 0, needNet: j.needNet || 0, fail: j.fail || 0,
+      };
+      VERIFY_STATE.at = Date.now();
+    } else if (!j) {
+      VERIFY_STATE.error = '实测脚本没返回可解析的结果';
+    }
+    VERIFY_STATE.running = false;
+  };
+  timer = setTimeout(() => { try { child.kill(); } catch {} finish(); }, VERIFY_TIMEOUT);
+  child.stdout.on('data', (d) => { out += d; });
+  child.stderr.on('data', () => {});
+  child.on('error', (e) => { VERIFY_STATE.error = String((e && e.message) || e); if (timer) clearTimeout(timer); VERIFY_STATE.running = false; });
+  child.on('close', finish);
+  return true;
+}
+
+/* ============ Star 数 ============
+ * 前端直接 fetch api.github.com 会被 CORS 拦，而且未登录限流只有 60 次/小时/IP，
+ * 公网上一有人访问就打满了。挪到服务端：拿到缓存 10 分钟，拿不到（没网/被限流）
+ * 就冷却 5 分钟不再重试，免得每个访客都陪着干等 6 秒超时。 */
+const STAR_TTL = 10 * 60 * 1000;
+const STAR_COOL = 5 * 60 * 1000;
+const STAR_STATE = { n: null, at: 0, failAt: 0, lastError: '' };
+
+async function fetchStars() {
+  try {
+    const r = await fetch('https://api.github.com/repos/qqbot-hub/qqbot-plugins', {
+      headers: { accept: 'application/vnd.github+json', 'user-agent': 'qqbot-plugins' },
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!r.ok) { STAR_STATE.lastError = 'GitHub 返回 ' + r.status; return null; }
+    const j = await r.json();
+    const n = Number(j && j.stargazers_count);
+    if (!Number.isFinite(n)) { STAR_STATE.lastError = 'GitHub 返回里没有 star 数'; return null; }
+    return n;
+  } catch (e) {
+    STAR_STATE.lastError = String((e && e.name) || (e && e.message) || e);
+    return null;
+  }
+}
+
+async function starsCached(force) {
+  const now = Date.now();
+  if (!force && STAR_STATE.n !== null && now - STAR_STATE.at < STAR_TTL) {
+    return { ok: true, stars: STAR_STATE.n, cached: true, error: '' };
+  }
+  /* 冷却内不再重试：刚失败过就别让下一个访客再卡一次超时 */
+  if (!force && STAR_STATE.failAt && now - STAR_STATE.failAt < STAR_COOL) {
+    return { ok: true, stars: null, cached: false, error: STAR_STATE.lastError };
+  }
+  const n = await fetchStars();
+  if (n === null) {
+    STAR_STATE.failAt = now;
+    return { ok: true, stars: null, cached: false, error: STAR_STATE.lastError };
+  }
+  STAR_STATE.n = n;
+  STAR_STATE.at = now;
+  STAR_STATE.failAt = 0;
+  return { ok: true, stars: n, cached: false, error: '' };
+}
+
+function verifyResult(force) {
+  const fresh = VERIFY_STATE.data && Date.now() - VERIFY_STATE.at < VERIFY_TTL;
+  if ((!fresh || force) && !VERIFY_STATE.running) runVerify();
+  return {
+    ok: true,
+    ready: !!VERIFY_STATE.data,
+    running: VERIFY_STATE.running,
+    fetchedAt: VERIFY_STATE.at ? new Date(VERIFY_STATE.at).toISOString() : '',
+    stale: !!VERIFY_STATE.data && !fresh,
+    error: VERIFY_STATE.error || '',
+    ...(VERIFY_STATE.data || {}),
+  };
+}
+
 function hubQuery(params) {
   const snap = hubSnapshot();
   const all = (snap && snap.entries) || [];
@@ -1535,6 +1640,16 @@ const server = http.createServer(async (req, res) => {
     if (method === 'POST' && p === '/api/hub/sync') {
       return sendJson(res, 200, await startHubSync());
     }
+    /* 实测结果：后台跑一遍 verify-plugins，结果缓存复用；通过数会随 QQ 在线状态浮动，
+     * 页面不能把「64 项通过」写死，否则 QQ 没开时它说的就是假话 */
+    if (method === 'GET' && p === '/api/verify') {
+      return sendJson(res, 200, verifyResult(new URL(req.url, 'http://x').searchParams.get('start') === '1'));
+    }
+    /* 仓库 star 数：服务端代取 + 缓存，前端不直连 GitHub（CORS 会被拦） */
+    if (method === 'GET' && p === '/api/stars') {
+      const sp = new URL(req.url, 'http://x').searchParams;
+      return sendJson(res, 200, await starsCached(sp.get('force') === '1'));
+    }
     /* 配套服务：调音台是否在跑 */
     if (method === 'GET' && p === '/api/lab/status') {
       const t = labTarget();
@@ -1667,5 +1782,7 @@ initSecrets().catch((e) => console.log('[secrets] 初始化失败（不影响启
     refreshHandlers().then(() => {
       console.log('消息路由就绪，已挂载 ' + handlerCache.length + ' 个插件处理器');
     }).catch(() => {});
+    /* 预热实测结果：起服就后台跑一遍，这样头一个进来的访客看到的也是真数 */
+    try { runVerify(); } catch {}
   });
 });

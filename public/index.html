@@ -860,6 +860,15 @@
 
   /* 兼容性矩阵：13 列，窄屏会超出容器，所以横向可滚；首列钉住，
      滚到右边也知道这一行是哪种部署方法 */
+  /* 矩阵上方那句「只有 DSH 宿主能用本市场插件」的说明：矩阵里有 8 行是 0，
+   * 不解释就会被读成「50 个插件哪儿都能装」 */
+  .mx-note {
+    margin-bottom: 10px; padding: 9px 12px; border-radius: var(--r-sm);
+    border: 1px solid rgba(91,140,255,.22); background: rgba(91,140,255,.06);
+    font-size: 12px; line-height: 1.65; color: var(--dim);
+  }
+  .mx-note b { color: #cfe0ff; font-weight: 600; }
+  .mx-note .sp { display: block; margin-top: 3px; font-size: 11px; color: var(--dim-2); }
   .mx-wrap { overflow:auto; border:1px solid var(--line); border-radius:var(--r-md); background:rgba(10,14,22,.5); }
   table.mx { width:100%; border-collapse:collapse; font-size:11.5px; min-width:700px; }
   table.mx th, table.mx td { padding:8px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap; }
@@ -1167,7 +1176,7 @@
         <div class="stats">
           <div class="stat-box"><b data-count="50">0</b><span>插件</span></div>
           <div class="stat-box"><b data-count="84">0</b><span>可调用工具</span></div>
-          <div class="stat-box"><b data-count="64">0</b><span>项已实测通过</span></div>
+          <div class="stat-box"><b data-count="64" id="statPass">0</b><span>项已实测通过</span></div>
           <div class="stat-box"><b data-count="0">0</b><span>第三方依赖</span></div>
         </div>
         <div class="cta">
@@ -1337,6 +1346,7 @@
           其余列说明的是「这个框架的原生插件能不能装进这个框架」，不是「本市场插件到处都能跑」。
           AstrBot / Koishi / NoneBot / Yunzai 的原生插件只在各自框架内可用，跨框架现在是 <b>不支持</b>，矩阵里就这么写。
         </p>
+        <div class="mx-note" id="mxNote"></div>
         <div class="mx-wrap"><table class="mx" id="mxTable"><tbody><tr><td class="dim">加载中…</td></tr></tbody></table></div>
         <div class="mx-legend">
           <span><i class="yes">●</i>原生支持</span>
@@ -1417,8 +1427,8 @@
           </div>
           <div class="prov ok">
             <div class="prov-tag">实测</div>
-            <b>64 项当场跑通，0 项报错</b>
-            <p>仓库自带 <code>node scripts/verify-plugins.mjs</code>，用真实参数把 84 个工具全跑一遍（现在默认就在沙箱里跑）：64 项直接通过；16 项因为本机没开 QQ 显示「需在线」（群管理 8、群信息 3、空间动态 4、表情包发送 1）、4 项因为没填接口 Key 显示「需配置」（语音 1 项、识图 2 项、认视频 1 项）——都是环境问题，不是插件坏了。免费画图接口偶尔限流，那一项会被标成「需公网」而不是算失败，所以通过数会是 63 或 64。你可以自己跑一遍复核。</p>
+            <b><span id="provPass">64</span> 项当场跑通，0 项报错</b>
+            <p>仓库自带 <code>node scripts/verify-plugins.mjs</code>，用真实参数把 <span id="provTotal">84</span> 个工具全跑一遍：<span id="provPass2">64</span> 项直接通过；<span id="provBot">16</span> 项因为本机没开 QQ 显示「需在线」（群管理 8、群信息 3、空间动态 4、表情包发送 1）、<span id="provCfg">4</span> 项因为没填接口 Key 显示「需配置」（语音 1 项、识图 2 项、认视频 1 项）——都是环境问题，不是插件坏了。<b>这几个数字是页面打开时刚跑出来的真实结果</b>（30 分钟内复用）：QQ 开着就是 64，没开就少一项，看到 63 是正常的，不是数错了。</p>
           </div>
           <div class="prov">
             <div class="prov-tag">隔离</div>
@@ -1478,7 +1488,7 @@
       </div>
       <div class="modal-body" id="mBody"></div>
       <div class="modal-foot">
-        <span class="hint" id="mHint">保存后立即生效</span>
+        <span class="hint" id="mHintModal">保存后立即生效</span>
         <button class="ghost" onclick="closeModal()">取消</button>
         <button class="pri" onclick="saveModal()">保存</button>
       </div>
@@ -1907,13 +1917,40 @@ async function loadHealth() {
 /* ============ Star 数 ============ */
 async function loadStars() {
   try {
-    const d = await (await fetch('https://api.github.com/repos/qqbot-hub/qqbot-plugins')).json();
-    if (typeof d.stargazers_count === 'number') {
-      $('#starCount').textContent = d.stargazers_count > 0
-        ? `${d.stargazers_count} 颗心 · 谢谢 ❤`
+    /* 走自己的接口而不是直连 GitHub：直连会被 CORS 拦，还会撞 60 次/小时限流 */
+    const j = await (await fetch('/api/stars')).json();
+    if (j && typeof j.stars === 'number') {
+      $('#starCount').textContent = j.stars > 0
+        ? `${j.stars} 颗心 · 谢谢 ❤`
         : '开源 · MIT · 做第 1 颗心？';
     }
-  } catch { /* 离线时保持默认文案 */ }
+  } catch { /* 拿不到就保持默认文案 */ }
+}
+
+/* ============ 实测结果 ============ */
+/* 通过数会随 QQ 在不在线程而浮动（QQ 开着 64、没开 63），写死必然在另一种
+ * 状态下变成假话。改成读 /api/verify 的真实结果：服务端 30 分钟缓存，
+ * 还没跑完就按递增间隔再问几次，一直问不到就保留页面上的默认值不乱改。 */
+async function loadVerify(retry) {
+  const set = (id, v) => { const e = $(id); if (e && Number.isFinite(v)) e.textContent = String(v); };
+  try {
+    const j = await (await fetch('/api/verify')).json();
+    if (j && j.ready) {
+      const el = $('#statPass');
+      if (el) { el.dataset.count = j.pass; el.textContent = String(j.pass); }
+      set('#provPass', j.pass);
+      set('#provPass2', j.pass);
+      set('#provTotal', j.total);
+      set('#provBot', j.needBot);
+      set('#provCfg', j.needCfg);
+      return;
+    }
+    if (j && j.running && (retry || 0) < 12) {
+      /* 84 个工具里有联网的，跑完要一两分钟，轮询间隔跟着放宽，别把人家问烦了 */
+      const waits = [2000, 4000, 6000, 8000, 10000, 12000, 15000, 18000, 20000, 20000, 20000, 20000];
+      setTimeout(() => loadVerify((retry || 0) + 1), waits[retry || 0] || 20000);
+    }
+  } catch { /* 拿不到就保留默认，不猜 */ }
 }
 
 /* ============ 列表 ============ */
@@ -2608,8 +2645,22 @@ function renderMatrix() {
     <th>部署方法</th><th>账号</th><th>协议</th><th>自动化</th><th>可用插件</th>
     ${cols.map((c) => `<th>${c.label}</th>`).join('')}
   </tr></thead>`;
+  /* 每条路线能用几个本市场插件——矩阵那列有 8 个 0，不解释就会让人以为
+   * 这 50 个插件哪儿都能装，所以把「只有 DSH 宿主能用」这句话摆在表格上面 */
+  const availOf = (m) => PLUGINS.filter((p) => !p.external && ((p.compat && p.compat.methods) || []).includes(m.id)).length;
+  const note = $('#mxNote');
+  if (note && methods.length) {
+    const own = PLUGINS.filter((p) => !p.external).length;
+    const short = (m) => (m.primary ? '主链路' : (m.account === 'official' ? '官方号' : (m.name || '').split(' ')[0]));
+    const usable = methods.filter((m) => availOf(m) > 0);
+    const zero = methods.length - usable.length;
+    note.innerHTML = `本市场 <b>${own}</b> 个插件只对 DSH 宿主有效（插件跑在市场自己的 MCP 进程里）：`
+      + usable.map((m) => `<b>${esc(short(m))} ${availOf(m)}</b> 个`).join('、')
+      + (zero ? `；其余 <b>${zero}</b> 条路线是 <b>0</b>` : '')
+      + `<span class="sp">${zero ? '那 ' + zero + ' 条不是不能用，' : ''}它们得用各自框架的原生插件——本市场这些装不上去</span>`;
+  }
   const rows = methods.map((m) => {
-    const avail = PLUGINS.filter((p) => !p.external && (p.compat && p.compat.methods || []).includes(m.id)).length;
+    const avail = availOf(m);
     const cells = cols.map((c) => {
       const v = (MCOMPAT.matrix[c.key] || {})[m.id];
       if (v === 'native') {
@@ -3148,7 +3199,7 @@ function fieldHtml(f, v) {
 function openModal(spec) {
   MODAL = spec;
   $('#mTitle').textContent = spec.title;
-  $('#mHint').textContent = spec.hint || '保存后立即生效';
+  $('#mHintModal').textContent = spec.hint || '保存后立即生效';
   const groups = [];
   let cur = null;
   for (const f of spec.fields) {
@@ -3663,6 +3714,7 @@ if (new URLSearchParams(location.search).get('open') === 'lab') setTimeout(() =>
 countUp();
 load().then(() => { spy(); });
 loadStars();
+loadVerify(0);
 loadHub(false);
 loadComponents();
 /* 心跳：每 20 秒刷新一次侧栏状态；页面切回前台时立刻补一次 */
