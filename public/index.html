@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
 <title>qqbot-plugins · AI QQ 机器人插件市场</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d1421'/%3E%3Cpath d='M9 21V13a3 3 0 0 1 3-3h6l5 5v6a3 3 0 0 1-3 3h-5' fill='none' stroke='%235b8cff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='17' r='1.6' fill='%2338bdf8'/%3E%3C/svg%3E">
 <style>
   /* ============ 设计令牌 ============ */
   :root {
@@ -151,10 +152,15 @@
   .stat-row .vl.ok { color: var(--ok); }
   .stat-row .vl.bad { color: var(--bad); }
   /* 协议端那行下面的一小行：昵称 · QQ 号 · 心跳延迟 */
+  /* 协议端那行下面的一小行：昵称 · QQ 号 · 心跳延迟。
+     侧栏只有 200 出头，昵称长一点就会顶掉心跳数字，所以允许折到第二行，
+     最多两行，再多才省略（title 里有全文）。 */
   .stat-sub {
-    font-size: 10.5px; line-height: 1.5; color: var(--dim-2);
-    padding-left: 15px; margin: -1px 0 1px; letter-spacing: .1px;
-    font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: 10px; line-height: 1.5; color: var(--dim-2);
+    padding-left: 15px; margin: -1px 0 1px; letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; word-break: break-word;
   }
   .stat-sub.bad { color: var(--bad); opacity: .82; }
   .hr { height: 1px; background: var(--line); margin: 7px 0; }
@@ -384,9 +390,22 @@
     border: 1px solid rgba(96,141,255,.4); border-radius: 999px; padding: 3px 10px;
     background: rgba(91,140,255,.12);
   }
-  .hub-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 18px 0 12px; }
+  .hub-badge.ok { color: #8ee8c8; border-color: rgba(47,220,166,.42); background: rgba(47,220,166,.1); }
+  #hub .sec-sub { color: rgba(222,233,247,.86); line-height: 1.78; text-wrap: pretty; }
+  #hub .sec-sub b { color: #eaf1ff; font-weight: 650; }
+  /* 两行：第一行平台筛选 + 状态，第二行搜索 / 排序 / 抓取。
+     以前筛选、搜索、状态全挤在一个 flex 里换行，宽屏时搜索被推到右边、
+     状态再单独掉一行，看起来像没对齐。 */
+  .hub-bar { display: flex; flex-direction: column; gap: 10px; margin: 16px 0 14px; }
   .hub-bar .seg { margin-bottom: 0; }
-  .hub-tools { display: flex; gap: 8px; align-items: center; margin-left: auto; flex-wrap: wrap; }
+  /* 筛选标签跟状态同一行：标签占左、状态贴右；标签放不下时自己换行，
+     状态始终待在右边，不会掉到下一行变成孤零零一行小字。 */
+  .hub-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px 12px; }
+  .hub-tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; width: 100%; }
+  .hub-tools .search { flex: 1 1 200px; min-width: 150px; }
+  .hub-tools .search input { height: 36px; padding-top: 0; padding-bottom: 0; }
+  .hub-tools select, .hub-tools .btn-ghost { flex: 0 0 auto; height: 36px; padding-top: 0; padding-bottom: 0; }
+  .hub-tools .search input, .hub-tools select, .hub-tools .btn-ghost { border-radius: 10px; }
   .hub-tools select {
     background: rgba(12,17,26,.82); color: var(--text); border: 1px solid var(--line);
     border-radius: 9px; padding: 7px 10px; font: inherit; font-size: 12px; outline: none;
@@ -397,7 +416,21 @@
   }
   .btn-ghost:hover { color: var(--text); border-color: rgba(91,140,255,.45); background: rgba(91,140,255,.07); }
   .btn-ghost[disabled] { opacity: .55; pointer-events: none; }
-  .hub-meta { font-size: 11px; color: var(--dim-2); font-variant-numeric: tabular-nums; }
+  .hub-meta {
+    justify-self: end; font-size: 11px; color: rgba(186,202,224,.82);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  /* 窄屏：状态挪到标签下面一行，别把标签挤成一条细柱子。
+     1260 是实测的临界值：再窄一点，标签 + 状态就放不进同一行了，
+     硬塞会导致标签缩成半宽、右边空一大块。 */
+  @media (max-width: 1259px) {
+    .hub-top { grid-template-columns: minmax(0, 1fr); }
+    .hub-meta { justify-self: start; }
+  }
+  /* 手机宽度：搜索独占一行，排序和抓取跟后面一排，别让按钮被挤到第三行 */
+  @media (max-width: 560px) {
+    .hub-tools .search { flex: 1 1 100%; }
+  }
   .hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(298px, 1fr)); gap: 11px; }
   .hub-card {
     display: flex; flex-direction: column; gap: 7px; padding: 13px 14px 12px;
@@ -639,7 +672,10 @@
     color: var(--accent-2); background: rgba(91,140,255,.11); border: 1px solid rgba(91,140,255,.25); margin-bottom: 8px;
   }
   .prov.ok .prov-tag { color: var(--ok); background: rgba(47,220,166,.11); border-color: rgba(47,220,166,.28); }
-  .prov b { display: block; font-size: 13px; margin-bottom: 5px; }
+  /* 卡片标题是加粗独行；但卡片正文里也有 <b> 强调（沙箱那两条），
+     以前这条规则写成 .prov b，把正文里的 <b> 也变成了 block 标题，段落被劈成两半 */
+  .prov > b { display: block; font-size: 13px; margin-bottom: 5px; }
+  .prov p b { display: inline; font-size: inherit; margin: 0; color: #e8f1ff; font-weight: 650; }
   .prov p { margin: 0; font-size: 11.5px; line-height: 1.72; color: var(--dim-2); }
 
   /* 搭桥 */
@@ -749,7 +785,7 @@
     .stats { grid-template-columns: repeat(2, 1fr); }
   }
   @media (max-width: 980px) {
-    .app { flex-direction: column; }
+    .app { flex-direction: column; align-items: stretch; }
     .side {
       width: 100%; flex: none; height: auto; position: static; overflow: visible;
       flex-direction: row; flex-wrap: wrap; align-items: center; gap: 12px;
@@ -818,13 +854,23 @@
   .mc-btns .pri:disabled { opacity:.45; cursor:not-allowed; }
   .mc-note { font-size:11px; color:var(--dim-2); line-height:1.5; }
 
-  /* 兼容性矩阵 */
+  /* 兼容性矩阵：13 列，窄屏会超出容器，所以横向可滚；首列钉住，
+     滚到右边也知道这一行是哪种部署方法 */
   .mx-wrap { overflow:auto; border:1px solid var(--line); border-radius:var(--r-md); background:rgba(10,14,22,.5); }
-  table.mx { width:100%; border-collapse:collapse; font-size:12px; min-width:760px; }
-  table.mx th, table.mx td { padding:8px 10px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap; }
+  table.mx { width:100%; border-collapse:collapse; font-size:11.5px; min-width:700px; }
+  table.mx th, table.mx td { padding:8px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap; }
   table.mx thead th { position:sticky; top:0; background:#0d1219; z-index:1; font-weight:600; color:#c8d5e8; font-size:11.5px; }
   table.mx tbody tr:hover td { background:rgba(255,255,255,.025); }
-  table.mx td.mname { white-space:normal; min-width:190px; }
+  table.mx td.mname { white-space:normal; min-width:172px; }
+  table.mx th:first-child, table.mx td:first-child {
+    position:sticky; left:0; z-index:2; background:#0c111a;
+    box-shadow:inset -1px 0 0 var(--line);
+  }
+  table.mx thead th:first-child { z-index:3; background:#0d1219; }
+  table.mx tbody tr:hover td:first-child { background:#111825; }
+  table.mx tr.primary td { background:rgba(47,220,166,.045); }
+  table.mx tr.primary td:first-child { background:#0d191a; }
+  table.mx tr.primary:hover td:first-child { background:#10201f; }
   table.mx .yes { color:var(--ok); }
   table.mx .no { color:var(--dim-2); }
   table.mx .part { color:var(--warn); }
@@ -859,6 +905,69 @@
   .perm-chip.warn { color:#ffd08a; border-color:rgba(255,180,84,.3); background:rgba(255,180,84,.07); }
   .perm-chip.info { color:#9fc0ff; border-color:rgba(91,140,255,.28); }
   .compat-chip { font-size:10px; padding:1px 6px; border-radius:999px; border:1px dashed rgba(91,140,255,.35); color:#a8c4ff; }
+  /* 主链路徽章：兼容 SnowLuma + qq-bridge + DSH 的插件优先显示这个，而不是「兼容 N 种」 */
+  .compat-chip.primary {
+    color:#8ee8c8; border-style:solid; border-color:rgba(47,220,166,.45);
+    background:rgba(47,220,166,.1); font-weight:600;
+  }
+  .compat-chip.primary.warn { color:#ffd08a; border-color:rgba(255,180,84,.4); background:rgba(255,180,84,.09); }
+  .compat-chip.primary.soft { color:#7fc9b3; border-color:rgba(47,220,166,.22); background:rgba(47,220,166,.05); font-weight:500; }
+
+  /* ============ 主链路专区（SnowLuma + qq-bridge + DSH） ============ */
+  .pzone { display:grid; grid-template-columns:repeat(auto-fit,minmax(248px,1fr)); gap:12px; }
+  .pcard {
+    position:relative; display:flex; flex-direction:column; gap:8px;
+    padding:15px 16px 14px; border-radius:var(--r-md);
+    border:1px solid rgba(47,220,166,.24);
+    background:
+      radial-gradient(300px 140px at 0% 0%, rgba(47,220,166,.10), transparent 72%),
+      linear-gradient(180deg, rgba(20,32,38,.72), rgba(13,18,27,.55));
+    transition:transform .22s var(--ease), border-color .22s, box-shadow .22s;
+  }
+  .pcard:hover { transform:translateY(-2px); border-color:rgba(47,220,166,.42); box-shadow:var(--shadow-2); }
+  .pcard .pc-h { display:flex; align-items:center; gap:8px; }
+  .pcard .pc-ic { font-size:16px; line-height:1; }
+  .pcard h3 { margin:0; font-size:14px; font-weight:650; }
+  .pcard .pc-d { margin:0; font-size:12.5px; line-height:1.62; color:var(--dim); min-height:56px; }
+  .pcard .pc-tools { display:flex; flex-wrap:wrap; gap:4px; }
+  .pcard .pc-tools code {
+    font-size:10px; padding:1px 6px; border-radius:4px; color:#9cb0cf;
+    background:rgba(255,255,255,.035); border:1px solid var(--line);
+    font-family:ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  .pcard .pc-foot { display:flex; align-items:center; gap:7px; margin-top:auto; padding-top:4px; flex-wrap:wrap; }
+  .pcard .pc-foot button { flex:0 0 auto; }
+  .pcard .pc-state { flex:1 1 100%; text-align:right; font-size:10.5px; color:var(--dim-2); white-space:nowrap; }
+  .pcard .pc-state.ok { color:var(--ok); }
+  .pcard .pc-state.bad { color:var(--warn); }
+
+  /* 主推部署卡：跨两列 + 右上角旗标，让它在一堆方法里第一眼就能看见 */
+  .mcard.primary {
+    grid-column:span 2;
+    border-color:rgba(47,220,166,.34);
+    background:
+      radial-gradient(420px 180px at 0% 0%, rgba(47,220,166,.12), transparent 74%),
+      linear-gradient(180deg, rgba(18,36,34,.8), rgba(13,19,27,.6));
+    box-shadow:0 0 0 1px rgba(47,220,166,.07), var(--shadow-2);
+  }
+  .mcard.primary::before {
+    content:""; position:absolute; inset:0 0 auto 0; height:2px; border-radius:var(--r-md) var(--r-md) 0 0;
+    background:linear-gradient(90deg, transparent, var(--ok), transparent); opacity:.7;
+  }
+  .mcard.primary .mc-name { font-size:17px; }
+  .mcard.primary .mc-top { padding-right:86px; }
+  .mc-flag {
+    position:absolute; top:0; right:0; font-size:10px; font-weight:700; letter-spacing:.6px;
+    padding:4px 11px; color:#04140f; border-bottom-left-radius:10px;
+    background:linear-gradient(135deg,#4df2ba,#1fbd8d);
+  }
+  @media (max-width:820px) { .mcard.primary { grid-column:1/-1; } }
+  .mgrid-sep {
+    grid-column:1/-1; display:flex; align-items:center; gap:12px;
+    margin:14px 0 2px; font-size:12px; color:var(--dim-2);
+  }
+  .mgrid-sep::after { content:""; flex:1; height:1px; background:linear-gradient(90deg, var(--line-2), transparent); }
+  .mgrid-sep b { color:var(--dim); font-weight:600; }
   .confirm-box { border:1px solid rgba(255,180,84,.3); background:rgba(255,180,84,.06); border-radius:9px; padding:11px 13px; margin:12px 0; }
   .confirm-box h4 { margin:0 0 6px; font-size:13px; color:#ffd08a; }
   .confirm-box ul { margin:6px 0 0; padding-left:18px; font-size:12.5px; color:#e8d9c4; }
@@ -988,6 +1097,7 @@
 
     <div class="side-label">导航</div>
     <nav class="nav">
+      <a href="#primary" data-nav="primary"><span class="ic">★</span>主链路直连</a>
       <a href="#monitor" data-nav="monitor"><span class="ic">◎</span>运行监控</a>
       <a href="#methods" data-nav="methods"><span class="ic">▤</span>部署方法</a>
       <a href="#market" data-nav="market"><span class="ic">▦</span>插件市场</a>
@@ -1037,7 +1147,7 @@
         <div class="topbar-row">
           <div class="crumb"><i>插件市场</i> / AI QQ 机器人</div>
           <span class="kbd">/</span><span style="font-size:10.5px;color:var(--dim-2)">搜索</span>
-          <button onclick="load()">刷新</button>
+          <button onclick="load().then(() => toast('已刷新：插件 / 端口 / 方法都重新读了一遍', 'ok'))">刷新</button>
         </div>
       </div>
 
@@ -1047,13 +1157,13 @@
         <p class="lede">
           教程只教会它说话。这里给它更多——
           <strong>一段记得住你的记忆、一副能开口的嗓子、一支会画画的笔，和一双能替你管群的手。</strong>
-          <strong>47 个插件、76 项能力</strong>，点一下安装就变成 AI 能自己调用的工具：
+          <strong>50 个插件、84 项能力</strong>，点一下安装就变成 AI 能自己调用的工具：
           它会记得你不吃辣，会用语音回你，会按描述画图，会在群里禁言、记账、发提醒，还能陪人玩一整天成语接龙。
         </p>
         <div class="stats">
-          <div class="stat-box"><b data-count="47">0</b><span>插件</span></div>
-          <div class="stat-box"><b data-count="76">0</b><span>可调用工具</span></div>
-          <div class="stat-box"><b data-count="60">0</b><span>项已实测通过</span></div>
+          <div class="stat-box"><b data-count="50">0</b><span>插件</span></div>
+          <div class="stat-box"><b data-count="84">0</b><span>可调用工具</span></div>
+          <div class="stat-box"><b data-count="64">0</b><span>项已实测通过</span></div>
           <div class="stat-box"><b data-count="0">0</b><span>第三方依赖</span></div>
         </div>
         <div class="cta">
@@ -1139,7 +1249,7 @@
           <div class="arw">→</div>
           <div class="node"><i>🔗</i><b>qq-bridge</b><span>消息中转<br>控制台 3100</span></div>
           <div class="arw">→</div>
-          <div class="node"><i>🐟</i><b>DSH</b><span>DeepSeek Harness<br>大肥鱼 3080</span></div>
+          <div class="node"><i>🐟</i><b>DSH</b><span>DeepSeek Harness<br>大肥鱼 · 端口自动探测</span></div>
           <div class="arw">→</div>
           <div class="node hot"><i>🧰</i><b>本市场</b><span>MCP 插件层<br>mcp__qqbot__*</span></div>
         </div>
@@ -1166,8 +1276,34 @@
         <div class="dep-list" id="depList"></div>
       </section>
 
+      <!-- 主链路专区：站内主推的那条（SnowLuma + qq-bridge + DSH） -->
+      <section class="sec" id="primary">
+        <div class="sec-head">
+          <h2>主链路直连</h2>
+          <span class="hub-badge" id="priBadge">SnowLuma + qq-bridge + DSH · 站内主推</span>
+          <span class="ln"></span>
+        </div>
+        <p class="sec-sub">
+          大部分人现在用的就是这条：<b>SnowLuma 登一次 QQ，qq-bridge 中转，DSH 当大脑</b>。
+          下面这几项跟它绑得最紧——<b>识图、表情包（发与偷）、认视频、空间动态、语音调音、群管理、群信息</b>，
+          接口都按这条链路调好；点「一键接入」会真的做三件事：装上插件、写进 DSH 的配置、告诉你要重启。
+          其中<b>识图和认视频只调模型接口，不开协议端也能用</b>（识图要 Key 或本机 Ollama，认视频要支持视频的接口）；
+          其余几项需要协议端讲 OneBot v11。其他路线在下面照样全列着。
+        </p>
+        <div class="pzone" id="pList"></div>
+      </section>
+
       <section class="sec" id="market">
-        <div class="sec-head"><h2>插件列表</h2><span class="ln"></span></div>
+        <div class="sec-head">
+          <h2>插件列表</h2>
+          <span class="hub-badge ok">绿色徽章 = 主链路直连</span>
+          <span class="ln"></span>
+        </div>
+        <p class="sec-sub">
+          优先做给 <b>SnowLuma + qq-bridge + DSH</b> 这条链路看的：能直接跑在上面的插件带绿色徽章，
+          没装的点「一键接入」会走完整流程——校验插件文件 → 查必填配置 → 确认已注册进 DSH → 自检，
+          不是改个状态位就算装好。走别的路线也能用的插件全都还在列表里，徽章上会写清楚兼容哪些方法。
+        </p>
         <div class="toolbar">
           <div class="search">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
@@ -1214,6 +1350,8 @@
           同一个插件能不能装，取决于两件事：<b>它跑在哪个宿主里</b>、<b>它要不要调用协议端动作</b>。
           本市场的插件是零依赖 <code>.mjs</code>，跑在市场自己的 MCP 进程里，所以只对 DSH 宿主有效；
           纯本地工具（报时、抽签）不碰协议端，官方通道也能用；要发消息、禁言的则必须 OneBot v11。
+          标了 <span class="tag ver-ok" style="font-size:9.5px">主链路</span> 的那一行（SnowLuma + qq-bridge + DSH）是它们的主场，
+          其余列说明的是「这个框架的原生插件能不能装进这个框架」，不是「本市场插件到处都能跑」。
           AstrBot / Koishi / NoneBot / Yunzai 的原生插件只在各自框架内可用，跨框架现在是 <b>不支持</b>，矩阵里就这么写。
         </p>
         <div class="mx-wrap"><table class="mx" id="mxTable"><tbody><tr><td class="dim">加载中…</td></tr></tbody></table></div>
@@ -1231,15 +1369,18 @@
           <span class="hub-badge">平台聚合 · 持续抓取</span>
           <span class="ln"></span>
         </div>
-        <p class="sec-sub" style="color:rgba(220,231,246,.85)">
+        <p class="sec-sub">
           像外卖平台一样：不自己做所有菜，但把各家店都摆在一张桌上。这里聚合 Yunzai / NoneBot / Koishi / AstrBot / OneBot
-          生态里真实存在的插件仓库，统一检索。<b style="color:#e8f0ff">目录接入 ≠ 能直接装</b>——它们依赖各自的加载器，点「复制适配提示词」
+          生态里真实存在的插件仓库，统一检索。<b>目录接入 ≠ 能直接装</b>——它们依赖各自的加载器，点「复制适配提示词」
           就能让它按本市场的规范重写成一个零依赖的 <code>.mjs</code> 插件。
         </p>
         <div class="hub-bar">
-          <div class="seg" id="hubChips"></div>
+          <div class="hub-top">
+            <div class="seg" id="hubChips"></div>
+            <span class="hub-meta" id="hubMeta">加载中…</span>
+          </div>
           <div class="hub-tools">
-            <div class="search" style="flex:0 1 240px">
+            <div class="search">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
                 <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/>
               </svg>
@@ -1251,7 +1392,6 @@
               <option value="name">按名字</option>
             </select>
             <button class="btn-ghost" id="hubSync" onclick="syncHub()">重新抓取</button>
-            <span class="hub-meta" id="hubMeta">加载中…</span>
           </div>
         </div>
         <div class="hub-grid" id="hubList"></div>
@@ -1264,18 +1404,18 @@
         <div class="prov-grid">
           <div class="prov">
             <div class="prov-tag">目录</div>
-            <b>47 个插件、76 个工具的定义</b>
+            <b>50 个插件、84 个工具的定义</b>
             <p>名称、功能描述、工具名与参数，抓取自公开的 QQ 插件市场站点，并保留了各插件的上游出处（AstrBot / NoneBot / Koishi / Yunzai 社区同名插件），卡片上的「源自 xxx」就是那个链接。</p>
           </div>
           <div class="prov">
             <div class="prov-tag">实现</div>
             <b>每个插件都是可运行的代码</b>
-            <p>原站的插件依赖它自己的加载器，抓不到实现。所以 47 个插件的能力都由本项目重新写成零依赖的 MCP 工具，跑在 Node 上，不装任何第三方包。</p>
+            <p>原站的插件依赖它自己的加载器，抓不到实现。所以 50 个插件的能力都由本项目重新写成零依赖的 MCP 工具，跑在 Node 上，不装任何第三方包。</p>
           </div>
           <div class="prov ok">
             <div class="prov-tag">实测</div>
-            <b>59~60 项当场跑通，0 项报错</b>
-            <p>仓库自带 <code>node scripts/verify-plugins.mjs</code>，用真实参数把 76 个工具全跑一遍（现在默认就在沙箱里跑）：60 项直接通过；15 项因为本机没开 QQ 显示「需在线」、1 项因为没填语音 Key 显示「需配置」——都是环境问题，不是插件坏了。免费画图接口偶尔限流，那一项会被标成「需公网」而不是算失败，所以通过数会是 59 或 60。你可以自己跑一遍复核。</p>
+            <b>64 项当场跑通，0 项报错</b>
+            <p>仓库自带 <code>node scripts/verify-plugins.mjs</code>，用真实参数把 84 个工具全跑一遍（现在默认就在沙箱里跑）：64 项直接通过；16 项因为本机没开 QQ 显示「需在线」（群管理 8、群信息 3、空间动态 4、表情包发送 1）、4 项因为没填接口 Key 显示「需配置」（语音 1 项、识图 2 项、认视频 1 项）——都是环境问题，不是插件坏了。免费画图接口偶尔限流，那一项会被标成「需公网」而不是算失败，所以通过数会是 63 或 64。你可以自己跑一遍复核。</p>
           </div>
           <div class="prov">
             <div class="prov-tag">隔离</div>
@@ -1296,7 +1436,7 @@
           <p class="sub">与 qq-bridge 官方挂 <code>mcp__snowluma__</code> 使用同一份配置文件、同一格式，互不冲突；不改动 qq-bridge 任何文件。</p>
           <div class="steps">
             <div class="step"><div class="no">1</div><b>确认链路通</b>SnowLuma（3000/3001）与 qq-bridge 已按教程跑通，DSH 里发一句话有回复。</div>
-            <div class="step"><div class="no">2</div><b>一键写入</b>点右侧按钮，把本市场写进 <code>cordis.patch.yml</code>（自动备份、可重复执行）。</div>
+            <div class="step"><div class="no">2</div><b>一键写入</b>点下面的「一键接入 DSH」，把本市场写进 <code>cordis.patch.yml</code>（自动备份、可重复执行）。</div>
             <div class="step"><div class="no">3</div><b>完整重启 DSH</b>preset 与 MCP 只在启动时加载，务必完整退出再打开。</div>
             <div class="step"><div class="no">4</div><b>验证生效</b>在 DSH 里搜 <code>mcp__qqbot__</code>，能看到工具即搭桥成功。</div>
           </div>
@@ -1346,6 +1486,20 @@
 
 <script>
 let PLUGINS = [], CAT = '全部';
+/* 主链路：SnowLuma + qq-bridge + DSH。由 /api/list 回传本机依赖是否齐（primary.ready），
+ * 前端只用它决定徽章怎么写，不自己编「已就绪」。 */
+let PRIMARY = { methodId: 'snowluma-dsh', name: '', ready: false, missing: [] };
+/* 主链路专区里固定展示的几项：跟这条链路绑得最紧的能力，顺序就是重要性 */
+const PRIMARY_PICKS = [
+  { id: 'qzone', ic: '📷', label: 'QQ 空间动态', note: '发说说 / 看好友动态 / 删自己的说说；不用再登一次号，走协议端已登录的那个号', needBot: true },
+  { id: 'voice', ic: '🎙', label: '语音与调音', note: '文字转语音发到群里，音色在本市场「调音台」里调好一键写入；没调音台也能用默认音色', needBot: true },
+  { id: 'vision', ic: '👁', label: 'QQ 识图', note: '群友发图问「这是什么」「图里写的啥」直接答，截图里的字能逐行读出来；云端要 Key，本机 Ollama 免 Key、图不出本机', needBot: false },
+  { id: 'sticker', ic: '🎭', label: '发表情包 / 偷表情包', note: '群友发的表情一句话存进本地库，之后按关键词随手发。发和偷共用一个库，所以是一张卡', needBot: true },
+  { id: 'video', ic: '🎬', label: '识别视频', note: '说出视频里拍了什么：有 mp4 直链就逐帧看（配 DashScope）；B 站/抖音分享页只能拿到标题和封面，会直说看不到中间过程', needBot: false },
+  { id: 'group_admin', ic: '🛡', label: '群管理', note: '禁言 / 解禁 / 踢人 / 设管理 / 改名片，都按机器人自己的群权限执行，越权会明确拒绝', needBot: true },
+  { id: 'group_info', ic: '👥', label: '群信息', note: '查群成员、群资料、成员名片，给「谁在群里」这类问题一个确切答案', needBot: true },
+];
+const PRIMARY_IDS = new Set(PRIMARY_PICKS.map((x) => x.id));
 
 /* ============ 生态插件（真实第三方商店） ============
  * SRC = 市场顶部的「来源」：native 是本平台重写的 .mjs，
@@ -1773,12 +1927,14 @@ async function load() {
   loadMethods();
   const r = await (await fetch('/api/list')).json();
   PLUGINS = r.plugins || [];
+  if (r.primary) PRIMARY = Object.assign({}, PRIMARY, r.primary);
   const mcpPlugins = PLUGINS.filter((p) => !p.external);
   const counts = {};
   mcpPlugins.forEach((p) => { counts[p.category] = (counts[p.category] || 0) + 1; });
   renderChips(counts, mcpPlugins.length);
   renderSrcBar();
   render();
+  renderPrimary();
   loadCompat();
   if (SRC !== 'native') loadEco(true);
   /* 生态目录的框架计数只为了在来源条上显示数字，拉一次不重渲染 */
@@ -1835,6 +1991,70 @@ function render() {
     : `<div class="empty"><b>没有匹配的插件</b>换个关键词，或者点上面的「全部」看看</div>`;
   $('#ecoMore').innerHTML = '';
   renderCompanion();
+}
+
+/* ============ 主链路专区（SnowLuma + qq-bridge + DSH） ============
+ * 这几项跟主链路绑得最紧：空间动态、语音调音、群管理、群信息。
+ * 状态只报探测到的事实——协议端没起来就说没起来，不为了让卡片好看而写"已就绪"。 */
+function protocolOnline() {
+  const proto = (COMPS || []).filter((c) => c.role === 'protocol' && !c.alternativeTo);
+  if (!proto.length) return null;             /* 组件还没加载完：未知，不猜 */
+  return proto.some((c) => c.running);
+}
+
+function renderPrimary() {
+  const box = $('#pList');
+  if (!box) return;
+  const online = protocolOnline();
+  const items = PRIMARY_PICKS.map((pick) => {
+    const p = (PLUGINS || []).find((x) => x.id === pick.id);
+    if (!p) return '';
+    const on = !!p.installed && !!p.enabled;
+    /* 识图 / 认视频不走协议端：它们只调模型接口，网关没起来照样能用。
+     * 给它们硬标「协议端在线」会让人以为必须先开网关，所以单独写一句。 */
+    const state = pick.needBot === false
+      ? `<span class="pc-state">不依赖协议端${p.hasSettings ? ' · 配好接口就能用' : ''}</span>`
+      : online == null
+        ? '<span class="pc-state">协议端状态未知</span>'
+        : (online ? '<span class="pc-state ok">● 协议端在线</span>' : '<span class="pc-state bad">○ 协议端未启动</span>');
+    const btns = on
+      ? `<button class="ghost" onclick="op('toggle','${p.id}',{enabled:false})">停用</button>` +
+        (p.hasSettings ? `<button class="gear" onclick="openPluginCfg('${p.id}')">⚙ 配置</button>` : '') +
+        (pick.id === 'voice' ? '<button class="gear" onclick="openLab(event)">🎛 调音台</button>' : '') +
+        '<span class="pc-state ok">✓ 已接入</span>'
+      : `<button class="pri" onclick="quickJoin('${p.id}')">一键接入主链路</button>` +
+        (p.hasSettings ? `<button class="gear" onclick="openPluginCfg('${p.id}')" title="先填必填项再接入">⚙ 配置</button>` : '') +
+        (pick.id === 'voice' ? '<button class="gear" onclick="openLab(event)">🎛 调音台</button>' : '');
+    const tools = (p.tools || []).slice(0, 4).map((t) => `<code>${esc(t.name)}</code>`).join('');
+    return `<article class="pcard">
+      <div class="pc-h"><span class="pc-ic">${pick.ic}</span><h3>${esc(pick.label)}</h3></div>
+      <p class="pc-d">${esc(pick.note)}</p>
+      <div class="pc-tools">${tools}</div>
+      <div class="pc-foot">${btns}${on ? '' : state}</div>
+    </article>`;
+  }).join('');
+  box.innerHTML = items || '<div class="hub-empty">插件清单还没加载出来</div>';
+
+  const badge = $('#priBadge');
+  if (badge) {
+    badge.textContent = PRIMARY.ready
+      ? 'SnowLuma + qq-bridge + DSH · 本机依赖已齐'
+      : 'SnowLuma + qq-bridge + DSH · 本机还缺 ' + ((PRIMARY.missing || []).slice(0, 2).join('、') || '未知');
+    badge.className = 'hub-badge' + (PRIMARY.ready ? ' ok' : '');
+  }
+}
+
+/* 一键接入：走和「安装」同一条真实流水线——校验插件文件 → 查必填配置 → 写状态
+ * → 确认已注册进 DSH（没注册自动补）→ 自检。不在前端另造一个「假一键」：
+ * 那种做法只改了状态位，DSH 里根本看不到工具，用户装完一脸问号。 */
+async function quickJoin(id) {
+  const p = (PLUGINS || []).find((x) => x.id === id);
+  if (!p) return;
+  const st = await startInstall('plugin', { id }, `${p.name} · 一键接入主链路`);
+  if (st === 'done') toast(`「${p.name}」已接进主链路；重启 DSH 后在对话里搜 mcp__qqbot__ 验证`, 'ok');
+  else if (st === 'manual') toast(`「${p.name}」还差必填配置，填完再点一次「一键接入」`, 'warn');
+  else toast(`「${p.name}」没接完，展开上面那份步骤看哪一步红了`, 'err');
+  load();
 }
 
 /* ---------- 生态视图 ---------- */
@@ -1896,7 +2116,7 @@ function renderEco() {
   if (!list.length) {
     box.innerHTML = `<div class="eco-empty">${ECO.syncing
       ? '正在同步生态目录，稍等几秒再刷新…'
-      : '这个筛选下没有插件'}</div>`;
+      : '这个筛选下没有插件。换个关键词，或者点上面的「生态全部」。'}</div>`;
     $('#ecoMore').innerHTML = '';
     if (ECO.syncing) setTimeout(() => { if (SRC !== 'native') loadEco(true); }, 3000);
     return;
@@ -2101,7 +2321,15 @@ function renderMethods() {
   const list = METHODS.filter((m) => MACC === '全部' ? true
     : MACC === '可一键' ? (m.deploy.level === 'oneclick' || m.deploy.level === 'compose')
     : ACC_LABEL[m.account] === MACC);
-  box.innerHTML = list.map((m) => methodCard(m)).join('') || '<div class="hub-empty">这个筛选下没有方法</div>';
+  const mains = list.filter((m) => m.primary);
+  const rest = list.filter((m) => !m.primary);
+  /* 主链路单独拎出来置顶，其余路线照样全列——不砍，只排序 */
+  const html = mains.map((m) => methodCard(m)).join('')
+    + (mains.length && rest.length
+      ? `<div class="mgrid-sep"><b>其他路线</b><span>同样完整支持、照样能部署；只是本市场的插件能力是按主链路调好的</span></div>`
+      : '')
+    + rest.map((m) => methodCard(m)).join('');
+  box.innerHTML = html || '<div class="hub-empty">这个筛选下没有方法</div>';
 
   const rt = MRUNTIME || {};
   const bits = [
@@ -2115,6 +2343,7 @@ function renderMethods() {
 function methodCard(m) {
   const d = m.deploy || {};
   const lv = d.level || 'guide';
+  const isPrimary = !!m.primary;
   const key = (d.kind === 'compose') ? 'compose' : (d.verified ? 'verified' : 'unverified');
   const accTag = `<span class="tag ${m.account}">${ACC_LABEL[m.account] || m.account}</span>`;
   const lvTag = `<span class="tag ${LV_CLASS[lv] || ''}">${esc(d.levelLabel || lv)}</span>`;
@@ -2128,9 +2357,12 @@ function methodCard(m) {
     ? `<div class="mc-miss">本机还缺：${m.missing.map(esc).join('、')}</div>` : '';
   const canRun = lv === 'oneclick' || lv === 'compose';
   const btn = canRun
-    ? `<button class="pri" data-deploy="${esc(m.id)}" ${m.ready ? '' : 'disabled'}>${m.ready ? '部署' : '依赖未满足'}</button>`
+    ? `<button class="pri" data-deploy="${esc(m.id)}" ${m.ready ? '' : 'disabled'}>${m.ready ? (isPrimary ? '部署整条链路' : '部署') : '依赖未满足'}</button>`
     : `<button class="pri" data-detail="${esc(m.id)}">查看步骤</button>`;
-  return `<article class="mcard ${m.missing && m.missing.length ? 'miss' : ''}">
+  const pnote = isPrimary && m.primaryNote
+    ? `<p class="mc-note">${esc(m.primaryNote)}</p>` : '';
+  return `<article class="mcard ${isPrimary ? 'primary' : ''} ${m.missing && m.missing.length ? 'miss' : ''}">
+    ${isPrimary ? '<span class="mc-flag">站内主推</span>' : ''}
     <div class="mc-top">${accTag}${lvTag}${verTag}</div>
     <h3 class="mc-name">${esc(m.name)}</h3>
     <p class="mc-tag">${esc(m.tagline || '')}</p>
@@ -2141,6 +2373,7 @@ function methodCard(m) {
       <b>端口</b><span>${ports}</span>
       <b>依赖</b><span>${reqs}</span>
     </div>
+    ${pnote}
     ${miss}
     <div class="mc-btns">${btn}<button class="ghost" data-detail="${esc(m.id)}">详情</button></div>
   </article>`;
@@ -2381,8 +2614,8 @@ function renderMatrix() {
       }
       return '<td class="no">○</td>';
     }).join('');
-    return `<tr>
-      <td class="mname"><b>${esc(m.name)}</b>${m.verified ? '' : '<br><span style="font-size:10.5px;color:var(--warn)">未在本机验证</span>'}</td>
+    return `<tr${m.primary ? ' class="primary"' : ''}>
+      <td class="mname"><b>${esc(m.name)}</b>${m.primary ? ' <span class="tag ver-ok" style="font-size:9.5px">主链路</span>' : ''}${m.verified ? '' : '<br><span style="font-size:10.5px;color:var(--warn)">未在本机验证</span>'}</td>
       <td>${m.account === 'personal' ? '个人号' : '官方号'}</td>
       <td>${(m.protocols || []).join('<br>')}</td>
       <td>${esc(m.levelLabel)}</td>
@@ -2472,6 +2705,7 @@ async function loadComponents() {
     const r = await (await fetch('/api/components')).json();
     COMPS = (r.components || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
     renderDeploy();
+    renderPrimary();     /* 协议端起没起来，直接影响主链专区那几张卡的状态 */
   } catch (e) {
     const box = $('#depList');
     if (box) box.innerHTML = `<div class="hub-empty">读不到组件清单：${esc(e.message)}</div>`;
@@ -2786,7 +3020,7 @@ function renderCompanion() {
 function card(p, i) {
   const color = catColor(p.category);
   const src = p.source && p.source.label
-    ? `<span class="chip-src" title="${p.source.label}${p.source.url ? ' · ' + p.source.url : ''}">源自 ${p.source.label}</span>`
+    ? `<span class="chip-src" title="${esc(p.source.label)}${p.source.url ? ' · ' + esc(p.source.url) : ''}">源自 ${esc(p.source.label)}</span>`
     : '';
   const tools = (p.tools || []).map((t) =>
     `<code title="${String(t.description || '').replace(/"/g, '&quot;')}">${t.name}</code>`).join('');
@@ -2796,20 +3030,37 @@ function card(p, i) {
   const btns = p.installed
     ? `<button onclick="op('toggle','${p.id}',{enabled:${!p.enabled}})">${p.enabled ? '停用' : '启用'}</button>
        <button class="ghost" onclick="op('uninstall','${p.id}')">卸载</button>`
-    : `<button class="pri" onclick="confirmInstall('${p.id}')">安装</button>`;
+    : (p.compat && p.compat.primary
+      ? `<button class="pri" onclick="quickJoin('${p.id}')" title="装插件 + 确认已注册进 DSH + 自检，整条走完">一键接入</button>
+         <button class="ghost" onclick="confirmInstall('${p.id}')">仅安装</button>`
+      : `<button class="pri" onclick="confirmInstall('${p.id}')">安装</button>`);
   const gear = p.hasSettings
     ? `<button class="gear" onclick="openPluginCfg('${p.id}')" title="配置这个插件">⚙ 配置</button>` : '';
   /* 权限来自对源码的静态扫描；兼容方法来自 methods.json，都不手写 */
   const perms = (p.permissions || []).map((x) =>
     `<span class="perm-chip ${x.level}" title="${esc(x.why || '')}">${esc(x.label)}</span>`).join('');
-  const nCompat = (p.compat && p.compat.methods || []).length;
-  const compatNames = (p.compat && p.compat.methods || []).map((id) => {
+  /* 兼容徽章：主链路优先。这条链路是本市场的主场，先告诉用户「它在这条上直接可用」，
+   * 再看还能装到哪些其它路线上——而不是给一串方法名让人自己数。 */
+  const cm = p.compat || {};
+  const compatIds = cm.methods || [];
+  const nCompat = compatIds.length;
+  const compatNames = compatIds.map((id) => {
     const m = (METHODS || []).find((x) => x.id === id);
     return m ? m.name.split(' ')[0] + (m.name.includes('+') ? '+' : '') : id;
   });
-  const compatChip = nCompat
-    ? `<span class="compat-chip" title="兼容：${compatNames.join('、')}">兼容 ${nCompat} 种部署方法</span>`
-    : '<span class="compat-chip" style="color:var(--warn);border-color:rgba(255,180,84,.35)">当前没有可用方法</span>';
+  let compatChip;
+  if (cm.primary && cm.primaryReady && PRIMARY_IDS.has(p.id)) {
+    /* 主链路专区里那几项（识图/表情包/认视频/空间/语音/群管理/群信息）：招牌能力，给实心徽章 */
+    compatChip = `<span class="compat-chip primary" title="SnowLuma + qq-bridge + DSH：依赖齐了，装上就能调。${nCompat > 1 ? '另外还兼容：' + compatNames.slice(1).join('、') : ''}">主链路直连</span>`;
+  } else if (cm.primary && cm.primaryReady) {
+    compatChip = `<span class="compat-chip primary soft" title="SnowLuma + qq-bridge + DSH：装上就能用。${nCompat > 1 ? '另外还兼容：' + compatNames.slice(1).join('、') : ''}">主链路 ✓</span>`;
+  } else if (cm.primary) {
+    compatChip = `<span class="compat-chip primary warn" title="主链路还缺：${esc((cm.primaryMissing || []).join('、') || '本机依赖')}。插件仍可安装，等依赖补齐再用">主链路 · 待补依赖</span>`;
+  } else if (nCompat) {
+    compatChip = `<span class="compat-chip" title="这条插件不走主链路，兼容：${compatNames.join('、')}">兼容 ${nCompat} 种部署方法</span>`;
+  } else {
+    compatChip = '<span class="compat-chip" style="color:var(--warn);border-color:rgba(255,180,84,.35)">当前没有可用方法</span>';
+  }
   const meta = `<div class="c-meta">
       <span title="宿主框架">${esc(p.framework || 'mcp')}</span><span>·</span>
       <span>${esc(p.language || 'JavaScript')}</span><span>·</span>
@@ -2939,12 +3190,20 @@ async function saveModal() {
 async function openPluginCfg(id) {
   const r = await (await fetch('/api/plugin-config?id=' + encodeURIComponent(id))).json();
   if (!r.ok) return toast(r.error || '取配置失败', 'err');
+  /* 密钥字段后端只回"配过没有"，不回值。这里把占位符改成提示，
+   * 否则用户看到一个空输入框会以为 Key 丢了，重新填一遍。 */
+  const conf = (r.values && r.values.__configured) || {};
+  const fields = (r.schema.fields || []).map((f) => (
+    f.type === 'password' && conf[f.key]
+      ? Object.assign({}, f, { placeholder: '已配置（留空则保持不变）' })
+      : f
+  ));
   openModal({
-    title: '配置 · ' + id,
+    title: '配置 · ' + ((PLUGINS.find((p) => p.id === id) || {}).name || id),
     url: '/api/plugin-config',
     intro: r.schema.intro || '',
     hint: '保存后立即生效，无需重启',
-    fields: r.schema.fields,
+    fields,
     values: r.values || {},
     save: (values) => ({ id, values }),
     okMsg: id + ' 的配置已保存',
@@ -2984,12 +3243,17 @@ async function openGlobalCfg() {
   const r = await (await fetch('/api/settings')).json();
   if (!r.ok) return toast('取设置失败', 'err');
   const g = r.global;
+  /* 后端只回 hasToken，不回明文。已经存过 token 时把占位符改掉，
+     否则用户看到「没设置就留空」会以为 token 丢了、又填一遍 */
+  const fields = GLOBAL_FIELDS.map((f) => (f.key === 'accessToken' && g.snowluma && g.snowluma.hasToken
+    ? Object.assign({}, f, { placeholder: '已配置（留空则保持不变）' })
+    : f));
   openModal({
     title: '连接设置',
     url: '/api/settings',
     intro: '这些是插件与 QQ、DSH 通信的渠道参数。改完保存立即生效，AI 下一次调用就会用新地址。',
     hint: '改完点「刷新」看状态是否变绿',
-    fields: GLOBAL_FIELDS,
+    fields,
     values: {
       impl: g.onebot.impl, httpUrl: g.snowluma.httpUrl, authMode: g.onebot.authMode,
       pathPrefix: g.onebot.pathPrefix, accessToken: '', clearToken: false, wsPort: g.snowluma.wsPort,
@@ -3375,6 +3639,9 @@ function spy() {
     const top = s.getBoundingClientRect().top;
     if (top <= 140 && top > best) { best = top; cur = s.id; }
   }
+  /* 滚到底时最后一屏（接入 DSH）往往永远到不了阅读线，直接归最后一个区块 */
+  const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8;
+  if (atBottom && spySections.length) cur = spySections[spySections.length - 1].id;
   navLinks.forEach((a) => a.classList.toggle('active', a.dataset.nav === cur));
 }
 window.addEventListener('scroll', spy, { passive: true });
