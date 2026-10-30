@@ -48,7 +48,7 @@ async function main() {
   }
 
   const child = spawn(process.execPath, [path.join(ROOT, 'server.js')], {
-    env: Object.assign({}, process.env, { PORT: String(PORT) }),
+    env: Object.assign({}, process.env, { HOST: '127.0.0.1', PORT: String(PORT) }),
     stdio: ['ignore', 'ignore', 'pipe'],
   });
   let stderr = '';

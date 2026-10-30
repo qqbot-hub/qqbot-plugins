@@ -84,6 +84,7 @@ console.log('\n[3b] 主链路标记（SnowLuma + qq-bridge + DSH）');
 const primaries = methods.filter((m) => m.primary);
 ok(primaries.length === 1 && primaries[0].id === 'snowluma-dsh',
   '只有一条主链路，而且是 snowluma-dsh', primaries.map((m) => m.id).join(','));
+ok(primaries[0]?.deploy?.chain?.at(-1) === 'market', '主链路最后一步会注册 MCP 到 DSH');
 ok(!!(primaries[0] && String(primaries[0].primaryNote || '').length > 10),
   '主链路写清了「为什么是主推」，不是空口推荐');
 ok(compat.primaryMethodId === 'snowluma-dsh', 'buildCompat 暴露 primaryMethodId', compat.primaryMethodId);

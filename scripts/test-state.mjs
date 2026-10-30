@@ -37,7 +37,7 @@ console.log('\n[1] 启动一个用临时状态文件的市场进程');
 fs.writeFileSync(STATE, JSON.stringify({ clock: { installed: true, enabled: true } }, null, 2));
 const child = spawn(process.execPath, [path.join(ROOT, 'server.js')], {
   cwd: ROOT,
-  env: Object.assign({}, process.env, { PORT: String(PORT), QQBOT_STATE_FILE: STATE }),
+  env: Object.assign({}, process.env, { HOST: '127.0.0.1', PORT: String(PORT), QQBOT_STATE_FILE: STATE }),
   stdio: ['ignore', 'pipe', 'pipe'],
 });
 let boot = '';

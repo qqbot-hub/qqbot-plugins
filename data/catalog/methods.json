@@ -76,7 +76,8 @@
           "node",
           "snowluma",
           "qqbridge",
-          "dsh"
+          "dsh",
+          "market"
         ],
         "recipe": "snowluma",
         "verified": true,

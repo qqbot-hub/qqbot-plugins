@@ -87,6 +87,11 @@ Windows 的快捷方式，其他平台直接 `node server.js`。**零第三方�
 每一环都能在那里点「部署」，真的检查、下载、启动、自检；能自动的全自动，只有「登录 QQ」
 这种必须你动手的会停下来告诉你做什么。详见 [docs/INSTALL.md](docs/INSTALL.md)。
 
+主链路也可双击 `deploy-to-dsh.bat`，或在项目目录运行 `npm.cmd run deploy:primary`，脚本会按部署清单依次执行步骤并注册 MCP 到 DSH。
+SnowLuma 首次扫码、DSH 首次登录仍需手动完成；注册后完整退出并重启 DSH，工具才会加载。
+
+本地网页的“本机受控部署”提供进度、人工操作后的继续和取消；“DSH AI 辅助部署”使用独立 headless profile，只允许 `deploy_status`、`deploy_step`、`deploy_verify` 三个工具。需要 DSH 已安装（可在 `config.json` 设置 `dsh.cliPath`）以及市场进程继承 `DEEPSEEK_API_KEY`，会消耗模型额度；未配置时自动使用普通 recipe。此功能只在绑定回环地址的本地市场开放，公网演示站不能操作访客电脑。详见 [AI 部署手册](docs/AGENT-DEPLOY.md)。
+
 ```bash
 # 0. 前置：已按教程跑通 SnowLuma + qq-bridge + DSH（DSH 里发一句话有回复）
 

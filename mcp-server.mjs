@@ -24,6 +24,7 @@ import { createProtocol, createProbe } from './plugins/_protocol.mjs';
 import { decrypt } from './scripts/lib/secrets.mjs';
 import { dataPath } from './scripts/lib/paths.mjs';
 import { runSandboxed, sanitizeConfig, permsFor } from './scripts/lib/sandbox.mjs';
+import { DEPLOY_TOOLS } from './scripts/lib/deploy-agent.mjs';
 
 const HUB_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)));
 const PKG_VERSION = (() => {
@@ -250,13 +251,25 @@ async function main() {
         /* 下划线开头的都是内部字段（执行函数、插件 id、文件路径、权限），
          * 不能漏给客户端 —— 否则会把服务器本地路径暴露出去 */
         return reply({
-          tools: hub.tools.map((t) => Object.fromEntries(
+          tools: [...(process.env.QQBOT_DEPLOY_CAPABILITY ? DEPLOY_TOOLS : []), ...hub.tools.map((t) => Object.fromEntries(
             Object.entries(t).filter(([k]) => !k.startsWith('_')),
-          )),
+          ))],
         });
       case 'tools/call': {
         fireTick();
         const name = params && params.name;
+        if (DEPLOY_TOOLS.some(t => t.name === name) && process.env.QQBOT_DEPLOY_CAPABILITY) {
+          try {
+            const url = new URL(process.env.QQBOT_DEPLOY_URL);
+            if (!['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname)) throw new Error('部署地址必须为本机');
+            const response = await fetch(url.origin + '/api/deploy/tool', {
+              method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + process.env.QQBOT_DEPLOY_CAPABILITY },
+              body: JSON.stringify({ name, args: params.arguments || {} }), signal: AbortSignal.timeout(660000),
+            });
+            const result = await response.json();
+            return reply({ content: [{ type: 'text', text: JSON.stringify(result) }], isError: !response.ok });
+          } catch (e) { return reply({ content: [{ type: 'text', text: e.message }], isError: true }); }
+        }
         const tool = hub.tools.find((t) => t.name === name);
         if (!tool) return fail(-32602, `未知工具: ${name}`);
         const args = (params && params.arguments) || {};

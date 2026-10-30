@@ -149,9 +149,9 @@ export default {
       hint: 'DSH 是桌面程序：装好并启动一次（登录你的账号），它才会生成 ~/.dsh/profiles',
       async run(ctx) {
         const dir = path.join(HOME, '.dsh', 'profiles');
-        if (!fs.existsSync(dir)) return { status: 'fail', detail: '没找到 ' + dir + '，说明这台机器没装过 DSH' };
+        if (!fs.existsSync(dir)) return { status: 'manual', detail: '还没有 DSH profile，需要先手动启动并登录一次', hint: '打开 DeepSeek Harness 并完成首次登录，确认生成 ~/.dsh/profiles 后，再重新运行部署' };
         const profiles = fs.readdirSync(dir).filter((n) => fs.statSync(path.join(dir, n)).isDirectory());
-        if (!profiles.length) return { status: 'fail', detail: 'profiles 目录是空的，先启动一次 DSH' };
+        if (!profiles.length) return { status: 'manual', detail: 'DSH profiles 目录为空，需要先手动启动并登录一次', hint: '打开 DeepSeek Harness 并完成首次登录，确认生成 profile 后，再重新运行部署' };
         const want = (ctx.cfg().dsh && ctx.cfg().dsh.profile) || 'desktop';
         const profile = profiles.includes(want) ? want : profiles[0];
         ctx.state.profile = profile;

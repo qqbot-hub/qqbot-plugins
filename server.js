@@ -36,6 +36,8 @@ const PORT = Number(process.env.PORT || cfg.port || 3210);
 /* 监听地址：本机直接跑仍然只听 127.0.0.1（不暴露局域网）；
  * 部署平台会注入 PORT 环境变量（也可显式给 HOST），这时对外监听 0.0.0.0 才能被反代访问。 */
 const HOST = process.env.HOST || (process.env.PORT ? '0.0.0.0' : '127.0.0.1');
+const deployAgentPromise = import(pathToFileURL(path.join(ROOT, 'scripts/lib/deploy-agent.mjs')).href)
+  .then(mod => ({ mod, service: mod.createDeployAgent({ doctor, port: PORT }) }));
 const PASSWORD = String(cfg.password || '');
 
 /* ---------- 数据文件定位 ----------
@@ -1322,6 +1324,33 @@ const server = http.createServer(async (req, res) => {
   try { p = new URL(req.url, 'http://x').pathname; } catch { p = '/'; }
   const method = req.method;
 
+  /* Agent bridge: loopback-only capabilities, deliberately separate from cookie authentication. */
+  if (p.startsWith('/api/deploy/')) {
+    const { mod, service } = await deployAgentPromise;
+    const loopback = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress);
+    if (p === '/api/deploy/tool') {
+      if (!loopback || !['127.0.0.1', '::1', 'localhost'].includes(HOST) || method !== 'POST') return sendJson(res, 403, { error: '部署工具仅限本机任务' });
+      try {
+        const body = JSON.parse(await readBody(req));
+        const capability = String(req.headers.authorization || '').replace(/^Bearer /, '');
+        return sendJson(res, 200, await service.tool(capability, body.name, body.args));
+      } catch (e) { return sendJson(res, 403, { error: e.message }); }
+    }
+    if (!mod.localDeployRequest(req, HOST, PORT) || !authed(req)) return sendJson(res, 403, { error: '请在本机市场打开部署页面；公网演示站不能操作你的电脑' });
+    try {
+      if (method === 'POST' && p === '/api/deploy/token') return sendJson(res, 200, { token: service.ticket() });
+      const body = method === 'POST' ? JSON.parse(await readBody(req)) : {};
+      if (method === 'POST' && p === '/api/deploy/agent') {
+        if (body.allowShell !== false || body.goal !== 'primary') return sendJson(res, 400, { error: '只允许 primary 部署且 allowShell 必须为 false' });
+        return sendJson(res, 200, service.start(body.token, body.mode));
+      }
+      if (method === 'POST' && p === '/api/deploy/status') return sendJson(res, 200, service.get(body.id) || { error: '任务不存在' });
+      if (method === 'POST' && p === '/api/deploy/continue') return sendJson(res, 200, service.continue(body.id));
+      if (method === 'POST' && p === '/api/deploy/cancel') return sendJson(res, 200, service.cancel(body.id));
+      return sendJson(res, 404, { error: '部署接口不存在' });
+    } catch (e) { return sendJson(res, 400, { error: e.message }); }
+  }
+
   /* 登录 */
   if (p === '/login' && method === 'POST') {
     const params = new URLSearchParams(await readBody(req));
@@ -1345,6 +1374,11 @@ const server = http.createServer(async (req, res) => {
   /* API */
   if (p.startsWith('/api/')) {
     if (!authed(req)) return sendJson(res, 401, { ok: false, error: '未登录' });
+    // A public binding with no configured password is read-only, except for plugin submissions.
+    if (method !== 'GET' && !PASSWORD && !['127.0.0.1', '::1', 'localhost'].includes(HOST)
+      && p !== '/api/registry/submit') {
+      return sendJson(res, 403, { ok: false, error: '公网演示站为只读；本机部署请在回环地址打开，管理操作需配置访问口令' });
+    }
     if (method === 'GET' && p === '/api/list') {
       const plugins = currentPlugins();
       /* 标出哪些插件有可配置项（schema 由插件自己声明），前端据此显示「配置」按钮 */

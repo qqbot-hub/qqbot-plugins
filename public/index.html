@@ -1291,6 +1291,17 @@
           <span class="dep-hint" id="depHint">按依赖顺序逐个装；遇到需要人工的那一步会停下并告诉你做什么</span>
         </div>
         <div class="dep-list" id="depList"></div>
+        <div class="dep-top" style="margin-top:16px">
+          <button class="dep-btn" onclick="startAgentDeploy('recipe')">本机受控部署</button>
+          <button class="dep-btn" onclick="startAgentDeploy('ai')">DSH AI 辅助部署</button>
+          <span class="dep-hint">AI 模式会消耗模型额度；扫码、首次登录和授权需你完成。</span>
+        </div>
+        <div id="agentDeployTimeline" aria-live="polite" style="white-space:pre-wrap;max-height:320px;overflow:auto;font-size:12px"></div>
+        <div class="dep-top" id="agentDeployActions" hidden>
+          <button class="dep-btn" id="agentDeployContinue" onclick="continueAgentDeploy()">已完成，继续</button>
+          <button class="dep-btn" id="agentDeployCancel" onclick="cancelAgentDeploy()">停止部署</button>
+          <a href="https://github.com/SnowLuma/SnowLuma" target="_blank" rel="noopener">SnowLuma 下载页</a>
+        </div>
       </section>
 
       <section class="sec" id="market">
@@ -2853,6 +2864,44 @@ document.addEventListener('click', (e) => {
 function deployOne(recipe, name) {
   return startInstall(recipe, {}, name);
 }
+
+let agentDeployId = sessionStorage.getItem('qqbotDeployId') || '';
+let agentDeployTimer;
+async function deployApi(action, body = {}) {
+  const response = await fetch('/api/deploy/' + action, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const result = await response.json();
+  if (!response.ok || result.error) throw new Error(result.error || '部署请求失败');
+  return result;
+}
+async function startAgentDeploy(mode) {
+  try {
+    const { token } = await deployApi('token');
+    const job = await deployApi('agent', { token, mode, goal: 'primary', allowShell: false });
+    agentDeployId = job.id; sessionStorage.setItem('qqbotDeployId', job.id);
+    await pollAgentDeploy();
+  } catch (e) { toast(e.message, 'err'); }
+}
+async function pollAgentDeploy() {
+  clearTimeout(agentDeployTimer);
+  if (!agentDeployId) return;
+  try {
+    const job = await deployApi('status', { id: agentDeployId });
+    const labels = { automatic: '自动执行中', ai: 'AI 正在处理', manual: '需要你操作', done: '体检通过', failed: '部署停止', cancelled: '已取消' };
+    $('#agentDeployTimeline').textContent = (job.events || []).map(e => `[${labels[e.state] || e.state}] ${e.message}`).join('\n');
+    $('#agentDeployActions').hidden = !['automatic', 'ai', 'manual'].includes(job.state);
+    $('#agentDeployContinue').disabled = job.state !== 'manual' || job.running;
+    $('#agentDeployCancel').disabled = !['automatic', 'ai', 'manual'].includes(job.state);
+    if (['done', 'failed', 'cancelled'].includes(job.state)) { sessionStorage.removeItem('qqbotDeployId'); loadHealth(); loadMonitor(); return; }
+    agentDeployTimer = setTimeout(pollAgentDeploy, 2000);
+  } catch (e) { $('#agentDeployTimeline').textContent = e.message; }
+}
+async function continueAgentDeploy() {
+  try { await deployApi('continue', { id: agentDeployId }); await pollAgentDeploy(); } catch (e) { toast(e.message, 'err'); }
+}
+async function cancelAgentDeploy() {
+  try { await deployApi('cancel', { id: agentDeployId }); await pollAgentDeploy(); } catch (e) { toast(e.message, 'err'); }
+}
+if (agentDeployId) setTimeout(pollAgentDeploy, 1000);
 
 async function deployAll() {
   const btn = $('#depAll');
