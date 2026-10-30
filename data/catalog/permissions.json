@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T05:01:12.704Z",
+  "generatedAt": "2026-10-30T11:14:54.882Z",
   "method": "静态扫描 plugins/*.mjs 的 API 使用情况（见 scripts/build-permissions.mjs）",
   "sourceHashes": {
     "abbr": "aaf2b0777f4d",
@@ -26,7 +26,7 @@
     "idiom": "18653e8c109c",
     "imagine": "6b6c3bc49dec",
     "joke": "1f5afbb027bc",
-    "jukebox": "89170ac6138a",
+    "jukebox": "f97cea03ace9",
     "ledger": "6cac1bdd33e2",
     "meihua": "3d0a920ed7ff",
     "memo": "9c0028e6878d",
@@ -37,7 +37,7 @@
     "poem": "05edc9a13b83",
     "pomodoro": "cbea9cf938de",
     "quote": "ec80eee2c574",
-    "qzone": "250e5a838ff9",
+    "qzone": "113d4fac2c1b",
     "remind": "9902e0b4a988",
     "riddle": "08fc4271c2df",
     "roulette": "69ad07c70fea",
@@ -47,9 +47,9 @@
     "tarot": "10a32071232e",
     "translate": "ecea05d38891",
     "unit": "4e7c4f180b3f",
-    "video": "cc903a0f2e6e",
+    "video": "b1a81e5046b4",
     "vision": "ad62a930bc0a",
-    "voice": "41ae45f66e07",
+    "voice": "04e144b70239",
     "weather": "b318eef485aa",
     "wordle": "cf74ed61f333",
     "zodiac": "9485afe7b13e"
@@ -369,18 +369,30 @@
     "jukebox": {
       "permissions": [
         {
+          "key": "file:read",
+          "label": "读取本地文件",
+          "level": "info",
+          "why": "会读磁盘上的文件"
+        },
+        {
+          "key": "message:send",
+          "label": "以机器人身份发消息 / 管理群",
+          "level": "warn",
+          "why": "会在群里说话、发图、禁言或踢人（受机器人自身群权限限制）"
+        },
+        {
           "key": "network",
           "label": "访问网络",
           "level": "info",
           "why": "数据会发到本机之外的接口"
         }
       ],
-      "confirmRequired": false,
-      "needsBridge": false,
-      "hasSettings": false,
+      "confirmRequired": true,
+      "needsBridge": true,
+      "hasSettings": true,
       "framework": "mcp",
       "language": "JavaScript (ESM)",
-      "loc": 22
+      "loc": 31
     },
     "ledger": {
       "permissions": [
@@ -524,10 +536,10 @@
       ],
       "confirmRequired": true,
       "needsBridge": true,
-      "hasSettings": false,
+      "hasSettings": true,
       "framework": "mcp",
       "language": "JavaScript (ESM)",
-      "loc": 69
+      "loc": 83
     },
     "remind": {
       "permissions": [
@@ -666,18 +678,24 @@
     "video": {
       "permissions": [
         {
+          "key": "message:send",
+          "label": "以机器人身份发消息 / 管理群",
+          "level": "warn",
+          "why": "会在群里说话、发图、禁言或踢人（受机器人自身群权限限制）"
+        },
+        {
           "key": "network",
           "label": "访问网络",
           "level": "info",
           "why": "数据会发到本机之外的接口"
         }
       ],
-      "confirmRequired": false,
-      "needsBridge": false,
+      "confirmRequired": true,
+      "needsBridge": true,
       "hasSettings": true,
       "framework": "mcp",
       "language": "JavaScript (ESM)",
-      "loc": 292
+      "loc": 300
     },
     "vision": {
       "permissions": [
@@ -715,7 +733,7 @@
       "hasSettings": true,
       "framework": "mcp",
       "language": "JavaScript (ESM)",
-      "loc": 183
+      "loc": 196
     },
     "weather": {
       "permissions": [

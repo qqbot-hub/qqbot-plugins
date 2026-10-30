@@ -31,7 +31,8 @@ export function createSnowLumaRecipe({ heartbeat = async ctx => {
   const manual = (ctx, detail) => ({ status: 'manual', detail, hint: `打开 ${ctx.state.panel || 'SnowLuma 面板（通常 http://127.0.0.1:5099）'}，自行同意 EULA/PRIVACY、登录管理面板、启用 OneBot v11 HTTP，然后扫码登录 QQ。HTTP 地址与 AccessToken 须和市场连接设置一致；WebSocket 按桥接需要启用。完成后继续。安装目录：${ctx.state.dir}` });
   async function readiness(ctx) {
     const hb = await heartbeat(ctx);
-    if (hb.online) return { status: 'ok', detail: `OneBot 已登录：${hb.nickname || ''} QQ ${hb.selfId || ''}` };
+    let runtime;try{runtime=JSON.parse(fs.readFileSync(path.join(ctx.state.dir,'config/runtime.json'),'utf8'));}catch{}
+    if (hb.online) return { status: 'ok', detail: `OneBot 已登录：${hb.nickname || ''} QQ ${hb.selfId || ''}`+(runtime?.hookAutoLoad===false?'；注意 hookAutoLoad=false，重启后需在面板重新接入 QQ 进程':'') };
     await panel(ctx);
     return manual(ctx, ctx.state.panel ? 'SnowLuma 面板已启动，OneBot 尚未就绪；需要完成面板配置和 QQ 登录' : 'OneBot 尚未通过登录验证；请检查地址、鉴权和 QQ 登录状态');
   }

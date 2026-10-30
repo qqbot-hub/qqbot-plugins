@@ -766,6 +766,7 @@ const VERIFY = {
 
 async function monitor() {
   const services = await Promise.all(MONITOR_SERVICES.map(async (s) => {
+    if(s.id==='voicelab' && builtinLab())return {id:s.id,label:s.label,role:s.role,method:s.method,ports:[],openPorts:[],running:true,verified:true,note:'内置调音台随市场运行；语音后端须另行配置和试听'};
     const ports = await Promise.all(s.ports.map(async (port) => ({ port, open: await tcpProbe('127.0.0.1', port, 900) })));
     const openPorts = ports.filter((p) => p.open).map((p) => p.port);
     let verified = null;
@@ -929,12 +930,14 @@ async function doctor() {
 }
 
 /* ---------- 调音台（配套本地服务）接入 ----------
- * 调音台是 D:\tts\voicelab 里的独立小服务（默认 127.0.0.1:3120），
+ * 旧版外部调音台位置示例为 D:\tts\voicelab 里的独立小服务（默认 127.0.0.1:3120），
  * 用来调语音音色、试听、直接把音色写进机器人的 voice 插件。
  * 它不属于本仓库，也不复制它的代码 —— 这里只做**反向代理**，让它出现在市场里。
  * 它页面里的请求是绝对路径（/api/state、/audio/x.wav），所以这几个前缀在市场根上转给它；
  * 市场自己的 /api/* 优先匹配，两者不冲突。
  */
+function builtinLab(){ return !cfg.lab?.url || cfg.lab?.mode === 'builtin'; }
+let labPreviewBusy=false, labPreviewAt=0, qzoneProbeBusy=false;
 function labTarget() {
   const raw = String((cfg.lab && cfg.lab.url) || 'http://127.0.0.1:3120');
   try { return new URL(raw); } catch { return new URL('http://127.0.0.1:3120'); }
@@ -956,7 +959,7 @@ function labDownPage() {
 code{background:#1c232c;padding:2px 6px;border-radius:4px;color:#5eead4}a{color:#38bdf8}</style>
 <h1>调音台没启动</h1>
 <p>市场连不上 <code>${t.origin}</code>。调音台是独立进程，需要先启动它：</p>
-<p><code>node D:\\tts\\voicelab\\server.mjs</code></p>
+<p>请启动已配置的外部调音台，或移除 config.json 的 lab.url 使用市场内置调音台。</p>
 <p>启动后刷新本页即可。想看它自己的界面也可以直接开
 <a href="${t.origin}" target="_blank" rel="noopener">${t.origin}</a>。</p>`;
 }
@@ -1319,6 +1322,7 @@ const ECO_UPDATING = new Set();
 /* 组件的实时状态：端口开没开，页面用来显示「已运行 / 未安装」 */
 async function componentsWithState() {
   const list = await Promise.all(components().map(async (c) => {
+    if(c.id==='voicelab' && builtinLab())return {...c,ports:[],portsOpen:{},running:true};
     /* 端口是动态的组件（DSH）：用它自己探测出来、记在配置里的端口来判断，
        不然会一直拿写死的默认端口去试，永远显示「未运行」 */
     if (c.dynamicPort) {
@@ -1377,9 +1381,31 @@ const server = http.createServer(async (req, res) => {
     try {
       if (method === 'POST' && p === '/api/deploy/token') return sendJson(res, 200, { token: service.ticket() });
       const body = method === 'POST' ? JSON.parse(await readBody(req)) : {};
+      if(method==='POST' && p==='/api/deploy/qzone-probe'){
+        if(qzoneProbeBusy)return sendJson(res,429,{error:'空间验证正在进行，请等待，不要重复创建测试说说'});
+        qzoneProbeBusy=true;
+        try {
+        const {verifyQzone}=await esm('scripts/lib/verify-probe.mjs');
+        const result=await verifyQzone(cfg,body);
+        const {readJson,writeJson}=await esm('scripts/lib/paths.mjs');
+        const state=readJson('state',{});if(state.qzone){state.qzone.health=result;writeJson('state',state);}
+        healthCache.at=0;return sendJson(res,200,result);
+        }finally{qzoneProbeBusy=false;}
+      }
+      if(method==='POST' && p==='/api/deploy/snowluma-runtime'){
+        const {snowRuntime}=await esm('scripts/lib/snowluma-runtime.mjs');
+        return sendJson(res,200,snowRuntime(cfg,ROOT,{enableHookAutoLoad:body.enableHookAutoLoad===true}));
+      }
+      if(method==='POST' && p==='/api/deploy/reload'){
+        const {dataPath}=await esm('scripts/lib/paths.mjs');
+        const dir=path.join(path.dirname(dataPath('state')),'mcp-observers');fs.mkdirSync(dir,{recursive:true});fs.writeFileSync(path.join(dir,'reload-request.json'),JSON.stringify({root:ROOT,at:Date.now()}));
+        return sendJson(res,200,{ok:true,detail:'已请求现有市场MCP刷新工具；DSH需再次tools/list才算加载。桥接守卫和预设变更仍需重新加载DSH profile。'});
+      }
       if (method === 'POST' && p === '/api/deploy/allowlist') {
         const discovery = await esm('scripts/lib/discover.mjs');
-        return sendJson(res, 200, discovery.setBridgeAllowlist(cfg, body));
+        const result=discovery.setBridgeAllowlist(cfg, body);
+        if(body.ownerQQ){cfg.plugins={...cfg.plugins,group_admin:{...cfg.plugins?.group_admin,admins:[String(body.ownerQQ)],requireConfirm:true}};saveCfg();}
+        return sendJson(res,200,result);
       }
       if (method === 'POST' && p === '/api/deploy/agent') {
         if (body.allowShell !== false || body.goal !== 'primary') return sendJson(res, 400, { error: '只允许 primary 部署且 allowShell 必须为 false' });
@@ -1784,7 +1810,33 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, await starsCached(sp.get('force') === '1'));
     }
     /* 配套服务：调音台是否在跑 */
+    if (p.startsWith('/api/lab/') && ['/api/lab/config','/api/lab/preview','/api/lab/backends'].includes(p)) {
+      const {mod}=await deployAgentPromise;
+      const localReq=method==='GET' && !req.headers.origin ? {socket:req.socket,headers:{...req.headers,origin:'http://'+req.headers.host}} : req;
+      if(!mod.localDeployRequest(localReq,HOST,PORT))return sendJson(res,403,{error:'调音台配置及试听仅限本机市场'});
+      try {
+        const lab=await esm('scripts/lib/voice-lab.mjs');
+        if(method==='GET' && p==='/api/lab/config')return sendJson(res,200,{provider:'baidu',...await pluginValuesForUi('voice')});
+        if(method==='GET' && p==='/api/lab/backends')return sendJson(res,200,await lab.localBackends());
+        const body=JSON.parse(await readBody(req));
+        if(method==='POST' && p==='/api/lab/config'){
+          const schema=await pluginSchema('voice'), values=cleanValues(schema,{...pluginValues('voice'),...body});
+          if(!['baidu','openai','breeze','voxd'].includes(values.provider))throw new Error('后端无效');
+          if(values.speed<0.5 || values.speed>2)throw new Error('语速范围0.5至2');
+          const secret=await secretsLib();
+          if(body.apiKey)values.apiKey=secret.encrypt(String(body.apiKey));else values.apiKey=pluginValues('voice').apiKey || '';
+          cfg.plugins={...cfg.plugins,voice:values};saveCfg();return sendJson(res,200,{ok:true});
+        }
+        if(method==='POST' && p==='/api/lab/preview'){
+          if(labPreviewBusy || Date.now()-labPreviewAt<3000)return sendJson(res,429,{error:'请等待当前试听结束'});
+          labPreviewBusy=true;labPreviewAt=Date.now();
+          try{return sendJson(res,200,await lab.previewVoice(pluginValuesForRun('voice'),body.text));}finally{labPreviewBusy=false;}
+        }
+        return sendJson(res,405,{error:'不支持的方法'});
+      }catch(e){return sendJson(res,400,{error:e.message});}
+    }
     if (method === 'GET' && p === '/api/lab/status') {
+      if(builtinLab())return sendJson(res,200,{ok:true,installed:true,online:true,mode:'builtin',url:'/lab/',proxy:'/lab/'});
       const t = labTarget();
       const online = await tcpProbe(t.hostname, Number(t.port) || 80, 800);
       return sendJson(res, 200, { ok: true, online, url: t.origin, proxy: '/lab/' });
@@ -1873,6 +1925,7 @@ const server = http.createServer(async (req, res) => {
   if (p === '/lab') return sendRedirect(res, '/lab/');
   if (p.startsWith('/lab/')) {
     if (!authed(req)) return sendRedirect(res, '/login');
+    if(builtinLab())return p === '/lab/' ? sendHtml(res,200,read('public/voice-lab.html')) : sendJson(res,404,{error:'页面不存在'});
     return proxyTo(labTarget(), req, res, '/lab');
   }
   /* 调音台的音频是根路径 /audio/xxx.wav */

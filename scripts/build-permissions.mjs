@@ -49,7 +49,7 @@ const RULES = [
     label: '读取本地文件',
     level: 'info',
     why: '会读磁盘上的文件',
-    re: /readFileSync|readFile\(|readJson\(|createReadStream/,
+    re: /localMusic|readFileSync|readFile\(|readJson\(|createReadStream/,
   },
   {
     key: 'message:send',

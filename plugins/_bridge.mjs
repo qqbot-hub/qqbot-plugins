@@ -42,6 +42,13 @@ export const IMPLS = {
  *   3. 顺序 = 尝试顺序，把覆盖面最广的放前面。
  * ============================================================ */
 export const ACTION_ALIASES = {
+  qzone_list: { candidates: ['get_qzone_msg_list', 'get_qq_zone_feeds'], verified: true,
+    params: (name, p) => name === 'get_qzone_msg_list' ? { pos: p.pos || 0, num: p.count || 5 } : { self: true, count: p.count || 5 } },
+  qzone_feeds: { candidates: ['get_qzone_feeds', 'get_qq_zone_feeds'], verified: true,
+    params: (name, p) => name === 'get_qzone_feeds' ? { page_num: 0, count: p.count || 5, cursor: '' } : { self: false, count: p.count || 5 } },
+  qzone_post: { candidates: ['send_qzone_msg', 'set_qq_zone_feed'], verified: true,
+    params: (name, p) => name === 'send_qzone_msg' ? { content: p.content, images: p.images || [], ugc_right: ({ public: 1, friends: 4, private: 64 })[p.visibility || 'private'] } : p },
+  qzone_delete: { candidates: ['delete_qzone_msg', 'del_qq_zone_feed'], verified: true },
   /* 发群公告 */
   send_notice: {
     candidates: ['_send_group_notice', 'send_group_notice', 'set_group_notice'],
@@ -183,11 +190,12 @@ export function createOneBot(cfg = {}) {
     let lastErr = null;
     for (const name of list) {
       try {
-        const r = await call(name, params);
+        const r = await call(name, spec.params ? spec.params(name, params) : params);
         aliasCache.set(action, name);
         aliasDead.delete(action);
         return r;
       } catch (e) {
+        if (['qzone_list', 'qzone_feeds'].includes(action) && e.retcode === 100 && /msglist\s*(?:=|:)\s*null/i.test(e.message)) return { feeds: [] };
         lastErr = e;
         const { kind } = classifyError(e);
         if (kind !== 'unsupported') throw e;      // 网络/鉴权/业务错，换名字也没用

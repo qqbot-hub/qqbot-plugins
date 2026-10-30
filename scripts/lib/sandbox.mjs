@@ -243,6 +243,7 @@ export async function runSandboxed(o) {
 
     /* 父进程代办的宿主能力 */
     const callHost = async (fn, a) => {
+      if (fn === 'localMusic') { if(pluginId !== 'jukebox' || !permissions.includes('message:send') || !permissions.includes('file:read'))throw new Error('音乐宿主权限拒绝'); const {localMusic}=await import('./local-music.mjs');return localMusic(cfg,a[0]||{},host.onebot); }
       if (fn === 'onebot') return host.onebot ? host.onebot(a[0], a[1] || {}) : Promise.reject(new Error('宿主未提供 onebot'));
       if (fn === 'probe') return host.probe ? host.probe() : { ok: false, error: '宿主未提供探测能力' };
       if (fn === 'heartbeat') return host.heartbeat ? host.heartbeat() : { online: false, error: '宿主未提供探测能力' };
@@ -259,7 +260,7 @@ export async function runSandboxed(o) {
           const value = await callHost(m.fn, Array.isArray(m.args) ? m.args : []);
           child.send({ type: 'rpc-result', id: m.id, ok: true, value: value === undefined ? null : value });
         } catch (e) {
-          child.send({ type: 'rpc-result', id: m.id, ok: false, error: (e && e.message) || String(e) });
+          child.send({ type: 'rpc-result', id: m.id, ok: false, retcode:e.retcode, error: (e && e.message) || String(e) });
         }
         return;
       }

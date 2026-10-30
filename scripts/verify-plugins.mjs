@@ -208,6 +208,7 @@ async function main() {
         if (!text.trim()) { rows.push({ plugin: meta.id, tool: t.name, status: 'fail', msg: '返回空内容' }); continue; }
         /* 插件自己提示「还没配置」：算配置问题，不算失败 */
         if (/还没配置|需要 API Key|去「⚙ 配置」/.test(text)) { rows.push({ plugin: meta.id, tool: t.name, status: 'cfg', msg: oneLine(text, 80) }); continue; }
+        if (/请求失败|暂不可用|返回的音频过短|语音暂不可用/.test(text)){rows.push({plugin:meta.id,tool:t.name,status:'net',msg:oneLine(text,80)});continue;}
         /* 插件自己把失败写成了文案（没抛异常）。这一档必须按真实原因归类，
          * 否则「发送失败：协议端没开」会被算成通过 —— 那就是假绿灯。 */
         if (/发送失败|没能发出|协议端是否在线|协议端没开/.test(text)) { rows.push({ plugin: meta.id, tool: t.name, status: 'bot', msg: oneLine(text, 90) }); continue; }

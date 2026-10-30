@@ -41,7 +41,7 @@ process.on('message', (m) => {
   if (!p) return;
   pending.delete(m.id);
   if (m.ok) p.resolve(m.value);
-  else p.reject(new Error(m.error || '宿主调用失败'));
+  else p.reject(Object.assign(new Error(m.error || '宿主调用失败'),{retcode:m.retcode}));
 });
 
 /* ---------- 内存版 storage（写盘交给父进程） ---------- */
@@ -114,6 +114,7 @@ async function runTask(task) {
       heartbeat: () => rpc('heartbeat', []),
     });
     const ctx = {
+      localMusic: args=>rpc('localMusic',[args]),
       onebot: remoteOnebot,
       bridge,
       config: task.config || {},

@@ -1,0 +1,78 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import http from 'node:http';
+import {pathToFileURL} from 'node:url';
+import {createOneBot} from '../plugins/_bridge.mjs';
+import qzone from '../plugins/qzone.mjs';
+import {previewVoice,localBackends} from './lib/voice-lab.mjs';
+import {patchBridge} from './patch-qqbridge.mjs';
+import {localMusic} from './lib/local-music.mjs';
+import {runSandboxed} from './lib/sandbox.mjs';
+import {ROOT} from './lib/paths.mjs';
+import {snowRuntime} from './lib/snowluma-runtime.mjs';
+import {findFfmpeg} from './lib/ffmpeg.mjs';
+import {verifyQzone} from './lib/verify-probe.mjs';
+const temp=fs.mkdtempSync(path.join(os.tmpdir(),'market-handoff-'));
+let server;const oldFetch=globalThis.fetch;
+try{
+ await assert.rejects(verifyQzone({}),/明确允许/);
+ const probeCalls=[];const probe=await verifyQzone({}, {confirmPrivatePostAndDelete:true,call:async(a,p)=>{probeCalls.push({a,p});return a==='qzone_post'?{tid:'fixture'}:{};}});
+ assert.equal(probe.ok,true);assert.deepEqual(probeCalls.map(x=>x.a),['qzone_list','qzone_post','qzone_delete']);assert.equal(probeCalls[1].p.visibility,'private');
+ const cleanup=await verifyQzone({}, {confirmPrivatePostAndDelete:true,call:async(a)=>{if(a==='qzone_delete')throw new Error('fixture');return {tid:'fixture'};}});assert.equal(cleanup.code,'cleanup_failed');assert.equal(cleanup.tid,'fixture');
+ const snow=path.join(temp,'snow');fs.mkdirSync(path.join(snow,'config'),{recursive:true});
+ const runtime=path.join(snow,'config/runtime.json');fs.writeFileSync(runtime,JSON.stringify({hookAutoLoad:false,keep:42}));
+ assert.equal(snowRuntime({snowluma:{installDir:snow}},temp).hookAutoLoad,false);
+ assert.equal(JSON.parse(fs.readFileSync(runtime)).hookAutoLoad,false,'inspection cannot enable injection');
+ assert.equal(snowRuntime({snowluma:{installDir:snow}},temp,{enableHookAutoLoad:true}).hookAutoLoad,true);
+ assert.equal(JSON.parse(fs.readFileSync(runtime)).keep,42);
+ const ff=path.join(temp,'ffmpeg.exe');fs.writeFileSync(ff,'fixture');
+ assert.equal(findFfmpeg({ffmpegPath:ff},{PATH:''},()=>({status:0,stdout:'ffmpeg version fixture'})).path,ff);
+ assert.equal(findFfmpeg({ffmpegPath:ff},{PATH:''},()=>({status:0,stdout:'unrelated service'})),null);
+ const seen=[];let mode='new';
+ server=http.createServer(async(req,res)=>{let raw='';for await(const c of req)raw+=c;const a=req.url.slice(1),p=JSON.parse(raw||'{}');seen.push({a,p});
+ const send=j=>{res.setHeader('content-type','application/json');res.end(JSON.stringify(j));};
+ if(mode==='legacy' && !a.includes('qq_zone'))return send({retcode:1404,status:'failed',wording:'unknown action'});
+ if(mode==='empty')return send({retcode:100,status:'failed',wording:'msglist=null'});
+ if(mode==='auth')return send({retcode:401,status:'failed',wording:'not authorized'});
+ send({retcode:0,status:'ok',data:{tid:'test',feeds:[]}});});
+ await new Promise(r=>server.listen(0,'127.0.0.1',r));
+ const client=()=>createOneBot({httpUrl:'http://127.0.0.1:'+server.address().port,timeoutMs:1000});
+ await client().onebot('qzone_list',{count:3});assert.deepEqual(seen.at(-1),{a:'get_qzone_msg_list',p:{pos:0,num:3}});
+ await client().onebot('qzone_post',{content:'test'});assert.equal(seen.at(-1).p.ugc_right,64);
+ mode='legacy';await client().onebot('qzone_list',{});assert.equal(seen.at(-1).a,'get_qq_zone_feeds');
+ mode='empty';assert.deepEqual(await client().onebot('qzone_list',{}),{feeds:[]});
+ mode='auth';const before=seen.length;await assert.rejects(client().onebot('qzone_post',{content:'test'}));assert.equal(seen.length,before+1,'auth failure must not retry writes');
+ let sent;const post=qzone.tools.find(x=>x.name==='qq_qzone_post');const ctx={cfg:{},bridge:{raw:async(a,p)=>{sent={a,p};return {tid:'1'};}}};
+ await post.run({content:'test'},ctx);assert.equal(sent.p.visibility,'private');
+ await assert.rejects(post.run({content:'x',images:['file:///secret']},ctx));
+ await assert.rejects(post.run({content:'x',images:Array(10).fill('https://image.test/a')},ctx));
+ globalThis.fetch=async()=>new Response(Buffer.alloc(1500,1),{headers:{'content-type':'audio/mpeg'}});
+ const preview=await previewVoice({},'测试');assert.equal(Buffer.from(preview.audio,'base64').length,1500);
+ await assert.rejects(previewVoice({},'x'.repeat(101)));
+ globalThis.fetch=oldFetch;assert.equal((await localBackends(async()=>new Response('{}'))).some(x=>x.online),false);
+ const music=path.join(temp,'music');fs.mkdirSync(music);fs.writeFileSync(path.join(music,'test.mp3'),'fake-audio');
+ const calls=[];await localMusic({musicDir:music},{local_file:'test.mp3',user_id:12345},async(a,p)=>calls.push({a,p}));assert.equal(calls[0].a,'send_private_msg');
+ await assert.rejects(localMusic({musicDir:music},{local_file:'../outside.mp3',user_id:12345},async()=>{}));
+ await assert.rejects(localMusic({}, {local_file:'test.mp3'},async()=>{}));
+ assert.equal(await localMusic({musicDir:music},{song:'not-found',user_id:12345},async()=>{}),null);
+ await localMusic({musicDir:music},{song:'test',user_id:12345},async(a,p)=>calls.push({a,p}));assert.equal(calls.length,2);
+ const sandbox=await runSandboxed({hubRoot:ROOT,pluginId:'jukebox',pluginFile:path.join(ROOT,'plugins/jukebox.mjs'),toolName:'qq_jukebox',args:{local_file:'test.mp3',user_id:12345},cfg:{musicDir:music},permissions:['file:read','message:send'],host:{onebot:async(a,p)=>{calls.push({a,p});return {};}}});assert.match(sandbox.text,/test.mp3/);
+ console.log('PASS qzone aliases/empty/auth/private/image limits, preview isolation, backend identity, sandbox local music/path limits');
+ // Optional pinned upstream fixture allows testing real guard source, not a synthetic approximation.
+ const ref=process.env.QQBOT_BRIDGE_FIXTURE;
+ if(ref){
+  const dir=path.join(temp,'bridge');fs.mkdirSync(dir);fs.writeFileSync(path.join(dir,'package.json'),'{"version":"0.2.1-r1","type":"module"}');
+  const files=['plugins/qq-agent-presets/qq-tool-restrict.mjs','dsh/agent-presets/qq-chat/agent.cordis.yml','dsh/agent-presets/qq-chat-v2/agent.cordis.yml','src/bridge.js'];
+  for(const f of files){fs.mkdirSync(path.dirname(path.join(dir,f)),{recursive:true});fs.copyFileSync(path.join(ref,f.replaceAll('/','_')),path.join(dir,f));}
+  fs.writeFileSync(path.join(dir,'config.json'),'{"ownerQQ":12345,"marketToolPrefixes":["mcp__extra__","dev_"]}');
+  const r=patchBridge(dir);assert.deepEqual(patchBridge(dir),r);assert.match(fs.readFileSync(path.join(dir,files[1]),'utf8'),/QQ=12345/);
+  const mod=await import(pathToFileURL(path.join(dir,files[0])).href);let guard;mod.apply({tools:{restrict(){},guard:g=>guard=g},on(){}});
+  assert.equal(guard({name:'mcp__qqbot__qq_clock'}),undefined);assert.equal(guard({name:'mcp__extra__tool'}),undefined);assert.ok(guard({name:'exec_command'}));assert.ok(guard({name:'mcp__unregistered__tool'}));
+  patchBridge(dir,{ownerQQ:'67890'});assert.match(fs.readFileSync(path.join(dir,files[1]),'utf8'),/QQ=67890/);
+  patchBridge(dir,{rollback:true});for(const f of files)assert.equal(fs.readFileSync(path.join(dir,f),'utf8'),fs.readFileSync(path.join(ref,f.replaceAll('/','_')),'utf8'));
+  fs.appendFileSync(path.join(dir,files[0]),'\n//changed');assert.throws(()=>patchBridge(dir),/不一致/);
+  console.log('PASS pinned bridge fixture: hash checks, owner policy, guard allow/deny, idempotence, owner update, rollback, drift protection');
+ }
+}finally{globalThis.fetch=oldFetch;if(server){await new Promise(r=>{server.close(r);server.closeAllConnections();});}fs.rmSync(temp,{recursive:true,force:true});}

@@ -494,7 +494,7 @@
   {
     "id": "jukebox",
     "name": "jukebox",
-    "description": "点歌：把歌名变成网易云 / QQ音乐 / 酷狗的搜索链接",
+    "description": "点歌搜索链接，或发送允许目录内不超过8MB的本地音频",
     "category": "工具",
     "tools": [
       {
@@ -717,7 +717,7 @@
     "tools": [
       {
         "name": "qq_qzone_post",
-        "description": "发一条 QQ 空间说说（默认公开；可设好友可见/私密）"
+        "description": "发QQ空间说说（默认仅自己可见；支持最多9张图片或消息ID）"
       },
       {
         "name": "qq_qzone_list",
@@ -988,7 +988,7 @@
   {
     "id": "voice",
     "name": "voice",
-    "description": "语音合成：把一段文字变成语音消息发到 QQ（OpenAI 兼容 TTS 接口）",
+    "description": "语音合成：百度免Key、本地Breeze/voxd或兼容云端",
     "category": "工具",
     "tools": [
       {

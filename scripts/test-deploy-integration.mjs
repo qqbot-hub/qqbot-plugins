@@ -70,9 +70,9 @@ try {
   const ids = ['voice','vision','qzone','group_info'];
   fs.writeFileSync(process.env.QQBOT_STATE_FILE, JSON.stringify(Object.fromEntries(ids.map(id => [id, { installed: true, enabled: true }]))));
   const opts = { root: ROOT, loaded: new Set(), probe: async () => ({ online: true, app: 'SnowLuma', version: '2.2.1' }), call: async () => ({}) };
-  assert.equal((await pluginHealth('voice', {}, opts)).code, 'config');
+  assert.equal((await pluginHealth('voice', {}, opts)).code, 'configured');
   assert.equal((await pluginHealth('vision', {}, opts)).code, 'config');
-  assert.equal((await pluginHealth('qzone', {}, opts)).code, 'unsupported');
+  assert.equal((await pluginHealth('qzone', {}, opts)).code, 'checked');
   assert.equal((await pluginHealth('group_info', {}, opts)).code, 'checked');
   assert.equal((await pluginHealth('group_info', {}, { ...opts, probe: async () => ({ online: false }) })).code, 'offline');
 
@@ -106,6 +106,11 @@ try {
   const tools = (await rpc('tools/list')).tools;
   assert.ok(tools.length > 0);
   assert.equal(observedTools(ROOT).size, tools.length);
+  const reloadDir=path.join(path.dirname(process.env.QQBOT_STATE_FILE),'mcp-observers');
+  fs.writeFileSync(path.join(reloadDir,'reload-request.json'),JSON.stringify({root:ROOT,at:Date.now()}));
+  const previousNotifications=notifications;await new Promise(r=>setTimeout(r,1800));
+  assert.ok(notifications>previousNotifications);assert.equal(observedTools(ROOT).size,0,'reload invalidates delivered list until client asks again');
+  await rpc('tools/list');assert.equal(observedTools(ROOT).size,tools.length);
   fs.writeFileSync(process.env.QQBOT_STATE_FILE, '{}');
   assert.equal((await rpc('tools/list')).tools.length, 0);
   const done = once(child, 'exit'); child.stdin.end(); await done; child = null;

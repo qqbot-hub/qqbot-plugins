@@ -1100,6 +1100,16 @@
 .reg-err { margin-top:10px; padding:10px 12px; border-radius:6px; font-size:12px;
   background:rgba(255,110,110,.09); border:1px solid rgba(255,110,110,.3); color:#ffb3b3; display:none; }
 .reg-err ul { margin:6px 0 0 18px; }
+
+.community-first{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0 8px}
+.community-first .join,.community-first .star-card{margin:0;min-width:0;width:100%}
+.community-first .join{padding:16px 20px;border:1px solid rgba(91,140,255,.45);background:rgba(91,140,255,.12);border-radius:14px}
+.community-first .join-h{font-size:17px}.community-first .join p{display:block;margin:6px 0 10px}
+.community-first .star-in{padding:16px 20px;display:grid;grid-template-columns:28px 1fr;gap:5px 12px;text-align:left}
+.community-first .heart{width:26px;height:26px;grid-row:1/4;margin:0}.community-first .star-in b{font-size:16px}
+.community-first .star-in p{display:block;margin:0}.community-first .star-btn{width:100%;margin:4px 0 0;grid-column:2}
+.community-first .star-meta{display:block;grid-column:2;margin:0}
+@media(max-width:620px){.community-first{grid-template-columns:1fr;gap:10px}.community-first .join,.community-first .star-in{padding:12px 16px}.community-first .join p,.community-first .star-in p,.community-first .star-meta{display:none}.community-first .join-btn{margin-top:8px}}
 </style>
 </head>
 <body>
@@ -1138,6 +1148,20 @@
       <div class="stat-row"><span class="dot"></span><span class="nm">检测中…</span></div>
     </div>
 
+  </aside>
+
+  <!-- ============ 主区 ============ -->
+  <main>
+    <div class="wrap">
+      <div class="topbar">
+        <div class="topbar-row">
+          <div class="crumb"><i>插件市场</i> / AI QQ 机器人</div>
+          <span class="kbd">/</span><span style="font-size:10.5px;color:var(--dim-2)">搜索</span>
+          <button onclick="load().then(() => toast('已刷新：插件 / 端口 / 方法都重新读了一遍', 'ok'))">刷新</button>
+        </div>
+      </div>
+
+      <div class="community-first" aria-label="交流群与开源支持">
     <div class="join">
       <div class="join-h">👥 插件交流群</div>
       <p>插件开发 / 使用答疑 / 踩坑互助</p>
@@ -1159,19 +1183,7 @@
         <div class="star-meta"><span id="starCount">开源 · MIT</span></div>
       </div>
     </div>
-  </aside>
-
-  <!-- ============ 主区 ============ -->
-  <main>
-    <div class="wrap">
-      <div class="topbar">
-        <div class="topbar-row">
-          <div class="crumb"><i>插件市场</i> / AI QQ 机器人</div>
-          <span class="kbd">/</span><span style="font-size:10.5px;color:var(--dim-2)">搜索</span>
-          <button onclick="load().then(() => toast('已刷新：插件 / 端口 / 方法都重新读了一遍', 'ok'))">刷新</button>
-        </div>
       </div>
-
       <section class="hero" id="hero">
         <div class="eyebrow"><span class="pulse"></span>专为 SnowLuma + qq-bridge + DSH（大肥鱼）链路打造</div>
         <h1><span>给你的大肥鱼</span><span class="thin">一个完整的人生</span></h1>
@@ -1185,7 +1197,7 @@
           <div class="stat-box"><b data-count="50" id="statPlugins">0</b><span>插件</span></div>
           <div class="stat-box"><b data-count="84" id="statTools">0</b><span>可调用工具</span></div>
           <div class="stat-box"><b data-count="64" id="statPass">0</b><span>项已实测通过</span></div>
-          <div class="stat-box"><b data-count="0">0</b><span>第三方依赖</span></div>
+          <div class="stat-box"><b data-count="1">1</b><span>服务端依赖</span></div>
         </div>
         <div class="cta">
           <a class="btn-primary" href="#market">浏览插件 ↓</a>
@@ -1296,9 +1308,15 @@
           <button class="dep-btn" onclick="startAgentDeploy('ai')">DSH AI 辅助部署</button>
           <span class="dep-hint">AI 模式会消耗模型额度；扫码、首次登录和授权需你完成。</span>
         </div>
+        <button onclick="reloadMarketTools()">重载市场 MCP 工具</button>
+        <label style="display:block;margin:10px 0;font-size:12px"><input type="checkbox" id="hookConsent">允许 SnowLuma 重启后自动接入 QQ 进程（hookAutoLoad）</label>
+        <button onclick="configureSnowHook()">检查 / 应用 QQ 自动接入</button>
+        <label style="display:block;margin:10px 0;font-size:12px"><input type="checkbox" id="qzoneProbeConsent">允许创建一条仅自己可见的空间测试说说，随后立即删除</label>
+        <button id="qzoneProbeBtn" onclick="runQzoneProbe()">验证空间发布与删除</button><p id="qzoneProbeResult" role="status"></p>
         <div id="agentDeployTimeline" aria-live="polite" style="white-space:pre-wrap;max-height:320px;overflow:auto;font-size:12px"></div>
-        <div id="deployAllowlist" hidden style="margin:12px 0">
+        <div id="deployAllowlist" style="margin:12px 0">
           <p>允许机器人回复的会话（至少填写一项，多个号码用逗号分隔）</p>
+          <label>管理员 QQ <input id="deployOwnerQQ" placeholder="有权请求群管的真实 QQ 号" autocomplete="off"></label>
           <label>私聊 QQ 号 <input id="deployPrivateIds" placeholder="填写你的 QQ 号" autocomplete="off"></label>
           <label>群号 <input id="deployGroupIds" placeholder="填写允许回复的群号" autocomplete="off"></label>
           <button class="dep-btn" onclick="saveDeployAllowlist()">保存白名单</button>
@@ -2111,8 +2129,8 @@ function protocolOnline() {
 
 function primaryPluginState(p) {
   const h = p.health || {};
-  const labels = { ready: '✓ 只读能力可用', checked: '◐ 检查通过，待 DSH 加载', config: '⚠ 缺配置', partial: '⚠ 部分能力待配置', configured: '◐ 已配置，待调用验证', unsupported: '✕ 协议端不支持', offline: '○ 协议端未连接', error: '⚠ 自检未通过', loaded: '◐ 已加载，待验证', registered: '◐ 已注册，待加载', installed: '◐ 已安装，待注册' };
-  return '<span class="pc-state ' + (h.code === 'ready' ? 'ok' : 'bad') + '" title="' + esc(h.detail || '尚未取得真实加载及调用证据') + '">' + esc(labels[h.code] || '◐ 已安装，待验证') + '</span>';
+  const labels = {bridge_denied:'✕ 桥接守卫拒绝',policy_denied:'✕ 会话策略拒绝', gate_pending:'◐ 只读通过，待 QQ 会话验证', ready: '✓ 只读能力可用', checked: '◐ 检查通过，待 DSH 加载', config: '⚠ 缺配置', partial: '⚠ 部分能力待配置', configured: '◐ 已配置，待调用验证', unsupported: '✕ 协议端不支持', offline: '○ 协议端未连接', error: '⚠ 自检未通过', loaded: '◐ 已加载，待验证', registered: '◐ 已注册，待加载', installed: '◐ 已安装，待注册' };
+  return '<span class="pc-state ' + (h.code === 'ready' ? 'ok' : 'bad') + '" title="' + esc((h.detail || '尚未取得真实加载及调用证据')+'；桥接守卫：'+(h.bridgeAllowed?'已加载':'未验证')+'；策略：待真实会话验证'+(h.needsReload?'；请重载DSH profile':'')) + '">' + esc(labels[h.code] || '◐ 已安装，待验证') + '</span>';
 }
 function renderPrimary() {
   const box = $('#pList');
@@ -2152,9 +2170,9 @@ function renderPrimary() {
   const badge = $('#priBadge');
   if (badge) {
     badge.textContent = PRIMARY.ready
-      ? 'SnowLuma + qq-bridge + DSH · 本机依赖已齐'
+      ? 'SnowLuma + qq-bridge + DSH · 运行时已齐 · QQ调用待验证'
       : 'SnowLuma + qq-bridge + DSH · 本机还缺 ' + ((PRIMARY.missing || []).slice(0, 2).join('、') || '未知');
-    badge.className = 'hub-badge' + (PRIMARY.ready ? ' ok' : '');
+    badge.className = 'hub-badge';
   }
 }
 
@@ -2902,15 +2920,21 @@ async function pollAgentDeploy() {
     $('#agentDeployTimeline').textContent = (job.events || []).map(e => `[${labels[e.state] || e.state}] ${e.message}`).join('\n');
     $('#agentDeployActions').hidden = !['automatic', 'ai', 'manual'].includes(job.state);
     $('#agentDeployContinue').disabled = job.state !== 'manual' || job.running;
-    $('#deployAllowlist').hidden = job.state !== 'manual' || !String(job.steps?.qqbridge?.detail || '').includes('白名单为空');
+
     $('#agentDeployCancel').disabled = !['automatic', 'ai', 'manual'].includes(job.state);
     if (['done', 'failed', 'cancelled'].includes(job.state)) { sessionStorage.removeItem('qqbotDeployId'); loadHealth(); loadMonitor(); return; }
     agentDeployTimer = setTimeout(pollAgentDeploy, 2000);
   } catch (e) { $('#agentDeployTimeline').textContent = e.message; }
 }
+async function runQzoneProbe(){
+const out=$('#qzoneProbeResult'),btn=$('#qzoneProbeBtn');
+if(!$('#qzoneProbeConsent').checked){out.textContent='请先勾选私密测试及删除授权。';return;}
+btn.disabled=true;out.textContent='正在验证…';try{const r=await deployApi('qzone-probe',{confirmPrivatePostAndDelete:true});out.textContent=r.detail+(r.tid?'（tid: '+r.tid+'）':'');}catch(e){out.textContent='验证失败：'+e.message;}finally{btn.disabled=false;$('#qzoneProbeConsent').checked=false;}}
+async function configureSnowHook(){try{const r=await deployApi('snowluma-runtime',{enableHookAutoLoad:$('#hookConsent').checked});toast(r.detail,r.installed?'ok':'err');}catch(e){toast(e.message,'err');}}
+async function reloadMarketTools(){try{const r=await deployApi('reload',{});toast(r.detail,'ok');}catch(e){toast(e.message,'err');}}
 async function saveDeployAllowlist() {
   try {
-    await deployApi('allowlist', { private: $('#deployPrivateIds').value, groups: $('#deployGroupIds').value });
+    await deployApi('allowlist', { ownerQQ: $('#deployOwnerQQ').value, private: $('#deployPrivateIds').value, groups: $('#deployGroupIds').value });
     toast('白名单已保存，请点“已完成，继续”重新检查', 'ok');
   } catch (e) { toast(e.message, 'err'); }
 }
@@ -3136,7 +3160,7 @@ function openLab(ev) {
   <div class="modal-in" style="position:relative;width:min(1180px,96vw);height:90vh;max-height:90vh;box-shadow:var(--shadow-3)">
     <div class="modal-head">
       <b>调音台 · Voice Lab</b>
-      <span style="font-size:11px;color:var(--dim-2)">本机 3120 · 市场代理 /lab/</span>
+      <span style="font-size:11px;color:var(--dim-2)">内置调音台 · 与市场一起运行 /lab/</span>
       <a class="btn-ghost" style="margin-left:auto;text-decoration:none" href="/lab/" target="_blank" rel="noopener">新窗口打开 ↗</a>
       <button class="x" style="background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer;padding:2px 8px" title="关闭" onclick="document.getElementById('labModal').remove()">×</button>
     </div>

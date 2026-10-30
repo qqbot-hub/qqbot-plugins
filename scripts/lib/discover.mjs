@@ -16,6 +16,7 @@ export function setBridgeAllowlist(cfg, values) {
   const next = JSON.parse(fs.readFileSync(file, 'utf8'));
   next.allow = { ...next.allow, private: privateIds, groups };
   next.allowAllWhenEmpty = false;
+  if(values.ownerQQ !== undefined){ const owner=String(values.ownerQQ).trim();if(owner && !/^[1-9]\d{4,15}$/.test(owner))throw new Error('ownerQQ 格式不正确');next.ownerQQ=owner ? Number(owner) : null; }
   fs.copyFileSync(file, file + '.allow-backup');
   fs.writeFileSync(file, JSON.stringify(next, null, 2) + '\n', { mode: 0o600 });
   return { ok: true, privateCount: privateIds.length, groupCount: groups.length };

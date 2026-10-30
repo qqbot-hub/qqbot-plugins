@@ -11,8 +11,14 @@
  * 这些是页面自己声明的元信息，不是猜的；直链 mp4 直接交给视频接口。
  */
 'use strict';
-import { num, str } from './_lib.mjs';
+import { num, str, bridgeOf } from './_lib.mjs';
 
+async function mediaUrl(a,ctx){
+  if(a.url)return str(a.url);
+  if(!a.message_id)return '';
+  const msg=await bridgeOf(ctx).raw('get_msg',{message_id:a.message_id});
+  return (Array.isArray(msg?.message)?msg.message:[]).filter(x=>x.type==='video').map(x=>x.data?.url || x.data?.file || '').find(u=>u.startsWith('https://') || u.startsWith('http://')) || '';
+}
 const MAX_HTML = 400 * 1024;
 const MEDIA_RE = /\.(mp4|m4v|mov|webm|flv|mkv|m3u8|ts)(\?|#|$)/i;
 
@@ -174,15 +180,16 @@ export default {
       inputSchema: {
         type: 'object',
         properties: {
-          url: { type: 'string', description: '视频直链（mp4 等）或分享页链接（B 站/抖音/微博/QQ 视频）' },
+          message_id: {type:'number',description:'包含视频的 QQ 消息ID，与url二选一'},
+        url: { type: 'string', description: '视频直链（mp4 等）或分享页链接（B 站/抖音/微博/QQ 视频）' },
           question: { type: 'string', description: '具体想问的，如「视频最后出现了什么字」；留空就做通用描述' },
           fps: { type: 'number', description: '抽帧密度 1-4，默认用配置值' },
         },
-        required: ['url'],
+        required: [],
       },
       run: async (a, ctx) => {
         const c = (ctx && ctx.cfg) || {};
-        const url = str(a.url);
+        const url = await mediaUrl(a,ctx);
         if (!/^https?:\/\//i.test(url)) {
           return '认视频要一个 http/https 链接：视频直链或分享页都行。图片请用 qq_see，本机文件沙箱读不到。';
         }
@@ -256,12 +263,13 @@ export default {
       inputSchema: {
         type: 'object',
         properties: {
-          url: { type: 'string', description: '视频直链或分享页链接' },
+          message_id: {type:'number',description:'包含视频的 QQ 消息ID，与url二选一'},
+        url: { type: 'string', description: '视频直链或分享页链接' },
         },
-        required: ['url'],
+        required: [],
       },
-      run: async (a) => {
-        const url = str(a.url);
+      run: async (a, ctx) => {
+        const url = await mediaUrl(a,ctx);
         if (!/^https?:\/\//i.test(url)) return '要一个 http/https 链接。';
         if (MEDIA_RE.test(url)) {
           return `🎬 这是一个视频直链，没有网页元信息可读：\n${url}\n\n想知道里面拍了什么，用 qq_video_see。`;

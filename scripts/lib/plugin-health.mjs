@@ -22,6 +22,17 @@ export function observedTools(root) {
   } } catch {}
   return names;
 }
+export function bridgeGates(cfg) {
+  let manifest, live, bridgeCfg;
+  try { manifest=JSON.parse(fs.readFileSync(path.join(cfg.bridge.dir,'.market-patches.json'),'utf8')); }catch{}
+  try { bridgeCfg=JSON.parse(fs.readFileSync(path.join(cfg.bridge.dir,'config.json'),'utf8')); }catch{}
+  try {
+    live=JSON.parse(fs.readFileSync(path.join(cfg.bridge.dir,'state/market-guard.json'),'utf8'));
+    process.kill(live.pid,0);
+    if(!manifest || live.at<manifest.at)live=null;
+  }catch{live=null;}
+  return {bridgeAllowed:live?.prefixes?.includes('mcp__qqbot__')===true, policyAllowed:null, ownerConfigured:!!bridgeCfg?.ownerQQ, needsReload:!!manifest && !live, evidence:'工具列出不代表 QQ 会话策略已放行；需要真实会话调用验证'};
+}
 export async function pluginHealth(id, cfg, { root, probe, call, loaded = observedTools(root), now = Date.now() } = {}) {
   const values = Object.fromEntries(Object.entries(cfg.plugins?.[id] || {}).map(([k, v]) => [k, typeof v === 'string' ? decrypt(v) : v]));
   const sl = cfg.snowluma || {}, ob = cfg.onebot || {};
@@ -33,9 +44,10 @@ export async function pluginHealth(id, cfg, { root, probe, call, loaded = observ
   const reg = registered(cfg.dsh?.profile || 'desktop');
   const names = (meta?.tools || []).map(t => t.name);
   const isLoaded = names.length > 0 && names.every(n => loaded.has(n));
-  const result = (code, detail, checked = false) => ({ code, detail, checked, installed: !!state?.installed, registered: reg, loaded: isLoaded, at: now });
+  const gates=bridgeGates(cfg);
+  const result = (code, detail, checked = false) => ({ code:code==='ready'?'gate_pending':code, detail, checked, installed: !!state?.installed, registered: reg, loaded: isLoaded, ...gates, lastProbe:state?.health?.code==='direct_verified'?state.health:null, at: now });
   if (!state?.installed || !state.enabled) return result('uninstalled', '未安装或已停用');
-  if (id === 'voice' && (values.provider || 'openai') === 'openai' && !values.apiKey) return result('config', '未配置语音 API Key；也可选择本地后端');
+  if (id === 'voice' && (values.provider || 'baidu') === 'openai' && !values.apiKey) return result('config', '未配置语音 API Key；也可选择本地后端');
   if (id === 'vision' && (values.provider || 'siliconflow') !== 'ollama' && !values.apiKey) return result('config', '未配置识图 API Key；也可选择 Ollama');
   if (id === 'video' && !values.apiKey) return result('partial', '视频链接解析可用性待验证；视频理解缺 API Key');
   if (['voice', 'vision', 'video'].includes(id)) return result('configured', '后端参数已配置，尚未验证真实调用；不自动发起付费请求');
@@ -45,11 +57,10 @@ export async function pluginHealth(id, cfg, { root, probe, call, loaded = observ
       if (!h.online) return result('offline', '协议端未通过登录验证');
       const actions = h.capabilities?.onebotActions || cfg.onebot?.capabilities?.onebotActions;
       if (actions) {
-        const supports = action => Array.isArray(actions) ? actions.includes(action) : actions[action] === true;
+        const supports = action => { const aliases = {get_qq_zone_feeds:['get_qq_zone_feeds','get_qzone_msg_list','get_qzone_feeds'],set_qq_zone_feed:['set_qq_zone_feed','send_qzone_msg'],del_qq_zone_feed:['del_qq_zone_feed','delete_qzone_msg']}; return (aliases[action] || [action]).some(a => Array.isArray(actions) ? actions.includes(a) : actions[a] === true); };
         if ((meta?.requires?.onebotActions || []).some(action => !supports(action))) return result('unsupported', '协议端声明缺少此插件所需接口');
       }
-      if (id === 'qzone' && /snowluma/i.test(h.app + ' ' + h.impl) && Number(String(h.version).replace(/^v/i, '').split('.')[0]) >= 2) return result('unsupported', 'SnowLuma 2.x 未提供空间接口');
-      const action = id === 'qzone' ? 'get_qq_zone_feeds' : 'get_group_list';
+      const action = id === 'qzone' ? 'qzone_list' : 'get_group_list';
       await invoke(action, {}); await invoke(action, {});
       return result(isLoaded && reg ? 'ready' : 'checked', id === 'qzone' ? '空间读取检查通过；发布动作未验证' : '群列表读取检查通过；禁言、踢人等写操作未验证', true);
     }
@@ -61,6 +72,8 @@ export async function pluginHealth(id, cfg, { root, probe, call, loaded = observ
     }
     return result(isLoaded ? 'loaded' : reg ? 'registered' : 'installed', isLoaded ? 'DSH 客户端已列出工具，功能尚未实测' : reg ? '已注册，等待 DSH 客户端列出工具' : '已安装，尚未注册到 DSH');
   } catch (e) {
+    if(/不在.*白名单|tool.*denied|守卫/i.test(e.message))return result('bridge_denied','桥接工具守卫拒绝；请应用补丁并重载DSH profile');
+    if(/policy|预设|策略.*拒绝/i.test(e.message))return result('policy_denied','QQ会话预设拒绝；检查ownerQQ和真实消息发送者');
     return result(/unknown action|不支持|unsupported/i.test(e.message) ? 'unsupported' : 'error', '只读检查未通过；请检查协议能力、连接及权限');
   }
 }

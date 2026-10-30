@@ -120,7 +120,7 @@ export default {
         if (!ok) return { status: 'fail', detail: '状态没写进去' };
         const health = await pluginHealth(ctx.state.id, ctx.cfg(), { root: ctx.paths.root });
         st[ctx.state.id].health = health; writeJson('state', st);
-        if (['config', 'unsupported', 'offline', 'error'].includes(health.code)) return { status: 'manual', detail: health.detail, hint: '插件安装状态已保留；请处理配置、协议能力或登录问题后重新检查' };
+        if (['config', 'unsupported', 'offline', 'error','bridge_denied','policy_denied'].includes(health.code)) return { status: 'manual', detail: health.detail, hint: '插件安装状态已保留；请处理配置、协议能力或登录问题后重新检查' };
         return { status: 'ok', detail: health.detail + '；安装不等于 DSH 已加载或所有动作可用' };
       },
     },

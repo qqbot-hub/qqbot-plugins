@@ -10,7 +10,7 @@
     "register-dsh": "node scripts/register-dsh.mjs",
     "deploy:primary": "node scripts/deploy-primary.mjs",
     "verify": "node scripts/verify-plugins.mjs",
-    "test": "node scripts/verify-plugins.mjs && node scripts/test-nav.mjs && node scripts/test-verify.mjs && node scripts/test-bridge.mjs && node scripts/test-hub.mjs && node scripts/test-deploy-agent.mjs && node scripts/test-deploy-integration.mjs && node scripts/test-public-readonly.mjs && node scripts/test-state.mjs && node scripts/test-snowluma.mjs && node scripts/test-installer.mjs",
+    "test": "node scripts/verify-plugins.mjs && node scripts/test-nav.mjs && node scripts/test-verify.mjs && node scripts/test-bridge.mjs && node scripts/test-hub.mjs && node scripts/test-deploy-agent.mjs && node scripts/test-deploy-integration.mjs && node scripts/test-public-readonly.mjs && node scripts/test-state.mjs && node scripts/test-snowluma.mjs && node scripts/test-installer.mjs && node scripts/test-handoff.mjs && node scripts/test-lab.mjs",
     "test:nav": "node scripts/test-nav.mjs",
     "test:bridge": "node scripts/test-bridge.mjs",
     "test:hub": "node scripts/test-hub.mjs",
@@ -22,7 +22,9 @@
     "test:snowluma": "node scripts/test-snowluma.mjs",
     "test:fresh": "node scripts/e2e-fresh.mjs",
     "test:deploy-integration": "node scripts/test-deploy-integration.mjs",
-    "test:bridge-supervisor": "node scripts/test-bridge-supervisor.mjs"
+    "test:bridge-supervisor": "node scripts/test-bridge-supervisor.mjs",
+    "test:handoff": "node scripts/test-handoff.mjs",
+    "test:lab": "node scripts/test-lab.mjs"
   },
   "keywords": [
     "qq",

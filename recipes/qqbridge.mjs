@@ -1,6 +1,7 @@
 ﻿import path from 'node:path';
 import fs from 'node:fs';
 import { visit } from 'yaml';
+import { patchBridge } from '../scripts/patch-qqbridge.mjs';
 import { discoverDsh } from '../scripts/lib/dsh-discover.mjs';
 import { discoverSnowLuma, syncBridgeConfig } from '../scripts/lib/discover.mjs';
 import { parsePatch, profileFile } from '../scripts/lib/dsh-registration.mjs';
@@ -40,11 +41,14 @@ export default { id: 'qqbridge', title: 'qq-bridge 桥接', kind: 'bridge', step
     if (!result.whitelistReady) return { status: 'manual', detail: '消息白名单为空，尚不能报告机器人可回复', hint: '在 ' + file + ' 的 allow.private 填允许的 QQ 号，或在 allow.groups 填群号；默认不自动开放给所有人。设置后继续。' };
     return { status: 'ok', detail: result.testMode ? '连接配置已同步；注意现有配置启用了空白名单测试模式' : '连接配置与消息白名单已就绪' };
   } },
+  { key: 'patch', title: '修复市场工具守卫与预设', async run(ctx) { try { const r=patchBridge(ctx.state.dir); return {status:'ok',detail:'桥接补丁已保存；ownerQQ='+ (r.ownerQQ || '未设置')+'，首次需重新加载 DSH profile'}; } catch(e) { return {status:'manual',detail:e.message,hint:'仅支持已核对的 qq-bridge 0.2.1；保留现有文件，不覆盖未知版本'}; } } },
   { key: 'setup', title: '配置真实 DSH profile', async run(ctx) {
     const profile = ctx.cfg().dsh?.profile || 'desktop', file = profileFile(profile);
     if (!fs.existsSync(path.dirname(file))) return { status: 'manual', detail: '目标 DSH profile 不存在：' + profile, hint: '先在 DSH 登录生成 profile，或在市场配置 dsh.profile' };
     const original = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '[]';
     const before = parsePatch(original);
+    const built=await ctx.exec(process.execPath,['scripts/build-agent-preset-patches.mjs'],{cwd:ctx.state.dir,quiet:true,timeoutMs:30000});
+    if(built.code!==0)return {status:'manual',detail:'预设补丁生成失败，未运行setup；请检查依赖和日志'};
     const result = await ctx.exec(process.execPath, ['scripts/setup-dsh.mjs', profile], { cwd: ctx.state.dir, quiet: true, timeoutMs: 180000 });
     // Preserve all foreign AST nodes and comments even if upstream setup dumped the whole YAML.
     const owned = new Set(['mcp-snowluma', 'mcp-snowluma-host', 'mcp-web-search-safe']);

@@ -202,8 +202,8 @@ async function main() {
   let hub = await loadPlugins();
   let refreshing = null, initialized = false, clientName = '', deliveredSignature = '', deliveredNames = [];
   let fireTick = startFireDue(hub.fireDues);
-  async function refresh() {
-    if (signature === stateSignature()) return;
+  async function refresh(force=false) {
+    if (!force && signature === stateSignature()) return;
     if (refreshing) return refreshing;
     refreshing = (async () => {
       const nextSignature = stateSignature();
@@ -223,7 +223,11 @@ async function main() {
       fs.writeFileSync(path.join(observerDir, process.pid + '.json'), JSON.stringify({ root: HUB_ROOT, pid: process.pid, client: clientName, signature: deliveredSignature, tools: deliveredNames, at: Date.now() }));
     } catch {}
   };
-  const reloadTimer = setInterval(() => { refresh().then(observer).catch(e => logErr('reload: ' + e.message)); }, 1500);
+  let lastReload=0;
+  const reloadTimer = setInterval(() => {
+    let force=false;try{const request=JSON.parse(fs.readFileSync(path.join(observerDir,'reload-request.json'),'utf8'));if(request.root===HUB_ROOT && request.at>lastReload){lastReload=request.at;force=true;deliveredSignature='';}}catch{}
+    refresh(force).then(observer).catch(e => logErr('reload: ' + e.message));
+  }, 1500);
   reloadTimer.unref();
   logErr(`qqbot-plugins MCP 已启动：${hub.tools.length} 个工具可用`);
 

@@ -61,8 +61,9 @@ export default {
     intro: '云端接口要填 Key；本地 Breeze-TTS 跑在自己电脑上，不用 Key、不上传数据。',
     fields: [
       {
-        key: 'provider', label: '后端', type: 'select', default: 'openai',
+        key: 'provider', label: '后端', type: 'select', default: 'baidu',
         options: [
+          { value: 'baidu', label: '百度翻译 TTS（免 Key；文本发送至百度，最长100字）' },
           { value: 'openai', label: 'OpenAI 兼容云端接口（需 Key）' },
           { value: 'breeze', label: '本地 Breeze-TTS-2.cpp（免 Key）' },
           { value: 'voxd', label: 'SurfCore 语音引擎 voxd（免 Key）' },
@@ -98,7 +99,7 @@ export default {
       const text = str(a.text).slice(0, 300);
       if (!text) return '要念什么？把文字给我。';
 
-      const provider = str(c.provider) || 'openai';
+      const provider = str(c.provider) || 'baidu';
       const base = baseOf(ctx);
       const key = str(c.apiKey);
       const voiceId = str(a.voice) || str(c.voice);
@@ -106,6 +107,18 @@ export default {
         return '还没配置语音接口：去市场「⚙ 配置」里填 voice 插件的接口地址和 API Key（或把后端切成「本地 Breeze-TTS」/「SurfCore voxd」，这两个不用 Key）。';
       }
 
+      if (provider === 'baidu') {
+        if(str(a.text).length > 100) return '百度免 Key 语音每次最多100字，请缩短后重试。';
+        const speed=Math.max(1,Math.min(9,Math.round((Number(c.speed)||1)*5)));
+        const url='https://fanyi.baidu.com/gettts?'+new URLSearchParams({lan:'zh',text,spd:String(speed),source:'web'});
+        try {
+          const r=await fetch(url,{signal:AbortSignal.timeout(20000)});
+          if(!r.ok || !/audio|octet-stream/i.test(r.headers.get('content-type')||''))return '百度语音暂不可用，请稍后重试或切换后端。';
+          const parts=[];let size=0;for await(const part of r.body){size+=part.length;if(size>4*1024*1024)throw new Error('音频超过4MB');parts.push(Buffer.from(part));}
+          const audio=Buffer.concat(parts);if(audio.length<1000)return '百度返回的音频过短，请切换后端。';
+          return await sendRecord(ctx,audio,a,text,'百度免 Key');
+        }catch(e){return '百度语音请求失败：'+e.message+'；可以切换为本地或云端后端。';}
+      }
       if (provider === 'voxd') {
         const body = { text, format: 'wav', sr: 24000, cache: true };
         if (voiceId) body.voice = voiceId;

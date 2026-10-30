@@ -130,13 +130,11 @@
     "role": "companion",
     "order": 5,
     "required": false,
-    "opensource": false,
-    "desc": "本地语音工作台（3120）：调音色、试听、一键写进 voice 插件。不装不影响主链路。",
-    "ports": [
-      3120
-    ],
-    "autoInstall": false,
-    "manual": "外部可选程序，需要自行安装；未提供可验证安装来源，不提供自动安装按钮。",
+    "opensource": true,
+    "desc": "随市场分发的语音调音台：保存voice配置、试听、检测本地后端，无需额外3120进程。",
+    "ports": [],
+    "autoInstall": true,
+    "manual": "",
     "links": []
   }
 ]
