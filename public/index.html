@@ -1101,15 +1101,63 @@
   background:rgba(255,110,110,.09); border:1px solid rgba(255,110,110,.3); color:#ffb3b3; display:none; }
 .reg-err ul { margin:6px 0 0 18px; }
 
-.community-first{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0 8px}
-.community-first .join,.community-first .star-card{margin:0;min-width:0;width:100%}
-.community-first .join{padding:16px 20px;border:1px solid rgba(91,140,255,.45);background:rgba(91,140,255,.12);border-radius:14px}
-.community-first .join-h{font-size:17px}.community-first .join p{display:block;margin:6px 0 10px}
-.community-first .star-in{padding:16px 20px;display:grid;grid-template-columns:28px 1fr;gap:5px 12px;text-align:left}
-.community-first .heart{width:26px;height:26px;grid-row:1/4;margin:0}.community-first .star-in b{font-size:16px}
-.community-first .star-in p{display:block;margin:0}.community-first .star-btn{width:100%;margin:4px 0 0;grid-column:2}
-.community-first .star-meta{display:block;grid-column:2;margin:0}
-@media(max-width:620px){.community-first{grid-template-columns:1fr;gap:10px}.community-first .join,.community-first .star-in{padding:12px 16px}.community-first .join p,.community-first .star-in p,.community-first .star-meta{display:none}.community-first .join-btn{margin-top:8px}}
+/* ===== 交流群 + 求星：放进吸顶工具栏，零纵向占位、滚动常驻 ===== */
+.top-cta{display:flex;align-items:center;gap:10px;margin-left:18px;min-width:0;overflow:hidden}
+/* 面包屑不许折行，否则会把吸顶栏撑高，挤掉下面所有内容 */
+.crumb i,.crumb-sub{white-space:nowrap}
+
+.cta-pill{
+  position:relative;display:inline-flex;align-items:center;gap:9px;height:38px;
+  padding:0 15px;border-radius:999px;border:1px solid var(--line-2);
+  background:rgba(255,255,255,.05);color:var(--text);
+  font-size:13px;font-weight:550;letter-spacing:.2px;white-space:nowrap;cursor:pointer;
+  transition:background .18s var(--ease),border-color .18s var(--ease),transform .18s var(--ease);
+}
+.cta-pill::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:.9;
+  background:radial-gradient(120px 40px at 18% 0%,var(--cf-tint,transparent),transparent 72%);
+}
+.cta-pill:hover{transform:translateY(-1px)}
+.cta-ic{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+.cta-ic svg{width:16px;height:16px}
+.cta-pill .heart{width:16px;height:16px;margin:0;color:var(--heart);animation:beat 2.4s var(--ease) infinite}
+.cta-pill .cta-label{color:var(--text)}
+.cta-pill .cta-no{font-variant-numeric:tabular-nums;letter-spacing:.1px}
+
+/* 交流群：青绿 */
+.cta-group{--cf-tint:rgba(47,220,166,.14);border-color:rgba(47,220,166,.26);color:#d7fff2}
+.cta-group .cta-ic{color:#7ff0cd}
+.cta-group .cta-no{color:#9bf2d8}
+.cta-group:hover{background:rgba(47,220,166,.1);border-color:rgba(47,220,166,.45)}
+.cta-group em{
+  flex:0 0 auto;font-style:normal;font-size:11px;font-weight:500;letter-spacing:0;color:#9bf2d8;
+  padding:3px 10px;border-radius:999px;background:rgba(47,220,166,.16);border:1px solid rgba(47,220,166,.24);
+}
+.cta-group.copied{border-color:rgba(47,220,166,.6);background:rgba(47,220,166,.16)}
+.cta-group.copied em{background:rgba(47,220,166,.28)}
+
+/* 求星：粉 */
+.cta-star{--cf-tint:rgba(255,93,143,.14);border-color:rgba(255,93,143,.26);color:#ffdbe4}
+.cta-star:hover{background:rgba(255,93,143,.1);border-color:rgba(255,93,143,.45);color:#fff}
+.cta-star .cta-go{color:#fff;font-weight:600}
+.cta-star .star-ico{color:#ff7aa2;margin-right:2px}
+.cta-star .cta-meta{
+  flex:0 0 auto;font-size:11px;font-weight:500;color:#ffb5c9;
+  padding:3px 10px;border-radius:999px;background:rgba(255,93,143,.12);border:1px solid rgba(255,93,143,.2);
+  font-variant-numeric:tabular-nums;
+}
+
+/* 空间不够时按优先级逐层收窄：先收面包屑，再收胶囊副文案，绝不换行、不挤压搜索/刷新 */
+@media(max-width:1240px){ .crumb-sub{display:none} }
+@media(max-width:1400px){ .cta-star .cta-label{display:none} }
+@media(max-width:1300px){ .cta-star .cta-meta{display:none} }
+@media(max-width:1010px){ .cta-group .cta-label{display:none} }
+@media(max-width:980px){
+  .topbar-row{flex-wrap:wrap;row-gap:8px}
+  .top-cta{order:3;flex:1 1 100%;margin-left:0;gap:8px}
+  .cta-pill{flex:1 1 0;justify-content:flex-start;min-width:0}
+  .cta-star .cta-label{display:none}
+}
 </style>
 </head>
 <body>
@@ -1155,35 +1203,37 @@
     <div class="wrap">
       <div class="topbar">
         <div class="topbar-row">
-          <div class="crumb"><i>插件市场</i> / AI QQ 机器人</div>
+          <div class="crumb"><i>插件市场</i><span class="crumb-sub"> / AI QQ 机器人</span></div>
+
+          <div class="top-cta" aria-label="交流群与开源支持">
+            <button class="cta-pill cta-group" id="joinBtn" onclick="copyGroup()" title="点击复制群号：973971153">
+              <span class="cta-ic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M16 20v-1.6a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20"/><circle cx="9" cy="7" r="3.4"/><path d="M22 20v-1.6a4 4 0 0 0-3-3.87"/><path d="M16.2 4.1a3.4 3.4 0 0 1 0 6.6"/>
+                </svg>
+              </span>
+              <span class="cta-label">插件交流群</span>
+              <span class="cta-no">QQ 群 973971153</span>
+              <em>复制</em>
+            </button>
+
+            <a class="cta-pill cta-star" href="https://github.com/qqbot-hub/qqbot-plugins" target="_blank" rel="noopener" title="请给我点一颗免费的心">
+              <span class="cta-ic">
+                <svg class="heart" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 21s-6.7-4.2-9.1-8.2C1.1 9.9 2.2 6.2 5.4 5.1c2-.7 4.1.1 5.3 1.7l1.3 1.7 1.3-1.7c1.2-1.6 3.3-2.4 5.3-1.7 3.2 1.1 4.3 4.8 2.5 7.7C18.7 16.8 12 21 12 21z"/>
+                </svg>
+              </span>
+              <span class="cta-label">请给我点一颗免费的心</span>
+              <span class="cta-go">去 GitHub 点 Star</span>
+              <span class="cta-meta" id="starCount">开源 · MIT</span>
+            </a>
+          </div>
+
           <span class="kbd">/</span><span style="font-size:10.5px;color:var(--dim-2)">搜索</span>
           <button onclick="load().then(() => toast('已刷新：插件 / 端口 / 方法都重新读了一遍', 'ok'))">刷新</button>
         </div>
       </div>
 
-      <div class="community-first" aria-label="交流群与开源支持">
-    <div class="join">
-      <div class="join-h">👥 插件交流群</div>
-      <p>插件开发 / 使用答疑 / 踩坑互助</p>
-      <button class="join-btn" id="joinBtn" onclick="copyGroup()" title="点击复制群号">
-        <span>QQ 群 973971153</span><em>复制</em>
-      </button>
-    </div>
-
-    <div class="star-card">
-      <div class="star-in">
-        <svg class="heart" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M12 21s-6.7-4.2-9.1-8.2C1.1 9.9 2.2 6.2 5.4 5.1c2-.7 4.1.1 5.3 1.7l1.3 1.7 1.3-1.7c1.2-1.6 3.3-2.4 5.3-1.7 3.2 1.1 4.3 4.8 2.5 7.7C18.7 16.8 12 21 12 21z"/>
-        </svg>
-        <b>请给我点一颗免费的心</b>
-        <p>完全开源免费<br>一颗 Star 就是最好的鼓励 ❤</p>
-        <a class="star-btn" href="https://github.com/qqbot-hub/qqbot-plugins" target="_blank" rel="noopener">
-          <span>★</span> 去 GitHub 点 Star
-        </a>
-        <div class="star-meta"><span id="starCount">开源 · MIT</span></div>
-      </div>
-    </div>
-      </div>
       <section class="hero" id="hero">
         <div class="eyebrow"><span class="pulse"></span>专为 SnowLuma + qq-bridge + DSH（大肥鱼）链路打造</div>
         <h1><span>给你的大肥鱼</span><span class="thin">一个完整的人生</span></h1>
