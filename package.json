@@ -17,7 +17,7 @@
     "test:state": "node scripts/test-state.mjs",
     "hub:sync": "node scripts/hub-sync.mjs",
     "install:list": "node scripts/installer.mjs list",
-    "install": "node scripts/installer.mjs run",
+    "install:run": "node scripts/installer.mjs run",
     "test:installer": "node scripts/test-installer.mjs"
   },
   "keywords": [
