@@ -853,7 +853,44 @@ async function monitor() {
   };
 }
 
+let healthCache = { key: '', at: 0, data: {} };
+async function primaryHealth(plugins, lib) {
+  const key = JSON.stringify([cfg.plugins, plugins.map(p => [p.id, p.installed, p.enabled])]);
+  if (healthCache.key === key && Date.now() - healthCache.at < 10000) return healthCache.data;
+  const data = {};
+  const ids = ['qzone','voice','vision','video','sticker','group_admin','group_info'];
+  await Promise.all(plugins.filter(p => p.installed && ids.includes(p.id)).map(async p => {
+    data[p.id] = await lib.pluginHealth(p.id, cfg, { root: ROOT });
+  }));
+  healthCache = { key, at: Date.now(), data };
+  return data;
+}
+let connectionRefreshAt = 0, connectionRefresh = null, discoveredDsh = { running: false, webPort: 0 };
+async function refreshConnections() {
+  if (!['127.0.0.1', 'localhost', '::1'].includes(HOST)) return;
+  if (connectionRefresh) return connectionRefresh;
+  if (Date.now() - connectionRefreshAt < 10000) return;
+  connectionRefreshAt = Date.now();
+  connectionRefresh = (async () => {
+    try { cfg = Object.assign(cfg, JSON.parse(fs.readFileSync(CFG_FILE, 'utf8'))); } catch {}
+    const [discovery, dshLib, engine] = await Promise.all([esm('scripts/lib/discover.mjs'), esm('scripts/lib/dsh-discover.mjs'), installer()]);
+    const dsh = await dshLib.discoverDsh({ cfg: () => cfg, isWin: process.platform === 'win32', exec: engine.exec });
+    discoveredDsh = dsh;
+    let changed = false;
+    if (dsh.webPort && cfg.dsh?.baseUrl !== 'http://127.0.0.1:' + dsh.webPort) { cfg.dsh = { ...cfg.dsh, baseUrl: 'http://127.0.0.1:' + dsh.webPort }; changed = true; }
+    if ((cfg.onebot?.protocol || 'onebot') === 'satori') { if (changed) saveCfg(); return; }
+    const snow = await discovery.discoverSnowLuma(cfg, { root: ROOT });
+    if (snow.heartbeat.online) {
+      const before = JSON.stringify(cfg); discovery.applySnowLuma(cfg, snow); changed ||= before !== JSON.stringify(cfg);
+      SECRET_CACHE.set(slotOfOnebot(), snow.accessToken || '');
+    }
+    discovery.syncBridgeConfig(cfg, { dsh, snow });
+    if (changed) saveCfg();
+  })().catch(e => console.error('[discovery] ' + e.message)).finally(() => { connectionRefresh = null; });
+  return connectionRefresh;
+}
 async function doctor() {
+  await refreshConnections();
   const ob = onebotCfg();
   const isSatori = ob.protocol === 'satori';
   const sl = Object.assign({ wsPort: 3001 }, cfg.snowluma);
@@ -877,13 +914,13 @@ async function doctor() {
     onebot: hb,
     protocol: { id: ob.protocol, label: proto.label, note: proto.note, capabilities: proto.capabilities },
     protocols: Object.values(PROTOCOLS).map((x) => ({ id: x.id, label: x.label, note: x.note, capabilities: x.capabilities })),
-    dsh: { ok: dshOk, url: dsh.baseUrl },
+    dsh: { ok: dshOk && !!discoveredDsh.webPort, url: dsh.baseUrl },
     /* 走 Satori 时 SnowLuma 那一栏没有意义，如实标 null，不让页面显示假绿点 */
     snowluma: isSatori
       ? { ok: null, skipped: '当前协议是 Satori，不经 SnowLuma' }
       : { ok: snowlumaHttp && snowlumaWs, http: snowlumaHttp, ws: snowlumaWs, httpUrl: ob.httpUrl },
     bridge: { ok: bridgeOk, url: bg.consoleUrl },
-    mcp: { tools: tools.length },
+    mcp: { tools: tools.length, loadedTools: (await esm('scripts/lib/plugin-health.mjs')).observedTools(ROOT).size },
     installed: currentPlugins().filter((p) => p.installed).length,
     uptime: uptime(),
     node: process.version,
@@ -1340,6 +1377,10 @@ const server = http.createServer(async (req, res) => {
     try {
       if (method === 'POST' && p === '/api/deploy/token') return sendJson(res, 200, { token: service.ticket() });
       const body = method === 'POST' ? JSON.parse(await readBody(req)) : {};
+      if (method === 'POST' && p === '/api/deploy/allowlist') {
+        const discovery = await esm('scripts/lib/discover.mjs');
+        return sendJson(res, 200, discovery.setBridgeAllowlist(cfg, body));
+      }
       if (method === 'POST' && p === '/api/deploy/agent') {
         if (body.allowShell !== false || body.goal !== 'primary') return sendJson(res, 400, { error: '只允许 primary 部署且 allowShell 必须为 false' });
         return sendJson(res, 200, service.start(body.token, body.mode));
@@ -1380,9 +1421,12 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 403, { ok: false, error: '公网演示站为只读；本机部署请在回环地址打开，管理操作需配置访问口令' });
     }
     if (method === 'GET' && p === '/api/list') {
+      await refreshConnections();
       const plugins = currentPlugins();
       /* 标出哪些插件有可配置项（schema 由插件自己声明），前端据此显示「配置」按钮 */
       const flags = {};
+      const healthLib = await esm('scripts/lib/plugin-health.mjs');
+      const health = await primaryHealth(plugins, healthLib);
       await Promise.all(plugins.map(async (pl) => { flags[pl.id] = !!(await pluginSchema(pl.id)); }));
       /* 权限来自真实代码扫描；兼容方法来自 methods.json，两边都不手写 */
       const pmap = permissionsMap();
@@ -1406,6 +1450,7 @@ const server = http.createServer(async (req, res) => {
           const compat = lib.pluginCompatMethods({ needsBridge: pm.needsBridge !== false }, methods);
           return Object.assign({}, pl, {
             hasSettings: !!flags[pl.id],
+            health: health[pl.id] || null,
             framework: pm.framework || 'mcp',
             language: pm.language || 'JavaScript (ESM)',
             author: pl.author || '本项目（零依赖重写）',
@@ -1584,6 +1629,7 @@ const server = http.createServer(async (req, res) => {
     }
     /* 轻量状态：只做心跳，不逐个 import 插件 —— 页面定时刷新用这个 */
     if (method === 'GET' && p === '/api/status') {
+      await refreshConnections();
       const force = new URL(req.url, 'http://x').searchParams.get('force') === '1';
       const [hb, dshOk, bridgeOk] = await Promise.all([
         probeOnebot(force),
@@ -1863,6 +1909,10 @@ const server = http.createServer(async (req, res) => {
 /* 先把密钥初始化完再开始监听：避免第一个 /api/health 因为 token 还没解出来而显示未配置 */
 initSecrets().catch((e) => console.log('[secrets] 初始化失败（不影响启动）：' + e.message)).finally(() => {
   server.listen(PORT, HOST, () => {
+    if (['127.0.0.1', 'localhost', '::1'].includes(HOST)) {
+      const discoveryTimer = setInterval(() => { void refreshConnections(); }, 10000);
+      discoveryTimer.unref();
+    }
     console.log('qqbot-plugins 插件市场已启动');
     console.log('地址: http://' + HOST + ':' + PORT + (PASSWORD ? '' : '（未设口令，本机开放访问）'));
     console.log('消息上报: POST http://' + HOST + ':' + PORT + '/api/onebot/event');

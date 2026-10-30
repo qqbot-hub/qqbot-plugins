@@ -1,3 +1,5 @@
+import { pluginHealth } from '../scripts/lib/plugin-health.mjs';
+import { registered, profileFile } from '../scripts/lib/dsh-registration.mjs';
 /* 通用插件安装：本市场的每个插件都走这一份脚本
  *
  * 参数：{ id }  插件 id（对应 data/catalog/plugins.json 里的 id 与 plugins/<id>.mjs）
@@ -99,10 +101,9 @@ export default {
       hint: '跑 node scripts/register-dsh.mjs desktop 手动注册，然后完全退出 DSH 再打开',
       async run(ctx) {
         const profile = (ctx.cfg().dsh && ctx.cfg().dsh.profile) || 'desktop';
-        const home = process.env.USERPROFILE || os.homedir();
-        const yml = path.join(home, '.dsh', 'profiles', profile, 'cordis.patch.yml');
+        const yml = profileFile(profile);
         if (!fs.existsSync(path.dirname(yml))) return { status: 'skip', detail: '这台机器没装 DSH，插件状态已存好；装好 DSH 后再跑一次本安装' };
-        const has = fs.existsSync(yml) && /qqbot-plugins MCP BEGIN/.test(fs.readFileSync(yml, 'utf8'));
+        const has = registered(profile);
         if (has) return { status: 'ok', detail: 'MCP 已在 DSH 配置里' };
         const r = await ctx.exec(process.execPath, [path.join('scripts', 'register-dsh.mjs'), profile], { timeoutMs: 30000 });
         if (r.code !== 0) return { status: 'fail', detail: '自动注册失败：' + (r.stdout + r.stderr).slice(0, 200) };
@@ -117,8 +118,10 @@ export default {
         const st = readJson('state', {}) || {};
         const ok = !!(st[ctx.state.id] && st[ctx.state.id].installed);
         if (!ok) return { status: 'fail', detail: '状态没写进去' };
-        const tip = ctx.state.needRestart ? '（刚注册了 MCP，需要重启 DSH 才生效）' : '';
-        return { status: 'ok', detail: `${ctx.state.meta.name} 已安装，${ctx.state.toolCount} 个工具可用${tip}` };
+        const health = await pluginHealth(ctx.state.id, ctx.cfg(), { root: ctx.paths.root });
+        st[ctx.state.id].health = health; writeJson('state', st);
+        if (['config', 'unsupported', 'offline', 'error'].includes(health.code)) return { status: 'manual', detail: health.detail, hint: '插件安装状态已保留；请处理配置、协议能力或登录问题后重新检查' };
+        return { status: 'ok', detail: health.detail + '；安装不等于 DSH 已加载或所有动作可用' };
       },
     },
   ],

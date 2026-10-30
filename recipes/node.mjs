@@ -11,8 +11,8 @@ export default {
       async run(ctx) {
         const v = process.version;
         const major = Number((v.match(/v(\d+)/) || [])[1] || 0);
-        if (major >= 18) return { status: 'ok', detail: `已安装 ${v}（${process.execPath}）` };
-        return { status: 'fail', detail: `版本太低：${v}，本市场要求 18 以上` };
+        if (major >= 20) return { status: 'ok', detail: `已安装 ${v}（${process.execPath}）；桥接另需 >=22.13.0` };
+        return { status: 'fail', detail: `版本太低：${v}，本市场要求 20 以上` };
       },
     },
     {

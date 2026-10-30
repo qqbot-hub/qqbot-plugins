@@ -160,7 +160,7 @@ async function main() {
   try { fs.rmSync(TMP, { recursive: true, force: true }); } catch { /* 临时目录删不掉不影响结论 */ }
   console.log('\n──────────────────────────────');
   console.log(`通过 ${pass} · 失败 ${fail}`);
-  process.exit(fail ? 1 : 0);
+  process.exitCode = fail ? 1 : 0;
 }
 
-main().catch((e) => { console.error('测试崩了：', e); process.exit(1); });
+main().catch((e) => { console.error('测试崩了：', e); process.exitCode = 1; });

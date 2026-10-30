@@ -5,9 +5,11 @@ import crypto from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { ROOT, readCfg } from './paths.mjs';
 import { redact, decrypt } from './secrets.mjs';
+import { registered as isRegistered } from './dsh-registration.mjs';
+import { observedTools } from './plugin-health.mjs';
 import { runInstall, exec } from '../installer.mjs';
 
-export const DEPLOY_COMPONENTS = ['node', 'snowluma', 'qqbridge', 'dsh', 'market'];
+export const DEPLOY_COMPONENTS = ['node', 'dsh', 'snowluma', 'qqbridge', 'market'];
 export const DEPLOY_TOOLS = [
   { name: 'deploy_status', description: '读取部署手册、当前链路体检和本次部署进度。', inputSchema: { type: 'object', properties: {}, additionalProperties: false } },
   { name: 'deploy_step', description: '执行一个白名单 recipe。每步最多尝试两次；需要人工时立即停止。', inputSchema: { type: 'object', properties: { component: { type: 'string', enum: DEPLOY_COMPONENTS } }, required: ['component'], additionalProperties: false } },
@@ -42,27 +44,27 @@ export function createDeployAgent({ doctor, port, runRecipe = runInstall, resolv
   ]).replace(/\b(?:gh[pousr]_[A-Za-z0-9_]+|github_pat_[A-Za-z0-9_]+)\b/g, '***');
   const event = (job, state, message) => {
     if (job.cancelled && state !== 'cancelled') return;
-    if (job.manualComponent && ['ai', 'automatic'].includes(state)) state = 'manual';
     job.state = state;
     job.events.push({ seq: ++job.seq, state, message: clean(message).slice(0, 2000), at: new Date().toISOString() });
     if (job.events.length > 200) job.events.shift();
   };
-  const snapshot = job => structuredClone({ id: job.id, mode: job.mode, state: job.state, running: job.running, events: job.events, steps: job.steps, result: job.result || null });
+  const snapshot = job => structuredClone({ id: job.id, mode: job.mode, effectiveMode: job.effectiveMode || job.mode, state: job.state, running: job.running, events: job.events, steps: job.steps, result: job.result || null });
   async function verify(job) {
     const report = await doctor();
     const cfg = readCfg();
     const profile = cfg.dsh?.profile || 'desktop';
-    let registered = false;
-    try { registered = (fs.readFileSync(path.join(process.env.USERPROFILE || os.homedir(), '.dsh/profiles', profile, 'cordis.patch.yml'), 'utf8').match(/# === qqbot-plugins MCP BEGIN ===/g) || []).length === 1; } catch {}
+    const registered = isRegistered(profile);
     const missing = [];
     if (!report.onebot?.online) missing.push('OneBot 尚未通过心跳/登录验证');
     if (!report.dsh?.ok) missing.push('DSH 未连接');
     if (!report.bridge?.ok) missing.push('qq-bridge 未连接');
     if (!registered) missing.push('市场 MCP 未注册到目标 DSH profile');
     if (!report.mcp?.tools) missing.push('没有已启用的插件工具，请在市场安装插件');
+    const loaded = observedTools(ROOT).size > 0;
+    if (!loaded) missing.push('尚未观察到 DSH 客户端列出当前版本的市场工具');
     if (DEPLOY_COMPONENTS.some(c => job.steps[c]?.status !== 'done')) missing.push('部署步骤尚未全部通过');
     const ready = !missing.length;
-    const result = { ready, missing, registered, restartRequired: registered, note: '配置注册不等于 GUI 已加载；需完整重启 DSH 并确认 mcp__qqbot__ 工具可见。' };
+    const result = { ready, missing, registered, loaded, restartRequired: registered && !loaded, note: ready ? '链路体检与 DSH 工具加载已通过；消息回复仍需在白名单会话中验证。' : '首次注册需要 DSH 加载配置；后续安装插件支持热更新。请在 DSH 刷新工具列表，仍无工具时重载 MCP 连接。' };
     job.result = result;
     return result;
   }
@@ -72,7 +74,7 @@ export function createDeployAgent({ doctor, port, runRecipe = runInstall, resolv
     if (job.state === 'manual') throw new Error('等待用户操作，请点击继续');
     if (job.busy) throw new Error('已有部署步骤执行中');
     const index = DEPLOY_COMPONENTS.indexOf(component);
-    if (DEPLOY_COMPONENTS.slice(0, index).some(c => job.steps[c]?.status !== 'done')) throw new Error('必须按部署手册顺序执行前置步骤');
+    if (index > 0 && job.steps.node?.status !== 'done') throw new Error('请先完成 Node 运行时检查');
     if (job.steps[component]?.status === 'done') return job.steps[component];
     if ((job.attempts[component] || 0) >= 2) throw new Error('该组件已尝试两次，需要用户检查日志');
     job.busy = true;
@@ -87,6 +89,7 @@ export function createDeployAgent({ doctor, port, runRecipe = runInstall, resolv
       const result = { status: job.cancelled ? 'cancelled' : installed.status, jobId: installed.id, hint: clean(stop?.hint || ''), detail: clean(stop?.detail || ''), command: `node scripts/installer.mjs run ${component}` };
       job.steps[component] = result;
       if (installed.status === 'manual') {
+        job.attempts[component] = Math.max(0, job.attempts[component] - 1);
         job.manualComponent = component;
         event(job, 'manual', result.detail + '\n' + result.hint);
         // Stop the isolated agent at the manual boundary; continuation creates a fresh capability.
@@ -105,12 +108,17 @@ export function createDeployAgent({ doctor, port, runRecipe = runInstall, resolv
     throw new Error('不允许的部署工具');
   }
   async function deterministic(job) {
+    let manual = false;
     for (const component of DEPLOY_COMPONENTS) {
       if (job.cancelled) return;
-      const result = await step(job, component);
-      if (result.status === 'manual') return;
-      if (result.status !== 'done') { job.capability = ''; event(job, 'failed', result.detail + '\n' + result.hint + '\n可复制命令：' + result.command); return; }
+      job.state = 'automatic';
+      try {
+        const result = await step(job, component);
+        if (result.status === 'manual') { manual = true; if (component === 'node') break; continue; }
+        if (result.status !== 'done') { event(job, 'failed', result.detail + '\n' + result.hint); return; }
+      } catch (e) { event(job, 'failed', clean(e.message)); return; }
     }
+    if (manual) { event(job, 'manual', '准备工作已完成；请按各组件提示完成操作，再点击继续。已完成组件不会重装。'); return; }
     const result = await verify(job);
     job.capability = '';
     event(job, result.ready ? 'done' : 'manual', result.ready ? result.note : result.missing.join('\n') + '\n' + result.note);
@@ -120,6 +128,7 @@ export function createDeployAgent({ doctor, port, runRecipe = runInstall, resolv
     const cfgKey = decrypt(readCfg().secrets?.['global.deepseekApiKey'] || '');
     const apiKey = process.env.DEEPSEEK_API_KEY || cfgKey;
     if (!cli || !apiKey) {
+      job.effectiveMode = 'recipe';
       event(job, 'automatic', 'AI 模式需要 DSH CLI 和独立 headless 的 DEEPSEEK_API_KEY；回落到确定性部署。GUI 登录不会自动复制到部署 profile。');
       return deterministic(job);
     }
@@ -216,6 +225,7 @@ export function createDeployAgent({ doctor, port, runRecipe = runInstall, resolv
       if (!job || job.running || job.state !== 'manual') throw new Error('任务仍在执行或不处于等待状态');
       for (const c of DEPLOY_COMPONENTS) if (job.steps[c]?.status === 'manual') delete job.steps[c];
       job.manualComponent = '';
+      // A user checkpoint grants a fresh attempt budget for that manual component only.
       job.capability = crypto.randomBytes(32).toString('hex');
       job.state = 'automatic';
       job.running = true; event(job, 'automatic', '用户已确认操作完成，重新检查'); void run(job); return snapshot(job);

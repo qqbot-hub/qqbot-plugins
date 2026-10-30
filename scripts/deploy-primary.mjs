@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runInstall } from './installer.mjs';
+import { spawn } from 'node:child_process';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const METHODS_FILE = path.join(ROOT, 'data', 'catalog', 'methods.json');
@@ -46,7 +47,8 @@ export async function deployPrimary({ dryRun = false } = {}) {
 
     if (job.status === 'manual') {
       needsManual = true;
-      break;
+      if (target === 'node') break;
+      continue;
     }
     if (job.status !== 'done') {
       const failed = job.steps.find((step) => step.status === 'fail');
@@ -57,7 +59,7 @@ export async function deployPrimary({ dryRun = false } = {}) {
   }
 
   if (marketRegistered) {
-    console.log('\nMCP 已注册到 DSH。请完整退出并重新打开 DSH，然后搜索 mcp__qqbot__ 确认工具已加载。');
+    console.log('\nMCP 已注册到 DSH。首次接入请加载配置，已有连接请刷新工具列表，以实际 tools/list 结果为准。');
   } else {
     console.log('\nMCP 尚未注册：请先启动并登录 DSH 生成 profile，再重新运行部署。');
   }
@@ -65,7 +67,11 @@ export async function deployPrimary({ dryRun = false } = {}) {
     console.log('部署过程中有需要人工完成的步骤；请按上面的提示完成后，再运行 npm run deploy:primary 复查。');
     return { status: 'manual', chain };
   }
-  return { status: 'done', chain };
+  const code = await new Promise(resolve => {
+    const child = spawn(process.execPath, ['scripts/doctor.mjs'], { cwd: ROOT, stdio: 'inherit', windowsHide: true });
+    child.once('error', () => resolve(1)); child.once('close', resolve);
+  });
+  return { status: code === 0 ? 'done' : 'manual', chain };
 }
 
 const isCli = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);

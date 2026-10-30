@@ -22,7 +22,8 @@
       "runtime": {
         "node": ">=20",
         "python": null,
-        "docker": false
+        "docker": false,
+        "note": "市场 Node >=20；SnowLuma 使用发行包自带 Node，2.2.1 要求 ^24.22.1 || >=26.12.1。"
       },
       "stack": [
         "SnowLuma",
@@ -74,21 +75,26 @@
         "kind": "script",
         "chain": [
           "node",
+          "dsh",
           "snowluma",
           "qqbridge",
-          "dsh",
           "market"
         ],
         "recipe": "snowluma",
         "verified": true,
-        "verifiedNote": "2026-10-28 16:20 本机实测：node/snowluma/qqbridge/dsh 四步全 done，QQ 3996086451 在线，DSH 自动识别端口 11762",
+        "verifiedNote": "2026-10-28 16:20 本机实测：node/snowluma/qqbridge/dsh 四步全 done，QQ 3996086451 在线，DSH 自动识别端口 11762；此历史验证不代表 SnowLuma 2.x 全链路已实测。2.x 需先启用 OneBot，启动面板不算链路就绪。",
         "manualSteps": [
-          "SnowLuma 安装包需手动下载解压到 C:\\SnowLuma（它没有自动安装器）",
-          "首次扫码登录 QQ"
+          "Windows x64 缺少安装时会下载官方 v2.2.1 并校验 SHA256；网络或校验元数据不可用时，手动解压到项目 runtimes/snowluma",
+          "2.x 在本机 WebUI（通常 5099/5100，可配置 snowluma.webuiUrl）完成 EULA/PRIVACY、管理员登录并启用 OneBot v11",
+          "扫码登录 QQ；OneBot HTTP 地址、AccessToken 和市场设置一致，WS 按桥接需要开启"
         ],
         "requirements": [
-          "Node.js 18+"
-        ]
+          "主链路市场 Node.js >=22.13.0（qq-bridge 要求）；SnowLuma 优先使用发行包自带 Node"
+        ],
+        "versionSupport": {
+          "legacy": "1.14.20 为 qq-bridge 文档中的历史验证版本；不强制降级已有安装",
+          "v2": "2.2.1 的启动/面板/OneBot 分阶段检测已适配；完整 qq-bridge + DSH 收发消息仍需实机验证"
+        }
       },
       "risks": [
         "个人号协议，腾讯风控会封号：只用小号，不要用主号",

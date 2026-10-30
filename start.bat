@@ -1,6 +1,10 @@
 @echo off
 chcp 65001 >nul
 cd /d "%~dp0"
+if not exist node_modules\yaml\package.json (
+  call npm.cmd ci --ignore-scripts
+  if errorlevel 1 exit /b 1
+)
 title qqbot-plugins 插件市场
 echo ============================================
 echo   qqbot-plugins  ·  AI QQ 机器人插件市场

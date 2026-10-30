@@ -20,7 +20,7 @@ QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
                                                 50 个插件 / 84 个工具
 ```
 
-零第三方依赖 · 一个命令启动 · 网页里配置 · MIT 开源
+插件无需框架依赖 · 配置解析使用 yaml · 一键启动 · 网页里配置 · MIT 开源
 
 ![qqbot-plugins 插件市场界面](docs/screenshot.png)
 
@@ -46,7 +46,7 @@ QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
 | 能签到、记账、备忘、定时提醒 | ❌ | ✅ 数据落地保存 |
 | 能玩成语接龙、21 点、猜数字 | ❌ | ✅ 会记住上一句 |
 
-**它不改你的教程环境。** 不 fork qq-bridge、不往它的目录塞文件、不动 SnowLuma 配置，
+**它不改你的教程环境。** 不 fork qq-bridge、插件代码保留在市场目录；受控部署会备份并同步桥接连接配置，
 只是在 DSH 的 `cordis.patch.yml` 里并列追加一个 MCP 服务器——和官方
 `mcp__snowluma__` 用的是同一份文件、同一种格式，互不冲突。
 
@@ -62,7 +62,7 @@ QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
   本机能自动的才给「部署」按钮，只给步骤的绝不放假按钮（详见 [docs/METHODS.md](docs/METHODS.md)）
 - **兼容性矩阵**：10 种方法 × 8 类插件生态，按真实能力标注，不写「全兼容」；
   插件安装前展示静态扫描出的权限清单，能写文件/发消息的必须勾选确认
-- **AI 侧**：`node scripts/register-dsh.mjs desktop` 把市场注册进 DSH → 重启 DSH → AI 工具列表里出现全部已装插件
+- **AI 侧**：`node scripts/register-dsh.mjs desktop` 把市场注册进 DSH → 首次加载配置 → 刷新 MCP 工具列表
 - **配置侧**：连接渠道（OneBot 地址/Token）、群管理白名单、默认城市等，全部在网页里填，改完立即生效
 - **安全侧**：踢人/全体禁言等危险操作必须 `confirm=true`；群管理还支持管理员 QQ 白名单与「只允许操作的群」双重护栏；
   API Key / AppSecret 用 AES-256-GCM 加密存储，日志自动打码，不收集 QQ 密码（一律扫码）
@@ -74,21 +74,21 @@ QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
 不需要把插件文件复制进 qq-bridge 目录。插件由**市场自己的进程**（`mcp-server.mjs`）提供，DSH 通过 MCP 标准协议调用它，插件再通过 SnowLuma 的 OneBot API 操作 QQ。所以：
 
 - 装插件 = 在市场点「安装」（只改一个状态文件，不往别人的仓库里塞东西）
-- 生效 = 重启 DSH（AI 的工具列表在启动时加载）
-- 卸载 = 点「卸载」再重启，工具就从 AI 手里消失了
+- 生效 = 首次注册时重载 DSH 配置；后续安装会通知 MCP 客户端刷新工具列表
+- 卸载 = 点「卸载」，运行中的 MCP 服务会更新工具列表
 
 ## 快速开始
 
 **环境要求**：Node.js **≥ 20**（插件沙箱用的是 Node 权限模型 `--permission`，20 以下没有这个开关，
 市场能起但插件全部无法执行——所以别用 18）。Windows / macOS / Linux 都能跑，`start.bat` 只是
-Windows 的快捷方式，其他平台直接 `node server.js`。**零第三方依赖**，不用 `npm install`。
+Windows 的快捷方式，其他平台直接 `node server.js`。配置注册使用 `yaml`（锁定版本），首次运行先执行 `npm ci --ignore-scripts`；Windows 的 `start.bat` 会自动检查并安装这项依赖。主链路 qq-bridge 要求 Node >=22.13.0，SnowLuma 优先使用发行包自带 Node。
 
 **推荐方式（一键部署）**：启动本站后，打开侧栏「部署链路」——协议端、桥接、DSH 注册、插件，
 每一环都能在那里点「部署」，真的检查、下载、启动、自检；能自动的全自动，只有「登录 QQ」
 这种必须你动手的会停下来告诉你做什么。详见 [docs/INSTALL.md](docs/INSTALL.md)。
 
 主链路也可双击 `deploy-to-dsh.bat`，或在项目目录运行 `npm.cmd run deploy:primary`，脚本会按部署清单依次执行步骤并注册 MCP 到 DSH。
-SnowLuma 首次扫码、DSH 首次登录仍需手动完成；注册后完整退出并重启 DSH，工具才会加载。
+SnowLuma 协议确认、启用 OneBot、扫码以及 DSH 首次登录仍需手动完成。首次注册需要 DSH 加载配置；后续插件支持 MCP 热更新，卡片以实际加载和只读能力检查结果显示状态。
 
 本地网页的“本机受控部署”提供进度、人工操作后的继续和取消；“DSH AI 辅助部署”使用独立 headless profile，只允许 `deploy_status`、`deploy_step`、`deploy_verify` 三个工具。需要 DSH 已安装（可在 `config.json` 设置 `dsh.cliPath`）以及市场进程继承 `DEEPSEEK_API_KEY`，会消耗模型额度；未配置时自动使用普通 recipe。此功能只在绑定回环地址的本地市场开放，公网演示站不能操作访客电脑。详见 [AI 部署手册](docs/AGENT-DEPLOY.md)。
 
@@ -98,6 +98,7 @@ SnowLuma 首次扫码、DSH 首次登录仍需手动完成；注册后完整退�
 # 1. 拉取并启动市场
 git clone https://github.com/qqbot-hub/qqbot-plugins.git
 cd qqbot-plugins
+npm ci --ignore-scripts
 node server.js
 # 浏览器打开 http://127.0.0.1:3210 → 侧栏「部署链路」点一键部署
 
@@ -107,7 +108,7 @@ copy config.example.json config.json
 # 3. 搭桥：把市场注册进 DSH（profile 名看 ~/.dsh/profiles/ 下的子目录名）
 node scripts/register-dsh.mjs desktop
 
-# 4. 【关键】完整退出并重启 DSH（MCP 只在启动时加载）
+# 4. 首次注册请加载 DSH 配置；后续插件增删通知客户端刷新工具列表
 #    然后在 DSH 里搜 mcp__qqbot__ —— 能搜到即搭桥成功 ✅
 
 # 5. 链路体检（随时可跑）
@@ -129,7 +130,7 @@ node scripts/doctor.mjs
 | WebSocket 端口 | 默认 3001，仅用于体检探测 |
 | DSH 地址 / profile 名 | 默认 `http://127.0.0.1:3080` 和 `desktop`，用于体检与一键搭桥 |
 
-改完**立即生效**——`mcp-server.mjs` 每次被 AI 调用时都会重新读这份配置，不用重启 DSH（只有增删插件才需要重启）。
+改完**立即生效**——`mcp-server.mjs` 每次被 AI 调用时都会重新读这份配置，不用重启 DSH（增删插件会发出工具列表变更通知）。
 
 ### 2）插件配置 —— 群管理等需要权限的插件
 
@@ -201,7 +202,7 @@ API 也一样（`/api/onebot/event` 例外，那是协议端上报入口，只�
 | **每个插件的可执行代码** | 本项目重新实现。原站的插件依赖它自己的加载器，公开数据里不含实现代码；这里全部改写为**零依赖的 MCP 工具**，跑在 Node 上 |
 
 所以准确的说法是：**目录来自网络社区，实现由本项目重写**——不是"把网上的插件原样搬过来"。
-好处是全部零依赖、直接能跑、不受上游框架版本影响；代价是行为细节以本项目实现为准。
+插件实现无需引入各家框架；市场配置管理使用 yaml 库；代价是行为细节以本项目实现为准。
 
 ### 实测：84 个工具全部跑过一遍
 
@@ -373,7 +374,7 @@ node scripts/sync-ecosystem.mjs --status   # 只看缓存状态，不联网
 
 ```
 qqbot-plugins/
-├─ server.js            市场服务端（登录/API/体检/搭桥/安装任务，零依赖）
+├─ server.js            市场服务端（登录/API/体检/搭桥/安装任务）
 ├─ mcp-server.mjs       MCP stdio 服务器（暴露插件工具给 DSH）
 ├─ plugins/             50 个插件（每个 .mjs 自包含）+ _template/ 开发模板 + _router.mjs 消息路由
 ├─ recipes/             每个可安装对象一份安装脚本（协议端/桥/DSH/插件/三生态插件…）
@@ -410,8 +411,8 @@ node scripts/build-permissions.mjs --check   # 权限表是否与源码一致
 
 | 现象 | 处理 |
 | --- | --- |
-| DSH 里搜不到 `mcp__qqbot__` | 没重启 DSH。完整退出桌面程序再打开（关浏览器标签不算） |
-| 装了插件但 AI 说没有这个工具 | 装/卸/启停后都要重启 DSH 才刷新工具列表 |
+| DSH 里搜不到 `mcp__qqbot__` | 检查注册 profile，首次注册加载配置，刷新 MCP 工具列表；旧版进程需重载连接 |
+| 装了插件但 AI 说没有这个工具 | 查看卡片是否已加载；新版 MCP 会热更新，客户端未响应通知时手动刷新工具列表 |
 | `register-dsh` 报 profile 目录不存在 | 打开 `~\.dsh\profiles\` 看子目录名，用真实名字 |
 | 禁言/踢人失败 | 机器人需要群管理员权限；SnowLuma 的 HTTP API(3000) 必须开启 |
 | 定时提醒没发出来 | 提醒由 Hub 的 MCP 进程触发，保持 DSH 开着；并确认 OneBot HTTP 可用 |

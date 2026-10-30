@@ -8,7 +8,7 @@
  * AI 就能在 QQ 里直接调用。
  *
  * 协议：JSON-RPC 2.0 over stdio（MCP 2024-11-05 基本子集）
- * 依赖：无第三方依赖，Node 18+（用到全局 fetch）
+ * 依赖：yaml 配置解析库；Node >=20
  *
  * 配置来源（每次调用实时读取，改完不用重启 DSH）：
  *   config.json → snowluma.httpUrl / accessToken（OneBot 连接渠道）
@@ -16,6 +16,7 @@
  * ============================================================ */
 'use strict';
 
+import { stateSignature } from './scripts/lib/plugin-health.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -189,6 +190,7 @@ function startFireDue(fireDues) {
   };
   const timer = setInterval(tick, 15000);
   timer.unref?.();
+  tick.stop = () => clearInterval(timer);
   return tick;
 }
 
@@ -196,8 +198,33 @@ function startFireDue(fireDues) {
 function write(msg) { process.stdout.write(JSON.stringify(msg) + '\n'); }
 
 async function main() {
-  const hub = await loadPlugins();
-  const fireTick = startFireDue(hub.fireDues);
+  let signature = stateSignature();
+  let hub = await loadPlugins();
+  let refreshing = null, initialized = false, clientName = '', deliveredSignature = '', deliveredNames = [];
+  let fireTick = startFireDue(hub.fireDues);
+  async function refresh() {
+    if (signature === stateSignature()) return;
+    if (refreshing) return refreshing;
+    refreshing = (async () => {
+      const nextSignature = stateSignature();
+      const next = await loadPlugins();
+      hub = next; signature = nextSignature;
+      fireTick.stop?.(); fireTick = startFireDue(hub.fireDues);
+      // New due handlers are picked up by the shared periodic callback below.
+      if (initialized) write({ jsonrpc: '2.0', method: 'notifications/tools/list_changed' });
+    })().finally(() => { refreshing = null; });
+    return refreshing;
+  }
+  const observerDir = path.join(path.dirname(dataPath('state')), 'mcp-observers');
+  const observer = () => {
+    if (!initialized || !/deepseek|dsh|harness/i.test(clientName)) return;
+    try {
+      fs.mkdirSync(observerDir, { recursive: true });
+      fs.writeFileSync(path.join(observerDir, process.pid + '.json'), JSON.stringify({ root: HUB_ROOT, pid: process.pid, client: clientName, signature: deliveredSignature, tools: deliveredNames, at: Date.now() }));
+    } catch {}
+  };
+  const reloadTimer = setInterval(() => { refresh().then(observer).catch(e => logErr('reload: ' + e.message)); }, 1500);
+  reloadTimer.unref();
   logErr(`qqbot-plugins MCP 已启动：${hub.tools.length} 个工具可用`);
 
   let buf = '';
@@ -236,18 +263,21 @@ async function main() {
 
     switch (method) {
       case 'initialize':
+        clientName = String(params?.clientInfo?.name || '');
         return reply({
           protocolVersion: '2024-11-05',
-          capabilities: { tools: {} },
+          capabilities: { tools: { listChanged: true } },
           /* 版本号从 package.json 读，别写死——写死过一次，改了包版本这里还报旧号 */
           serverInfo: { name: 'qqbot-plugins', version: PKG_VERSION },
         });
       case 'notifications/initialized':
+        initialized = true; return;
       case 'notifications/cancelled':
         return; // 通知无需回复
       case 'ping':
         return reply({});
       case 'tools/list':
+        await refresh(); deliveredSignature = signature; deliveredNames = hub.tools.map(t => t.name); observer();
         /* 下划线开头的都是内部字段（执行函数、插件 id、文件路径、权限），
          * 不能漏给客户端 —— 否则会把服务器本地路径暴露出去 */
         return reply({
@@ -256,6 +286,7 @@ async function main() {
           ))],
         });
       case 'tools/call': {
+        await refresh();
         fireTick();
         const name = params && params.name;
         if (DEPLOY_TOOLS.some(t => t.name === name) && process.env.QQBOT_DEPLOY_CAPABILITY) {

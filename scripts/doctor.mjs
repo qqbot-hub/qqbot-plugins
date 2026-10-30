@@ -15,6 +15,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createOneBot, classifyError } from '../plugins/_bridge.mjs';
 import { dataPath } from './lib/paths.mjs';
+import { discoverDsh } from './lib/dsh-discover.mjs';
+import { discoverSnowLuma } from './lib/discover.mjs';
+import { registered } from './lib/dsh-registration.mjs';
+import { observedTools } from './lib/plugin-health.mjs';
+import { exec } from './installer.mjs';
 import { decrypt, isEncrypted } from './lib/secrets.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -47,23 +52,25 @@ const tcp = (host, port, timeoutMs = 1500) => new Promise((resolve) => {
   s.setTimeout(timeoutMs); s.on('connect', () => done(true)); s.on('timeout', () => done(false)); s.on('error', () => done(false));
 });
 
-const dshUrl = cfg.dsh?.baseUrl || 'http://127.0.0.1:3080';
-const slHttp = cfg.snowluma?.httpUrl || 'http://127.0.0.1:3000';
-const slWs = Number(cfg.snowluma?.wsPort || (cfg.snowluma?.wsUrl || '').match(/:(\d+)/)?.[1] || 3001);
+const discovered = await discoverDsh({ cfg: () => cfg, isWin: process.platform === 'win32', exec });
+const snow = await discoverSnowLuma(cfg, { root: ROOT });
+const dshUrl = discovered.webPort ? 'http://127.0.0.1:' + discovered.webPort : cfg.dsh?.baseUrl || 'http://127.0.0.1:3080';
+const slHttp = snow.httpUrl || cfg.onebot?.httpUrl || cfg.snowluma?.httpUrl || 'http://127.0.0.1:3000';
+const slWs = Number((snow.wsUrl || cfg.snowluma?.wsUrl || '').match(/:(\d+)/)?.[1] || cfg.snowluma?.wsPort || 3001);
 
 /* 协议端：走适配层心跳，能顺带报出「是哪个实现 / 哪个 QQ / 延迟多少」 */
 const ob = cfg.onebot || {};
 const client = createOneBot({
   impl: ob.impl || 'auto',
-  httpUrl: ob.httpUrl || slHttp,
-  accessToken: storedToken(),
+  httpUrl: slHttp,
+  accessToken: snow.accessToken ?? storedToken(),
   authMode: ob.authMode || 'header',
   pathPrefix: ob.pathPrefix || '',
   timeoutMs: 2500,
 });
 
 const [dsh, http3000, ws3001, bridge3100, hb] = await Promise.all([
-  fetch(dshUrl, { signal: AbortSignal.timeout(2500) }).then((r) => r.status < 500).catch(() => false),
+  Promise.resolve(!!discovered.webPort),
   tcp('127.0.0.1', Number(new URL(slHttp).port) || 3000),
   tcp('127.0.0.1', slWs),
   tcp('127.0.0.1', 3100),
@@ -96,9 +103,12 @@ row(hb.online,
 row(ws3001, '② 协议端 WebSocket', '端口 ' + slWs, '去协议端 WebUI 打开 WebSocket 服务端（SnowLuma 是 3001）');
 row(bridge3100, '③ qq-bridge 控制台', '端口 3100', 'qq-bridge 没在运行？双击它的 start.bat');
 row(installed > 0, '④ Hub 已安装插件', `${installed} 个插件 / ${tools} 个工具`, '在市场里装几个插件再试');
+const reg = registered(cfg.dsh?.profile || 'desktop'), loaded = observedTools(ROOT).size;
+row(reg, '④ MCP 配置注册', cfg.dsh?.profile || 'desktop', '运行 node scripts/register-dsh.mjs desktop');
+row(loaded > 0, '④ DSH 实际列出工具', loaded + ' 个工具', '首次注册请重载 DSH 配置；已有连接请刷新工具列表');
 
-if (dsh && http3000 && ws3001 && hb.online) {
-  console.log('\n链路正常。执行 node scripts/register-dsh.mjs <profile> 后重启 DSH 即完成搭桥。');
+if (dsh && http3000 && ws3001 && hb.online && bridge3100 && reg && loaded > 0) {
+  console.log('\n连接与 MCP 加载检查通过；请在白名单会话验证机器人回复。');
 } else {
   console.log('\n还有关卡没过，按 PDF 教程排查表先修标 ❌ 的项（一次只改一处）。');
   process.exit(1);

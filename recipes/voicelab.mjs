@@ -25,7 +25,7 @@ export default {
       hint: '调音台是本机独立程序（不属于本仓库）。没有它不影响主链路，装上才能调音色',
       async run(ctx) {
         const dir = findInstall(ctx);
-        if (!dir) return { status: 'fail', detail: '这台机器上没有调音台（找过 D:\\tts\\voicelab）' };
+        if (!dir) return { status: 'manual', detail: '没有找到外部调音台；它不是主链路必需组件', hint: '自行安装后配置 lab.dir；当前没有可验证安装来源，不自动下载' };
         ctx.state.dir = dir;
         ctx.saveCfg({ lab: Object.assign({}, ctx.cfg().lab, { dir, url: 'http://127.0.0.1:3120' }) });
         return { status: 'ok', detail: dir };

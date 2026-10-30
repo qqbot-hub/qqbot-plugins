@@ -738,7 +738,13 @@
     },
     "origin": "catalog",
     "installed": false,
-    "enabled": false
+    "enabled": false,
+    "requires": {
+      "onebotActions": [
+        "get_qq_zone_feeds",
+        "set_qq_zone_feed"
+      ]
+    }
   },
   {
     "id": "remind",
@@ -969,7 +975,15 @@
     },
     "origin": "catalog",
     "installed": false,
-    "enabled": false
+    "enabled": false,
+    "requires": {
+      "backend": [
+        "siliconflow",
+        "dashscope",
+        "ollama"
+      ],
+      "configConditional": "cloud apiKey"
+    }
   },
   {
     "id": "voice",
@@ -988,7 +1002,15 @@
     },
     "origin": "catalog",
     "installed": false,
-    "enabled": false
+    "enabled": false,
+    "requires": {
+      "backend": [
+        "openai",
+        "breeze",
+        "voxd"
+      ],
+      "configConditional": "cloud apiKey"
+    }
   },
   {
     "id": "weather",

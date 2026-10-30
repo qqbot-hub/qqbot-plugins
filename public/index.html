@@ -1297,6 +1297,12 @@
           <span class="dep-hint">AI 模式会消耗模型额度；扫码、首次登录和授权需你完成。</span>
         </div>
         <div id="agentDeployTimeline" aria-live="polite" style="white-space:pre-wrap;max-height:320px;overflow:auto;font-size:12px"></div>
+        <div id="deployAllowlist" hidden style="margin:12px 0">
+          <p>允许机器人回复的会话（至少填写一项，多个号码用逗号分隔）</p>
+          <label>私聊 QQ 号 <input id="deployPrivateIds" placeholder="填写你的 QQ 号" autocomplete="off"></label>
+          <label>群号 <input id="deployGroupIds" placeholder="填写允许回复的群号" autocomplete="off"></label>
+          <button class="dep-btn" onclick="saveDeployAllowlist()">保存白名单</button>
+        </div>
         <div class="dep-top" id="agentDeployActions" hidden>
           <button class="dep-btn" id="agentDeployContinue" onclick="continueAgentDeploy()">已完成，继续</button>
           <button class="dep-btn" id="agentDeployCancel" onclick="cancelAgentDeploy()">停止部署</button>
@@ -2103,6 +2109,11 @@ function protocolOnline() {
   return p.online;
 }
 
+function primaryPluginState(p) {
+  const h = p.health || {};
+  const labels = { ready: '✓ 只读能力可用', checked: '◐ 检查通过，待 DSH 加载', config: '⚠ 缺配置', partial: '⚠ 部分能力待配置', configured: '◐ 已配置，待调用验证', unsupported: '✕ 协议端不支持', offline: '○ 协议端未连接', error: '⚠ 自检未通过', loaded: '◐ 已加载，待验证', registered: '◐ 已注册，待加载', installed: '◐ 已安装，待注册' };
+  return '<span class="pc-state ' + (h.code === 'ready' ? 'ok' : 'bad') + '" title="' + esc(h.detail || '尚未取得真实加载及调用证据') + '">' + esc(labels[h.code] || '◐ 已安装，待验证') + '</span>';
+}
 function renderPrimary() {
   const box = $('#pList');
   if (!box) return;
@@ -2124,7 +2135,7 @@ function renderPrimary() {
       ? `<button class="ghost" onclick="op('toggle','${p.id}',{enabled:false})">停用</button>` +
         (p.hasSettings ? `<button class="gear" onclick="openPluginCfg('${p.id}')">⚙ 配置</button>` : '') +
         (pick.id === 'voice' ? '<button class="gear" onclick="openLab(event)">🎛 调音台</button>' : '') +
-        '<span class="pc-state ok">✓ 已接入</span>'
+        primaryPluginState(p)
       : `<button class="pri" onclick="quickJoin('${p.id}')">一键接入主链路</button>` +
         (p.hasSettings ? `<button class="gear" onclick="openPluginCfg('${p.id}')" title="先填必填项再接入">⚙ 配置</button>` : '') +
         (pick.id === 'voice' ? '<button class="gear" onclick="openLab(event)">🎛 调音台</button>' : '');
@@ -2154,8 +2165,8 @@ async function quickJoin(id) {
   const p = (PLUGINS || []).find((x) => x.id === id);
   if (!p) return;
   const st = await startInstall('plugin', { id }, `${p.name} · 一键接入主链路`);
-  if (st === 'done') toast(`「${p.name}」已接进主链路；重启 DSH 后在对话里搜 mcp__qqbot__ 验证`, 'ok');
-  else if (st === 'manual') toast(`「${p.name}」还差必填配置，填完再点一次「一键接入」`, 'warn');
+  if (st === 'done') toast(`「${p.name}」已安装；请查看卡片上的 DSH 加载及能力检查结果`, 'ok');
+  else if (st === 'manual') toast(`「${p.name}」需要处理配置、连接或协议能力，详见步骤提示`, 'warn');
   else toast(`「${p.name}」没接完，展开上面那份步骤看哪一步红了`, 'err');
   load();
 }
@@ -2451,8 +2462,8 @@ function methodCard(m) {
   const accTag = `<span class="tag ${m.account}">${ACC_LABEL[m.account] || m.account}</span>`;
   const lvTag = `<span class="tag ${LV_CLASS[lv] || ''}">${esc(d.levelLabel || lv)}</span>`;
   const verTag = d.verified
-    ? '<span class="tag ver-ok">本机已验证</span>'
-    : `<span class="tag ver-no" title="${esc(d.verifiedNote || '')}">未在本机验证</span>`;
+    ? '<span class="tag">作者环境参考</span>'
+    : `<span class="tag ver-no" title="${esc(d.verifiedNote || '')}">尚无本次环境验证</span>`;
   const stack = (m.stack || []).map((s) => `<code>${esc(s)}</code>`).join('');
   const ports = (m.ports || []).filter((p) => p.port).map((p) => p.port).join(' / ') || '无固定端口';
   const reqs = (m.requirements || []).map((r) => esc(r.label)).join('、') || '无额外依赖';
@@ -2493,6 +2504,7 @@ document.addEventListener('click', (e) => {
 
 /* 一键部署：按方法声明的链条逐个 recipe 走，遇到 failed 就停 + 给回滚 */
 async function deployMethod(id) {
+  if (id === 'snowluma-dsh') return startAgentDeploy('recipe');
   const m = METHODS.find((x) => x.id === id);
   if (!m) return;
   if (m.deploy.level === 'guide') { openMethod(id); return; }
@@ -2647,7 +2659,7 @@ function openMethod(id) {
       ${ecoBlock(m)}
       ${steps}
       <div class="mth-sec">自动化程度</div>
-      <p class="dep-hint">${esc(m.deploy.verifiedNote || (m.deploy.verified ? '已在本机跑通' : '尚未在本机验证，请按步骤核对'))}</p>
+      <p class="dep-hint">${esc(m.deploy.verifiedNote || (m.deploy.verified ? '作者环境历史参考' : '尚无本次环境验证，请按步骤核对'))}</p>
     </div>
     <div class="modal-foot">
       <span class="hint">${canRun ? (m.ready ? '点「开始部署」会真的执行' : '依赖未满足，先补齐再部署') : '这条路线只给步骤，没有一键按钮'}</span>
@@ -2890,10 +2902,17 @@ async function pollAgentDeploy() {
     $('#agentDeployTimeline').textContent = (job.events || []).map(e => `[${labels[e.state] || e.state}] ${e.message}`).join('\n');
     $('#agentDeployActions').hidden = !['automatic', 'ai', 'manual'].includes(job.state);
     $('#agentDeployContinue').disabled = job.state !== 'manual' || job.running;
+    $('#deployAllowlist').hidden = job.state !== 'manual' || !String(job.steps?.qqbridge?.detail || '').includes('白名单为空');
     $('#agentDeployCancel').disabled = !['automatic', 'ai', 'manual'].includes(job.state);
     if (['done', 'failed', 'cancelled'].includes(job.state)) { sessionStorage.removeItem('qqbotDeployId'); loadHealth(); loadMonitor(); return; }
     agentDeployTimer = setTimeout(pollAgentDeploy, 2000);
   } catch (e) { $('#agentDeployTimeline').textContent = e.message; }
+}
+async function saveDeployAllowlist() {
+  try {
+    await deployApi('allowlist', { private: $('#deployPrivateIds').value, groups: $('#deployGroupIds').value });
+    toast('白名单已保存，请点“已完成，继续”重新检查', 'ok');
+  } catch (e) { toast(e.message, 'err'); }
 }
 async function continueAgentDeploy() {
   try { await deployApi('continue', { id: agentDeployId }); await pollAgentDeploy(); } catch (e) { toast(e.message, 'err'); }
@@ -2903,10 +2922,11 @@ async function cancelAgentDeploy() {
 }
 if (agentDeployId) setTimeout(pollAgentDeploy, 1000);
 
-async function deployAll() {
+async function deployAll() { return startAgentDeploy('recipe'); }
+async function deployAllLegacy() {
   const btn = $('#depAll');
   if (btn) btn.disabled = true;
-  const list = COMPS.filter((c) => c.recipe);
+  const list = COMPS.filter((c) => c.recipe && c.required && !c.alternativeTo);
   const done = [];
   const manual = [];
   let failed = null;

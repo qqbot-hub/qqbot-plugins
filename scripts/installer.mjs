@@ -157,14 +157,17 @@ function makeCtx(job, params, emit, secrets = []) {
     })),
     /** 起一个常驻进程（协议端/桥/调音台），不等它结束，脱离父进程独立活 */
     spawnDetached: (cmd, args = [], opts = {}) => {
+      let fd;
       try {
+        if (opts.logFile) { fs.mkdirSync(path.dirname(opts.logFile), { recursive: true }); fd = fs.openSync(opts.logFile, 'a', 0o600); }
         const child = spawn(cmd, args, {
           cwd: opts.cwd || ROOT,
           detached: true,
-          stdio: opts.stdio || 'ignore',
+          stdio: fd !== undefined ? ['ignore', fd, fd] : opts.stdio || 'ignore',
           windowsHide: true,
           env: Object.assign({}, process.env, opts.env || {}),
         });
+        child.on('error', e => log('后台进程启动错误：' + e.message, 'err'));
         child.unref();
         log(`已在后台启动：${path.basename(cmd)} ${args.join(' ')}`, 'info');
         if (child.pid) job.artifacts.push({ at: Date.now(), kind: 'pid', value: child.pid, why: path.basename(cmd) });
@@ -172,7 +175,7 @@ function makeCtx(job, params, emit, secrets = []) {
       } catch (e) {
         log(`启动失败：${e.message}`, 'err');
         return { ok: false, error: e.message };
-      }
+      } finally { if (fd !== undefined) fs.closeSync(fd); }
     },
     isPortOpen: portOpen,
     exists: (p) => { try { return fs.existsSync(p); } catch { return false; } },
