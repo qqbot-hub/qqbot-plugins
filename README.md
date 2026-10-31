@@ -457,6 +457,25 @@ node scripts/build-permissions.mjs --check   # 权限表是否与源码一致
 > [iris_memory](https://github.com/leafliber/astrbot_plugin_iris_memory)、
 > [mnemosyne](https://github.com/lxfight/astrbot_plugin_mnemosyne)），实现是本项目重写的零依赖版。
 
+### memory_bridge —— 接外部长期记忆引擎（可选）
+
+上面那套是「自带轻量记忆」。想要更完整的长期记忆（含遗忘曲线、实体图谱、情绪标签），
+可以再接一个外部记忆引擎，`memory_bridge` 就是接入层，已在「主链路直连」专区第 8 张卡：
+
+| 工具 | 作用 |
+| --- | --- |
+| `mem_recall` | 回忆与当前话题相关的旧事，自动过滤不属于这个人的记忆 |
+| `mem_remember` | 记一条长期记忆，自动打归属标签（群聊记到群、私聊记到人） |
+| `mem_stats` | 看记忆库规模：条数、类型分布、实体与向量数 |
+
+想让**每轮对话自动带记忆**（不只是模型主动调用），还要跑 `gateway/` 里的记忆网关
+——它是个零依赖小进程，解决「查询噪声 / 按人隔离 / 相关度门槛」三个坑，
+市场不会自动启动它。完整部署见 **[gateway/README.md](gateway/README.md)**。
+
+> ⚠️ 依赖的记忆引擎 `memory-core` 是 **AGPL-3.0**，它**不在本仓库**（需自行 clone 到仓库外）。
+> 本仓库 `plugins/memory_bridge.mjs` 与 `gateway/` 下的代码均为本项目重写的 MIT 实现，
+> 只通过 HTTP 调用它 —— 请勿把它的 Python 源码复制进本仓库。
+
 ### voice —— 语音合成（TTS）
 
 `qq_tts` 把文字合成语音，直接作为语音消息发到群里。走 OpenAI 兼容的 `/audio/speech`，所以这些都能接：

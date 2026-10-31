@@ -1,0 +1,25 @@
+{
+  "port": 8781,
+  "host": "127.0.0.1",
+  "core": {
+    "url": "http://127.0.0.1:8780",
+    "token": "local-token"
+  },
+  "upstream": {
+    "baseUrl": "https://api.deepseek.com/v1",
+    "apiKey": "sk-在这里填你的DeepSeekKey",
+    "model": "deepseek-chat"
+  },
+  "recall": {
+    "k": 6,
+    "minScore": 0.35,
+    "maxBytes": 1400,
+    "maxItems": 5
+  },
+  "remember": {
+    "enabled": true,
+    "minChars": 6,
+    "importance": 0.4
+  },
+  "debug": false
+}

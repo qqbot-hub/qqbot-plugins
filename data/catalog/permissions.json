@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T02:54:14.771Z",
+  "generatedAt": "2026-10-31T03:24:50.332Z",
   "method": "静态扫描 plugins/*.mjs 的 API 使用情况（见 scripts/build-permissions.mjs）",
   "sourceHashes": {
     "abbr": "aaf2b0777f4d",
@@ -31,7 +31,7 @@
     "meihua": "3d0a920ed7ff",
     "memo": "9c0028e6878d",
     "memory": "d0600a0aac0e",
-    "memory_bridge": "daefd9b5e01f",
+    "memory_bridge": "c663f798efc5",
     "morse": "dc542ea0856f",
     "passgen": "bdd9a86cb6e6",
     "ping": "0b997ee44d98",

@@ -14,3 +14,8 @@ data/state/.secrets.key
 config.backup-*.json
 runtimes/
 .shots/
+
+# 记忆网关：本机配置含模型 Key，绝不入库
+gateway/gateway.config.json
+# 离线自测时网关 dump 出来的请求体（含真实对话内容）
+gateway/captured-upstream.json
