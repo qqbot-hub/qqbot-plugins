@@ -106,6 +106,9 @@ const SAMPLES = {
   qq_memory_recall: { query: '香菜', group_id: G },
   qq_memory_card: { subject_id: U },
   qq_memory_forget: { subject_id: U, index: 1 },
+  /* 记忆大脑：三个工具都只调本机记忆引擎，引擎没起会明确报「连不上」，按配置问题算 */
+  mem_recall: { query: '香菜', group_id: G, user_id: U },
+  mem_remember: { text: '小美不吃香菜', group_id: G, user_id: U },
   qq_tts: { text: '你好呀，这是一条测试语音', group_id: G },
   qq_imagine: { prompt: '赛博朋克风格的小猫，霓虹灯', group_id: G },
 

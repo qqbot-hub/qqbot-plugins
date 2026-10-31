@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T11:14:54.882Z",
+  "generatedAt": "2026-10-31T02:54:14.771Z",
   "method": "静态扫描 plugins/*.mjs 的 API 使用情况（见 scripts/build-permissions.mjs）",
   "sourceHashes": {
     "abbr": "aaf2b0777f4d",
@@ -31,6 +31,7 @@
     "meihua": "3d0a920ed7ff",
     "memo": "9c0028e6878d",
     "memory": "d0600a0aac0e",
+    "memory_bridge": "daefd9b5e01f",
     "morse": "dc542ea0856f",
     "passgen": "bdd9a86cb6e6",
     "ping": "0b997ee44d98",
@@ -450,6 +451,22 @@
       "framework": "mcp",
       "language": "JavaScript (ESM)",
       "loc": 228
+    },
+    "memory_bridge": {
+      "permissions": [
+        {
+          "key": "network",
+          "label": "访问网络",
+          "level": "info",
+          "why": "数据会发到本机之外的接口"
+        }
+      ],
+      "confirmRequired": false,
+      "needsBridge": false,
+      "hasSettings": true,
+      "framework": "mcp",
+      "language": "JavaScript (ESM)",
+      "loc": 170
     },
     "morse": {
       "permissions": [],

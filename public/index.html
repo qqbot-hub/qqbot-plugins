@@ -1250,12 +1250,12 @@
         <p class="lede">
           教程只教会它说话。这里给它更多——
           <strong>一段记得住你的记忆、一副能开口的嗓子、一支会画画的笔，和一双能替你管群的手。</strong>
-          <strong>50 个插件、84 项能力</strong>，点一下安装就变成 AI 能自己调用的工具：
+          <strong>51 个插件、87 项能力</strong>，点一下安装就变成 AI 能自己调用的工具：
           它会记得你不吃辣，会用语音回你，会按描述画图，会在群里禁言、记账、发提醒，还能陪人玩一整天成语接龙。
         </p>
         <div class="stats">
-          <div class="stat-box"><b data-count="50" id="statPlugins">0</b><span>插件</span></div>
-          <div class="stat-box"><b data-count="84" id="statTools">0</b><span>可调用工具</span></div>
+          <div class="stat-box"><b data-count="51" id="statPlugins">0</b><span>插件</span></div>
+          <div class="stat-box"><b data-count="87" id="statTools">0</b><span>可调用工具</span></div>
           <div class="stat-box"><b data-count="64" id="statPass">0</b><span>项已实测通过</span></div>
           <div class="stat-box"><b data-count="1">1</b><span>服务端依赖</span></div>
         </div>
@@ -1274,10 +1274,10 @@
         </div>
         <p class="sec-sub">
           大部分人现在用的就是这条：<b>SnowLuma 登一次 QQ，qq-bridge 中转，DSH 当大脑</b>。
-          下面这几项跟它绑得最紧——<b>识图、表情包（发与偷）、认视频、空间动态、语音调音、群管理、群信息</b>，
+          下面这几项跟它绑得最紧——<b>识图、表情包（发与偷）、认视频、空间动态、语音调音、群管理、群信息、记忆大脑</b>，
           接口都按这条链路调好；点「一键接入」会真的做三件事：装上插件、写进 DSH 的配置、告诉你要重启。
-          其中<b>识图和认视频只调模型接口，不开协议端也能用</b>（识图要 Key 或本机 Ollama，认视频要支持视频的接口）；
-          其余几项需要协议端讲 OneBot v11。其他路线在下面照样全列着。
+          其中<b>识图、认视频和记忆大脑只调外部接口，不开协议端也能用</b>（识图要 Key 或本机 Ollama，认视频要支持视频的接口，
+          记忆大脑要先在本机跑起来记忆引擎）；其余几项需要协议端讲 OneBot v11。其他路线在下面照样全列着。
         </p>
         <div class="pzone" id="pList"></div>
       </section>
@@ -1524,19 +1524,19 @@
         <div class="prov-grid">
           <div class="prov">
             <div class="prov-tag">目录</div>
-            <b>50 个插件、84 个工具的定义</b>
+            <b>51 个插件、87 个工具的定义</b>
             <p>名称、功能描述、工具名与参数，抓取自公开的 QQ 插件市场站点，并保留了各插件的上游出处（AstrBot / NoneBot / Koishi / Yunzai 社区同名插件），卡片上的「源自 xxx」就是那个链接。</p>
           </div>
           <div class="prov">
             <div class="prov-tag">实现</div>
             <b>每个插件都是可运行的代码</b>
-            <p>原站的插件依赖它自己的加载器，抓不到实现。所以 50 个插件的能力都由本项目重新写成零依赖的 MCP 工具，跑在 Node 上，不装任何第三方包。</p>
+            <p>原站的插件依赖它自己的加载器，抓不到实现。所以 51 个插件的能力都由本项目重新写成零依赖的 MCP 工具，跑在 Node 上，不装任何第三方包。</p>
           </div>
           <div class="prov ok">
             <div class="prov-tag">实测</div>
             <b><span id="provPass">64</span> 项当场跑通，0 项报错</b>
             <p class="prov-env" id="provEnv" hidden></p>
-            <p>仓库自带 <code>node scripts/verify-plugins.mjs</code>，用真实参数把 <span id="provTotal">84</span> 个工具全跑一遍：<span id="provPass2">64</span> 项直接通过；<span id="provBot">16</span> 项因为本机没开 QQ 显示「需在线」；<span id="provCfg">4</span> 项因为没填接口 Key 显示「需配置」。这些数字由页面打开时的真实结果更新（30 分钟内复用），具体类别和数量以当前检测结果为准。</p>
+            <p>仓库自带 <code>node scripts/verify-plugins.mjs</code>，用真实参数把 <span id="provTotal">87</span> 个工具全跑一遍：<span id="provPass2">64</span> 项直接通过；<span id="provBot">16</span> 项因为本机没开 QQ 显示「需在线」；<span id="provCfg">4</span> 项因为没填接口 Key 显示「需配置」。这些数字由页面打开时的真实结果更新（30 分钟内复用），具体类别和数量以当前检测结果为准。</p>
           </div>
           <div class="prov">
             <div class="prov-tag">隔离</div>
@@ -1619,6 +1619,7 @@ const PRIMARY_PICKS = [
   { id: 'video', ic: '🎬', label: '识别视频', note: '说出视频里拍了什么：有 mp4 直链就逐帧看（配 DashScope）；B 站/抖音分享页只能拿到标题和封面，会直说看不到中间过程', needBot: false },
   { id: 'group_admin', ic: '🛡', label: '群管理', note: '禁言 / 解禁 / 踢人 / 设管理 / 改名片，都按机器人自己的群权限执行，越权会明确拒绝', needBot: true },
   { id: 'group_info', ic: '👥', label: '群信息', note: '查群成员、群资料、成员名片，给「谁在群里」这类问题一个确切答案', needBot: true },
+  { id: 'memory_bridge', ic: '🧠', label: '记忆大脑', note: '跨会话长期记忆：隔几轮还认得这个群友说过什么，按人按群隔离不串味；要先在本机跑记忆引擎，没跑会直说连不上', needBot: false },
 ];
 const PRIMARY_IDS = new Set(PRIMARY_PICKS.map((x) => x.id));
 

@@ -859,7 +859,7 @@ async function primaryHealth(plugins, lib) {
   const key = JSON.stringify([cfg.plugins, plugins.map(p => [p.id, p.installed, p.enabled])]);
   if (healthCache.key === key && Date.now() - healthCache.at < 10000) return healthCache.data;
   const data = {};
-  const ids = ['qzone','voice','vision','video','sticker','group_admin','group_info'];
+  const ids = ['qzone','voice','vision','video','sticker','group_admin','group_info','memory_bridge'];
   await Promise.all(plugins.filter(p => p.installed && ids.includes(p.id)).map(async p => {
     data[p.id] = await lib.pluginHealth(p.id, cfg, { root: ROOT });
   }));

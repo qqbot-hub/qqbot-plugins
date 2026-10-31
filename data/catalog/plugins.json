@@ -1086,5 +1086,38 @@
       "url": ""
     },
     "origin": "catalog"
+  },
+  {
+    "id": "memory_bridge",
+    "name": "memory_bridge",
+    "description": "记忆大脑：把 memory-core 接进来，支持长期记忆检索 / 写入 / 统计，按人按群隔离，跨会话记住同一个群友",
+    "category": "群互动",
+    "tools": [
+      {
+        "name": "mem_recall",
+        "description": "回忆和当前话题相关的旧事，自动过滤不属于这个人的记忆"
+      },
+      {
+        "name": "mem_remember",
+        "description": "记一条长期记忆，自动打上归属标签（群聊记到群、私聊记到人）"
+      },
+      {
+        "name": "mem_stats",
+        "description": "看记忆库规模：总条数、各类型分布、实体与向量数、平均重要度"
+      }
+    ],
+    "source": {
+      "label": "本项目重写的接入层（思路参考 peterpoal134/memory-brain · AGPL-3.0）",
+      "url": "https://github.com/peterpoal134/memory-brain"
+    },
+    "origin": "catalog",
+    "installed": false,
+    "enabled": false,
+    "requires": {
+      "backend": [
+        "memory-core"
+      ],
+      "configConditional": "本机记忆引擎地址与令牌"
+    }
   }
 ]
