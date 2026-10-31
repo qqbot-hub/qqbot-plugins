@@ -28,7 +28,7 @@ QQ  ⇄  SnowLuma  ⇄  qq-bridge  ⇄  DSH（大肥鱼）  ⇄  DeepSeek
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![Plugins](https://img.shields.io/badge/插件-50%20个%20%2F%2084%20工具-orange)](#插件一览)
 [![Verified](https://img.shields.io/badge/实测-动态结果-brightgreen)](#插件来源与实测)
-[![M8ven Score](https://m8ven.ai/badge/mcp/qqbot-hub-qqbot-plugins-1w2xvn?v=589d79e429df6eb1a771544224a5fd01)](https://m8ven.ai/mcp/qqbot-hub-qqbot-plugins-1w2xvn?s=readme)
+[![M8ven Score](https://m8ven.ai/badge/mcp/qqbot-hub-qqbot-plugins-1w2xvn?v=060fb7335e281227de51b92b86fbb4eb)](https://m8ven.ai/mcp/qqbot-hub-qqbot-plugins-1w2xvn?s=readme)
 
 ---
 
