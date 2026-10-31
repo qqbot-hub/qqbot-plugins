@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { createDeployAgent, localDeployRequest, DEPLOY_COMPONENTS } from './lib/deploy-agent.mjs';
 import { apply } from './dsh-deploy-plugin.mjs';
 
@@ -66,4 +69,22 @@ const fj = failed.start(failed.ticket(), 'recipe');
 await new Promise(r => setTimeout(r, 25));
 assert.equal(failed.get(fj.id).state, 'failed');
 assert.equal(failures, 1);
+const historyDir=fs.mkdtempSync(path.join(os.tmpdir(),'qqbot-history-'));
+try {
+  const snapshotFile=path.join(historyDir,'agent.json');
+  const persistent=createDeployAgent({doctor:async()=>({}),port:3210,snapshotFile,runRecipe:async()=>({id:'fixture',status:'manual',steps:[{status:'manual',detail:'等待扫码',hint:'完成后继续'}]})});
+  const pj=persistent.start(persistent.ticket(),'recipe');
+  await waitLimited(()=>!persistent.get(pj.id).running);
+  assert.equal(JSON.parse(fs.readFileSync(snapshotFile,'utf8'))[0].running,false);
+  assert.ok(!fs.readFileSync(snapshotFile,'utf8').includes('capability'));
+  let reran=false;
+  const restored=createDeployAgent({doctor:async()=>({}),port:3210,snapshotFile,runRecipe:async()=>{reran=true;throw Error('must not auto run');}});
+  assert.equal(restored.latest().id,pj.id);
+  assert.equal(restored.latest().state,'failed');
+  assert.ok(restored.latest().events.some(e=>e.message.includes('等待扫码')));
+  assert.equal(restored.latest().running,false);
+  assert.equal(reran,false);
+  persistent.cancel(pj.id);
+  assert.equal(createDeployAgent({doctor:async()=>({}),port:3210,snapshotFile}).latest().state,'cancelled');
+} finally {fs.rmSync(historyDir,{recursive:true,force:true});}
 console.log('部署边界、工具守卫、令牌重放、人工恢复、独立准备步骤及最终体检检查通过。未启动外部服务或修改用户配置。');

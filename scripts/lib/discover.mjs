@@ -2,6 +2,13 @@
 import path from 'node:path';
 import { createOneBot } from '../../plugins/_bridge.mjs';
 import { decrypt, encrypt } from './secrets.mjs';
+export function readBridgeAllowlist(cfg) {
+  const file=cfg.bridge?.dir && path.join(cfg.bridge.dir,'config.json');
+  if(!file || !fs.existsSync(file))return {installed:false,ownerQQ:'',private:'',groups:''};
+  const j=JSON.parse(fs.readFileSync(file,'utf8'));
+  const ids=value=>Array.isArray(value)?value.map(String).join(', '):'';
+  return {installed:true,ownerQQ:j.ownerQQ == null?'':String(j.ownerQQ),private:ids(j.allow?.private),groups:ids(j.allow?.groups)};
+}
 export function setBridgeAllowlist(cfg, values) {
   const file = path.join(cfg.bridge?.dir || '', 'config.json');
   if (!cfg.bridge?.dir || !fs.existsSync(file)) throw new Error('请先部署 qq-bridge');

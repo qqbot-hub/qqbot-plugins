@@ -37,7 +37,7 @@ const PORT = Number(process.env.PORT || cfg.port || 3210);
  * 部署平台会注入 PORT 环境变量（也可显式给 HOST），这时对外监听 0.0.0.0 才能被反代访问。 */
 const HOST = process.env.HOST || (process.env.PORT ? '0.0.0.0' : '127.0.0.1');
 const deployAgentPromise = import(pathToFileURL(path.join(ROOT, 'scripts/lib/deploy-agent.mjs')).href)
-  .then(mod => ({ mod, service: mod.createDeployAgent({ doctor, port: PORT }) }));
+  .then(mod => ({ mod, service: mod.createDeployAgent({ doctor, port: PORT, snapshotFile:path.join(path.dirname(process.env.QQBOT_JOBS_FILE || path.join(ROOT,'data/state/jobs.json')),'agent-deploy.json') }) }));
 const PASSWORD = String(cfg.password || '');
 
 /* ---------- 数据文件定位 ----------
@@ -56,12 +56,12 @@ const COMPANIONS_FILE = pickData(path.join('data', 'catalog', 'companions.json')
 const COMPONENTS_FILE = pickData(path.join('data', 'catalog', 'components.json'));
 const STATE_FILE = process.env.QQBOT_STATE_FILE || pickData(path.join('data', 'state', 'plugins.json'), path.join('data', 'state.json'));
 
-function saveCfg() {
+function saveCfg(strict = false) {
   try {
     const body = Object.assign({}, cfg, { templates: undefined });
     delete body.templates;
     fs.writeFileSync(CFG_FILE, JSON.stringify(body, null, 2) + '\n');
-  } catch (e) { /* 写入失败不致命，下次保存再试 */ }
+  } catch (e) { if (strict) throw e; /* 写入失败不致命，下次保存再试 */ }
 }
 
 /* ---------- 状态 ---------- */
@@ -1381,6 +1381,13 @@ const server = http.createServer(async (req, res) => {
     try {
       if (method === 'POST' && p === '/api/deploy/token') return sendJson(res, 200, { token: service.ticket() });
       const body = method === 'POST' ? JSON.parse(await readBody(req)) : {};
+      if(method==='POST' && p==='/api/deploy/settings'){
+        const {readCfg,readJson}=await esm('scripts/lib/paths.mjs');
+        const current=readCfg(cfg), {readBridgeAllowlist}=await esm('scripts/lib/discover.mjs');
+        const {snowRuntime}=await esm('scripts/lib/snowluma-runtime.mjs');
+        const state=readJson('state',{});
+        return sendJson(res,200,{allowlist:readBridgeAllowlist(current),snow:snowRuntime(current,ROOT),probe:state.qzone?.lastProbe || state.qzone?.health?.lastProbe || (state.qzone?.health?.code==='direct_verified'?state.qzone.health:null),job:service.latest()});
+      }
       if(method==='POST' && p==='/api/deploy/qzone-probe'){
         if(qzoneProbeBusy)return sendJson(res,429,{error:'空间验证正在进行，请等待，不要重复创建测试说说'});
         qzoneProbeBusy=true;
@@ -1388,7 +1395,7 @@ const server = http.createServer(async (req, res) => {
         const {verifyQzone}=await esm('scripts/lib/verify-probe.mjs');
         const result=await verifyQzone(cfg,body);
         const {readJson,writeJson}=await esm('scripts/lib/paths.mjs');
-        const state=readJson('state',{});if(state.qzone){state.qzone.health=result;writeJson('state',state);}
+        const state=readJson('state',{});state.qzone={...state.qzone,lastProbe:result};writeJson('state',state);
         healthCache.at=0;return sendJson(res,200,result);
         }finally{qzoneProbeBusy=false;}
       }
@@ -1404,8 +1411,8 @@ const server = http.createServer(async (req, res) => {
       if (method === 'POST' && p === '/api/deploy/allowlist') {
         const discovery = await esm('scripts/lib/discover.mjs');
         const result=discovery.setBridgeAllowlist(cfg, body);
-        if(body.ownerQQ){cfg.plugins={...cfg.plugins,group_admin:{...cfg.plugins?.group_admin,admins:[String(body.ownerQQ)],requireConfirm:true}};saveCfg();}
-        return sendJson(res,200,result);
+        if(body.ownerQQ){cfg.plugins={...cfg.plugins,group_admin:{...cfg.plugins?.group_admin,admins:[String(body.ownerQQ).trim()],requireConfirm:true}};saveCfg(true);}
+        return sendJson(res,200,{...result,allowlist:discovery.readBridgeAllowlist(cfg)});
       }
       if (method === 'POST' && p === '/api/deploy/agent') {
         if (body.allowShell !== false || body.goal !== 'primary') return sendJson(res, 400, { error: '只允许 primary 部署且 allowShell 必须为 false' });

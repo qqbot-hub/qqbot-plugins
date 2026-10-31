@@ -34,9 +34,9 @@ export function localDeployRequest(req, listenHost, port) {
   } catch { return false; }
 }
 
-export function createDeployAgent({ doctor, port, runRecipe = runInstall, resolveCli = findDshCli }) {
+export function createDeployAgent({ doctor, port, runRecipe = runInstall, resolveCli = findDshCli, snapshotFile }) {
   const jobs = new Map(), tickets = new Map();
-  let active = null;
+  let active = null, persistenceError = null;
   const clean = value => redact(String(value), [
     ...Object.entries(process.env).filter(([key]) => /TOKEN|SECRET|PASSWORD|API_KEY|CAPABILITY/i.test(key)).map(([, value]) => value),
     ...Object.values(readCfg().secrets || {}).map(decrypt),
@@ -47,8 +47,32 @@ export function createDeployAgent({ doctor, port, runRecipe = runInstall, resolv
     job.state = state;
     job.events.push({ seq: ++job.seq, state, message: clean(message).slice(0, 2000), at: new Date().toISOString() });
     if (job.events.length > 200) job.events.shift();
+    persist();
   };
   const snapshot = job => structuredClone({ id: job.id, mode: job.mode, effectiveMode: job.effectiveMode || job.mode, state: job.state, running: job.running, events: job.events, steps: job.steps, result: job.result || null });
+  function persist() {
+    if (!snapshotFile) return;
+    try {
+      fs.mkdirSync(path.dirname(snapshotFile), { recursive:true });
+      fs.writeFileSync(snapshotFile+'.tmp', clean(JSON.stringify([...jobs.values()].slice(-10).map(snapshot))), { mode:0o600 });
+      fs.renameSync(snapshotFile+'.tmp', snapshotFile); persistenceError = null;
+    } catch { persistenceError = '部署记录保存失败，请检查数据目录权限'; }
+  }
+  if (snapshotFile && fs.existsSync(snapshotFile)) {
+    try {
+      const saved = JSON.parse(fs.readFileSync(snapshotFile,'utf8'));
+      if (!Array.isArray(saved)) throw new Error('Invalid history');
+      for (const item of saved.slice(-10)) {
+        if (!item || !/^[a-f0-9-]{36}$/i.test(item.id) || !Array.isArray(item.events)) continue;
+        const job = { id:item.id, mode:item.mode==='ai'?'ai':'recipe', effectiveMode:item.effectiveMode, state:item.state, running:false, events:item.events.slice(-200).map(e=>({seq:Number(e.seq)||0,state:String(e.state),message:clean(e.message).slice(0,2000),at:e.at})), steps:item.steps||{}, result:item.result||null, attempts:{}, capability:'', seq:0 };
+        job.seq = Math.max(0,...job.events.map(e=>e.seq));
+        jobs.set(job.id,job);
+        if (!['done','failed','cancelled'].includes(job.state)) {
+          job.state='failed'; job.events.push({seq:++job.seq,state:'failed',message:'市场服务已重启，上次记录已保留；请重新点击一键部署检查当前状态。',at:new Date().toISOString()});
+        }
+      }
+    } catch { persistenceError='部署历史读取失败，请检查数据文件'; }
+  }
   async function verify(job) {
     const report = await doctor();
     const cfg = readCfg();
@@ -195,6 +219,7 @@ export function createDeployAgent({ doctor, port, runRecipe = runInstall, resolv
     finally {
       job.capability = '';
       job.running = false;
+      persist();
       if (job.runtimeDir) {
         const expected = path.join(ROOT, 'runtimes/deploy-agent', job.id);
         if (job.runtimeDir === expected) {
@@ -219,7 +244,8 @@ export function createDeployAgent({ doctor, port, runRecipe = runInstall, resolv
       const job = { id: crypto.randomUUID(), mode, capability: crypto.randomBytes(32).toString('hex'), state: 'automatic', steps: {}, attempts: {}, events: [], seq: 0, running: true };
       jobs.set(job.id, job); active = job; event(job, 'automatic', '部署任务已创建'); void run(job); return snapshot(job);
     },
-    get(id) { const job = jobs.get(id); return job && snapshot(job); },
+    get(id) { const job = jobs.get(id); return job && {...snapshot(job),persistenceError}; },
+    latest() { const job=[...jobs.values()].at(-1); return job ? {...snapshot(job),persistenceError} : null; },
     continue(id) {
       const job = jobs.get(id);
       if (!job || job.running || job.state !== 'manual') throw new Error('任务仍在执行或不处于等待状态');

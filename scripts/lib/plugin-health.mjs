@@ -45,7 +45,7 @@ export async function pluginHealth(id, cfg, { root, probe, call, loaded = observ
   const names = (meta?.tools || []).map(t => t.name);
   const isLoaded = names.length > 0 && names.every(n => loaded.has(n));
   const gates=bridgeGates(cfg);
-  const result = (code, detail, checked = false) => ({ code:code==='ready'?'gate_pending':code, detail, checked, installed: !!state?.installed, registered: reg, loaded: isLoaded, ...gates, lastProbe:state?.health?.code==='direct_verified'?state.health:null, at: now });
+  const result = (code, detail, checked = false) => ({ code:code==='ready'?'gate_pending':code, detail, checked, installed: !!state?.installed, registered: reg, loaded: isLoaded, ...gates, lastProbe:state?.lastProbe || state?.health?.lastProbe || (state?.health?.code==='direct_verified'?state.health:null), at: now });
   if (!state?.installed || !state.enabled) return result('uninstalled', '未安装或已停用');
   if (id === 'voice' && (values.provider || 'baidu') === 'openai' && !values.apiKey) return result('config', '未配置语音 API Key；也可选择本地后端');
   if (id === 'vision' && (values.provider || 'siliconflow') !== 'ollama' && !values.apiKey) return result('config', '未配置识图 API Key；也可选择 Ollama');

@@ -10,7 +10,9 @@ const temp=fs.mkdtempSync(path.join(os.tmpdir(),'market-lab-'));let child,tts;
 try{
  for(const name of ['server.js','public','plugins','scripts','data/catalog','node_modules'])fs.cpSync(path.join(ROOT,name),path.join(temp,name),{recursive:true});
  tts=http.createServer(async(req,res)=>{for await(const _ of req){}res.setHeader('content-type','audio/mpeg');res.end(Buffer.alloc(1500,1));});await new Promise(r=>tts.listen(0,'127.0.0.1',r));
- fs.writeFileSync(path.join(temp,'config.json'),JSON.stringify({plugins:{voice:{provider:'openai',baseUrl:'http://127.0.0.1:'+tts.address().port,apiKey:'fixture-secret',speed:1}}}));
+ const bridgeDir=path.join(temp,'fixture-bridge');fs.mkdirSync(bridgeDir);
+ fs.writeFileSync(path.join(bridgeDir,'config.json'),JSON.stringify({allow:{private:[],groups:[]},accessToken:'never-return-this-secret'}));
+ fs.writeFileSync(path.join(temp,'config.json'),JSON.stringify({bridge:{dir:bridgeDir},plugins:{voice:{provider:'openai',baseUrl:'http://127.0.0.1:'+tts.address().port,apiKey:'fixture-secret',speed:1}}}));
  const port=20000+Math.floor(Math.random()*15000),base='http://127.0.0.1:'+port;
  child=spawn(process.execPath,['server.js'],{cwd:temp,env:{...process.env,HOST:'127.0.0.1',PORT:String(port),DSH_HOME:path.join(temp,'dsh'),QQBOT_STATE_FILE:path.join(temp,'state.json'),QQBOT_JOBS_FILE:path.join(temp,'jobs.json'),QQBOT_SECRET_PASSPHRASE:'fixture'},stdio:'ignore',windowsHide:true});
  for(let i=0;i<60;i++){try{if((await fetch(base+'/api/health')).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
@@ -23,6 +25,17 @@ try{
  r=await post('/api/lab/preview',{text:'test'});assert.equal(r.status,200);j=await r.json();assert.equal(Buffer.from(j.audio,'base64').length,1500);
  assert.equal((await post('/api/lab/preview',{text:'test'})).status,429);
  r=await post('/api/deploy/reload',{});assert.equal(r.status,200);
+ assert.equal((await post('/api/deploy/settings',{},'https://evil.invalid')).status,403);
+ r=await post('/api/deploy/allowlist',{ownerQQ:'123456',private:'123456,234567',groups:'345678'});assert.equal(r.status,200);
+ const settings=await (await post('/api/deploy/settings',{})).json();
+ assert.deepEqual(settings.allowlist,{installed:true,ownerQQ:'123456',private:'123456, 234567',groups:'345678'});
+ assert.ok(!JSON.stringify(settings).includes('never-return-this-secret'));
+ assert.equal((await post('/api/deploy/allowlist',{ownerQQ:'bad',private:'123456',groups:''})).status,400);
+ assert.deepEqual((await (await post('/api/deploy/settings',{})).json()).allowlist,settings.allowlist);
+ const stopped=once(child,'exit');child.kill();await stopped;
+ child=spawn(process.execPath,['server.js'],{cwd:temp,env:{...process.env,HOST:'127.0.0.1',PORT:String(port),DSH_HOME:path.join(temp,'dsh'),QQBOT_STATE_FILE:path.join(temp,'state.json'),QQBOT_JOBS_FILE:path.join(temp,'jobs.json'),QQBOT_SECRET_PASSPHRASE:'fixture'},stdio:'ignore',windowsHide:true});
+ for(let i=0;i<60;i++){try{if((await fetch(base+'/api/health')).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
+ assert.deepEqual((await (await post('/api/deploy/settings',{})).json()).allowlist,settings.allowlist,'settings survive server restart');
  const page=await (await fetch(base+'/')).text();assert.ok(page.indexOf('class="community-first"')<page.indexOf('<section class="hero"'));assert.equal((page.match(/id="joinBtn"/g)||[]).length,1);
  console.log('PASS isolated lab routes, API-key masking/preservation, Origin checks, preview audio and rate limit, cooperative reload, first-screen markup');
 }finally{if(child){const done=once(child,'exit');child.kill();await done;}if(tts){tts.closeAllConnections();await new Promise(r=>tts.close(r));}fs.rmSync(temp,{recursive:true,force:true});}

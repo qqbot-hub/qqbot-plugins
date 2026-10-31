@@ -1154,10 +1154,21 @@
 @media(max-width:1010px){ .cta-group .cta-label{display:none} }
 @media(max-width:980px){
   .topbar-row{flex-wrap:wrap;row-gap:8px}
-  .top-cta{order:3;flex:1 1 100%;margin-left:0;gap:8px}
+  .top-cta{order:3;flex:1 1 100%;margin-left:0;gap:10px}
   .cta-pill{flex:1 1 0;justify-content:flex-start;min-width:0}
   .cta-star .cta-label{display:none}
 }
+.deploy-advanced{margin:14px 0;padding:12px;border:1px solid var(--line);border-radius:10px}
+.deploy-advanced summary{cursor:pointer;color:var(--dim);font-size:12px}
+.deploy-settings{margin:16px 0;display:grid;gap:12px}
+.deploy-settings label{display:grid;grid-template-columns:100px minmax(0,1fr);align-items:center;gap:8px}
+.deploy-settings input{min-width:0;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:inherit}
+.deploy-settings button{justify-self:start}
+#agentDeployActions[hidden],#agentDeployContinue[hidden]{display:none!important}
+.plugin-diagnostics{font-size:11px;color:var(--dim);margin-top:12px;line-height:1.7}
+.plugin-diagnostics summary{cursor:pointer}
+.pcard .pc-state.neutral{color:var(--dim);white-space:normal}
+#deploySaveStatus,#snowRuntimeResult,#agentDeploySummary{font-size:12px;color:var(--dim)}
 </style>
 </head>
 <body>
@@ -1204,7 +1215,6 @@
       <div class="topbar">
         <div class="topbar-row">
           <div class="crumb"><i>插件市场</i><span class="crumb-sub"> / AI QQ 机器人</span></div>
-
           <div class="top-cta" aria-label="交流群与开源支持">
             <button class="cta-pill cta-group" id="joinBtn" onclick="copyGroup()" title="点击复制群号：973971153">
               <span class="cta-ic">
@@ -1353,8 +1363,9 @@
           <span class="dep-hint" id="depHint">按依赖顺序逐个装；遇到需要人工的那一步会停下并告诉你做什么</span>
         </div>
         <div class="dep-list" id="depList"></div>
+        <details class="deploy-advanced"><summary>高级选项与诊断（按需使用）</summary>
+        <p class="dep-hint">以下为可选操作，无需逐项点击，仅在遇到对应问题时使用。</p>
         <div class="dep-top" style="margin-top:16px">
-          <button class="dep-btn" onclick="startAgentDeploy('recipe')">本机受控部署</button>
           <button class="dep-btn" onclick="startAgentDeploy('ai')">DSH AI 辅助部署</button>
           <span class="dep-hint">AI 模式会消耗模型额度；扫码、首次登录和授权需你完成。</span>
         </div>
@@ -1363,13 +1374,16 @@
         <button onclick="configureSnowHook()">检查 / 应用 QQ 自动接入</button>
         <label style="display:block;margin:10px 0;font-size:12px"><input type="checkbox" id="qzoneProbeConsent">允许创建一条仅自己可见的空间测试说说，随后立即删除</label>
         <button id="qzoneProbeBtn" onclick="runQzoneProbe()">验证空间发布与删除</button><p id="qzoneProbeResult" role="status"></p>
-        <div id="agentDeployTimeline" aria-live="polite" style="white-space:pre-wrap;max-height:320px;overflow:auto;font-size:12px"></div>
-        <div id="deployAllowlist" style="margin:12px 0">
+        <p id="snowRuntimeResult" role="status"></p>
+        </details>
+        <p id="agentDeploySummary" role="status">暂无部署记录</p>
+        <details class="deploy-advanced"><summary>查看部署日志</summary><div id="agentDeployTimeline" style="white-space:pre-wrap;max-height:320px;overflow:auto;font-size:12px"></div></details>
+        <div id="deployAllowlist" class="deploy-settings">
           <p>允许机器人回复的会话（至少填写一项，多个号码用逗号分隔）</p>
           <label>管理员 QQ <input id="deployOwnerQQ" placeholder="有权请求群管的真实 QQ 号" autocomplete="off"></label>
           <label>私聊 QQ 号 <input id="deployPrivateIds" placeholder="填写你的 QQ 号" autocomplete="off"></label>
           <label>群号 <input id="deployGroupIds" placeholder="填写允许回复的群号" autocomplete="off"></label>
-          <button class="dep-btn" onclick="saveDeployAllowlist()">保存白名单</button>
+          <button class="dep-btn" onclick="saveDeployAllowlist()">保存设置</button><p id="deploySaveStatus" role="status">正在读取已保存设置…</p>
         </div>
         <div class="dep-top" id="agentDeployActions" hidden>
           <button class="dep-btn" id="agentDeployContinue" onclick="continueAgentDeploy()">已完成，继续</button>
@@ -2179,8 +2193,9 @@ function protocolOnline() {
 
 function primaryPluginState(p) {
   const h = p.health || {};
-  const labels = {bridge_denied:'✕ 桥接守卫拒绝',policy_denied:'✕ 会话策略拒绝', gate_pending:'◐ 只读通过，待 QQ 会话验证', ready: '✓ 只读能力可用', checked: '◐ 检查通过，待 DSH 加载', config: '⚠ 缺配置', partial: '⚠ 部分能力待配置', configured: '◐ 已配置，待调用验证', unsupported: '✕ 协议端不支持', offline: '○ 协议端未连接', error: '⚠ 自检未通过', loaded: '◐ 已加载，待验证', registered: '◐ 已注册，待加载', installed: '◐ 已安装，待注册' };
-  return '<span class="pc-state ' + (h.code === 'ready' ? 'ok' : 'bad') + '" title="' + esc((h.detail || '尚未取得真实加载及调用证据')+'；桥接守卫：'+(h.bridgeAllowed?'已加载':'未验证')+'；策略：待真实会话验证'+(h.needsReload?'；请重载DSH profile':'')) + '">' + esc(labels[h.code] || '◐ 已安装，待验证') + '</span>';
+  const issues={bridge_denied:'桥接权限需处理',policy_denied:'会话权限需处理',config:'需补充配置',partial:'部分功能需配置',unsupported:'协议端不支持',offline:'协议端未连接',error:'检查发现问题'};
+  const label=issues[h.code] || (h.code==='ready'?'✓ 已验证可用':h.code==='configured'?'已配置':'已启用');
+  return '<span class="pc-state '+(issues[h.code]?'bad':h.code==='ready'?'ok':'neutral')+'">'+esc(label)+'</span>';
 }
 function renderPrimary() {
   const box = $('#pList');
@@ -2213,6 +2228,7 @@ function renderPrimary() {
       <p class="pc-d">${esc(pick.note)}</p>
       <div class="pc-tools">${tools}</div>
       <div class="pc-foot">${btns}${on ? '' : state}</div>
+      ${on ? '<details class="plugin-diagnostics"><summary>查看诊断</summary><p>'+esc(p.health?.detail || '尚未取得实际调用证据')+'</p><p>安装、注册、加载和调用是系统检查项，无需逐项操作。实际功能以 QQ 调用结果为准。</p><p>'+esc('检查代码：'+(p.health?.code||'installed')+'；DSH 注册：'+(p.health?.registered?'是':'未确认')+'；加载：'+(p.health?.loaded?'是':'未确认'))+'</p></details>' : ''}
     </article>`;
   }).join('');
   box.innerHTML = items || '<div class="hub-empty">插件清单还没加载出来</div>';
@@ -2220,7 +2236,7 @@ function renderPrimary() {
   const badge = $('#priBadge');
   if (badge) {
     badge.textContent = PRIMARY.ready
-      ? 'SnowLuma + qq-bridge + DSH · 运行时已齐 · QQ调用待验证'
+      ? 'SnowLuma + qq-bridge + DSH · 运行环境已连接'
       : 'SnowLuma + qq-bridge + DSH · 本机还缺 ' + ((PRIMARY.missing || []).slice(0, 2).join('、') || '未知');
     badge.className = 'hub-badge';
   }
@@ -2945,7 +2961,8 @@ function deployOne(recipe, name) {
   return startInstall(recipe, {}, name);
 }
 
-let agentDeployId = sessionStorage.getItem('qqbotDeployId') || '';
+let agentDeployId = '';
+try { agentDeployId=sessionStorage.getItem('qqbotDeployId')||''; } catch {}
 let agentDeployTimer;
 async function deployApi(action, body = {}) {
   const response = await fetch('/api/deploy/' + action, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
@@ -2957,7 +2974,7 @@ async function startAgentDeploy(mode) {
   try {
     const { token } = await deployApi('token');
     const job = await deployApi('agent', { token, mode, goal: 'primary', allowShell: false });
-    agentDeployId = job.id; sessionStorage.setItem('qqbotDeployId', job.id);
+    agentDeployId = job.id; try { sessionStorage.setItem('qqbotDeployId', job.id); } catch {}
     await pollAgentDeploy();
   } catch (e) { toast(e.message, 'err'); }
 }
@@ -2966,13 +2983,11 @@ async function pollAgentDeploy() {
   if (!agentDeployId) return;
   try {
     const job = await deployApi('status', { id: agentDeployId });
-    const labels = { automatic: '自动执行中', ai: 'AI 正在处理', manual: '需要你操作', done: '体检通过', failed: '部署停止', cancelled: '已取消' };
-    $('#agentDeployTimeline').textContent = (job.events || []).map(e => `[${labels[e.state] || e.state}] ${e.message}`).join('\n');
-    $('#agentDeployActions').hidden = !['automatic', 'ai', 'manual'].includes(job.state);
+    renderDeployJob(job);
     $('#agentDeployContinue').disabled = job.state !== 'manual' || job.running;
 
     $('#agentDeployCancel').disabled = !['automatic', 'ai', 'manual'].includes(job.state);
-    if (['done', 'failed', 'cancelled'].includes(job.state)) { sessionStorage.removeItem('qqbotDeployId'); loadHealth(); loadMonitor(); return; }
+    if (['done', 'failed', 'cancelled'].includes(job.state)) { loadHealth(); loadMonitor(); return; }
     agentDeployTimer = setTimeout(pollAgentDeploy, 2000);
   } catch (e) { $('#agentDeployTimeline').textContent = e.message; }
 }
@@ -2980,13 +2995,16 @@ async function runQzoneProbe(){
 const out=$('#qzoneProbeResult'),btn=$('#qzoneProbeBtn');
 if(!$('#qzoneProbeConsent').checked){out.textContent='请先勾选私密测试及删除授权。';return;}
 btn.disabled=true;out.textContent='正在验证…';try{const r=await deployApi('qzone-probe',{confirmPrivatePostAndDelete:true});out.textContent=r.detail+(r.tid?'（tid: '+r.tid+'）':'');}catch(e){out.textContent='验证失败：'+e.message;}finally{btn.disabled=false;$('#qzoneProbeConsent').checked=false;}}
-async function configureSnowHook(){try{const r=await deployApi('snowluma-runtime',{enableHookAutoLoad:$('#hookConsent').checked});toast(r.detail,r.installed?'ok':'err');}catch(e){toast(e.message,'err');}}
+async function configureSnowHook(){try{const r=await deployApi('snowluma-runtime',{enableHookAutoLoad:$('#hookConsent').checked});$('#snowRuntimeResult').textContent=r.detail;$('#hookConsent').checked=false;toast(r.detail,r.installed?'ok':'err');}catch(e){toast(e.message,'err');}}
 async function reloadMarketTools(){try{const r=await deployApi('reload',{});toast(r.detail,'ok');}catch(e){toast(e.message,'err');}}
 async function saveDeployAllowlist() {
   try {
-    await deployApi('allowlist', { ownerQQ: $('#deployOwnerQQ').value, private: $('#deployPrivateIds').value, groups: $('#deployGroupIds').value });
-    toast('白名单已保存，请点“已完成，继续”重新检查', 'ok');
-  } catch (e) { toast(e.message, 'err'); }
+    const result=await deployApi('allowlist', { ownerQQ: $('#deployOwnerQQ').value, private: $('#deployPrivateIds').value, groups: $('#deployGroupIds').value });
+    fillDeployAllowlist(result.allowlist);
+    try { sessionStorage.removeItem('qqbotAllowlistDraft'); } catch {}
+    $('#deploySaveStatus').textContent='设置已保存到本机，刷新或重启市场后仍保留。';
+    toast('设置已保存', 'ok');
+  } catch (e) { $('#deploySaveStatus').textContent='保存失败：'+e.message; toast(e.message, 'err'); }
 }
 async function continueAgentDeploy() {
   try { await deployApi('continue', { id: agentDeployId }); await pollAgentDeploy(); } catch (e) { toast(e.message, 'err'); }
@@ -2994,7 +3012,39 @@ async function continueAgentDeploy() {
 async function cancelAgentDeploy() {
   try { await deployApi('cancel', { id: agentDeployId }); await pollAgentDeploy(); } catch (e) { toast(e.message, 'err'); }
 }
-if (agentDeployId) setTimeout(pollAgentDeploy, 1000);
+function fillDeployAllowlist(values={}) {
+  for(const [id,key] of [['deployOwnerQQ','ownerQQ'],['deployPrivateIds','private'],['deployGroupIds','groups']]) $('#'+id).value=values[key]||'';
+}
+function renderDeployJob(job) {
+  const labels={automatic:'正在部署',ai:'AI 正在处理',manual:'需要你操作',done:'体检通过',failed:'部署已停止',cancelled:'已取消'};
+  const latest=(job.events||[]).at(-1);
+  $('#agentDeploySummary').textContent=(labels[job.state]||job.state)+'：'+(latest?.message||'')+(job.persistenceError?'；'+job.persistenceError:'');
+  $('#agentDeployTimeline').textContent=(job.events||[]).map(e=>'['+(labels[e.state]||e.state)+'] '+e.message).join('\n');
+  $('#agentDeployActions').hidden=!['automatic','ai','manual'].includes(job.state);
+  $('#agentDeployContinue').hidden=job.state!=='manual';
+  $('#depAll').disabled=job.running || job.state==='manual';
+}
+async function loadDeploySettings() {
+  let dirty=false;
+  let draft;try { draft=JSON.parse(sessionStorage.getItem('qqbotAllowlistDraft')||'null'); } catch {}
+  if(draft) fillDeployAllowlist(draft);
+  for(const id of ['deployOwnerQQ','deployPrivateIds','deployGroupIds']) $('#'+id).addEventListener('input',()=>{
+    dirty=true;try { sessionStorage.setItem('qqbotAllowlistDraft',JSON.stringify({ownerQQ:$('#deployOwnerQQ').value,private:$('#deployPrivateIds').value,groups:$('#deployGroupIds').value})); } catch {}
+    $('#deploySaveStatus').textContent='有未保存修改（刷新后保留草稿），请点击保存设置。';
+  });
+  try {
+    const data=await deployApi('settings');
+    if(!dirty) fillDeployAllowlist(draft||data.allowlist);
+    $('#deploySaveStatus').textContent=dirty||draft?'已恢复未保存草稿，请点击保存设置。':data.allowlist?.installed?'已读取本机保存的设置。':'尚未部署 qq-bridge，部署后即可保存设置。';
+    $('#snowRuntimeResult').textContent=data.snow?.detail||'';
+    if(data.probe) $('#qzoneProbeResult').textContent='上次验证：'+data.probe.detail;
+    if(data.job) {
+      agentDeployId=data.job.id;try { sessionStorage.setItem('qqbotDeployId',agentDeployId); } catch {}
+      renderDeployJob(data.job);if(['automatic','ai','manual'].includes(data.job.state)) await pollAgentDeploy();
+    }
+  } catch(e) { $('#deploySaveStatus').textContent=(draft?'已恢复未保存草稿。':'')+'读取本机设置失败：'+e.message;if(agentDeployId) pollAgentDeploy(); }
+}
+loadDeploySettings();
 
 async function deployAll() { return startAgentDeploy('recipe'); }
 async function deployAllLegacy() {
